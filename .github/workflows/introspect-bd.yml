@@ -1,0 +1,39 @@
+name: Introspect BD schemas
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  introspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python via uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Sync deps
+        run: uv sync
+
+      - name: Auth GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Run introspection
+        env:
+          GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+        run: uv run python etl/introspect.py
+
+      - name: Upload schema report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bd-schema-report
+          path: output/bd_schema_report.json
+          retention-days: 7
