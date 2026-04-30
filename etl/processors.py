@@ -151,6 +151,13 @@ def cob_distribuicao_modalidade(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     }
 
 
+def _safe_float(v: Any) -> float | None:
+    """Pandas NA-aware float coercion."""
+    if v is None or pd.isna(v):
+        return None
+    return float(v)
+
+
 def qua_taxas_rendimento_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna: ano, aprovacao/reprovacao/abandono total e estadual."""
     if df.empty:
@@ -158,14 +165,14 @@ def qua_taxas_rendimento_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     latest = df.sort_values("ano").iloc[-1]
     return {
         "total_estado": {
-            "aprovacao": float(latest.get("aprovacao_total") or 0),
-            "reprovacao": float(latest.get("reprovacao_total") or 0),
-            "abandono": float(latest.get("abandono_total") or 0),
+            "aprovacao": _safe_float(latest.get("aprovacao_total")),
+            "reprovacao": _safe_float(latest.get("reprovacao_total")),
+            "abandono": _safe_float(latest.get("abandono_total")),
         },
         "rede_estadual": {
-            "aprovacao": float(latest.get("aprovacao_estadual") or 0),
-            "reprovacao": float(latest.get("reprovacao_estadual") or 0),
-            "abandono": float(latest.get("abandono_estadual") or 0),
+            "aprovacao": _safe_float(latest.get("aprovacao_estadual")),
+            "reprovacao": _safe_float(latest.get("reprovacao_estadual")),
+            "abandono": _safe_float(latest.get("abandono_estadual")),
         },
         "vintage": str(int(latest["ano"])),
         "caveat": "Taxas EM agregadas das escolas que ofertam EPT (proxy). Conclusão de coorte real exige cruzamento nominativo.",
@@ -216,16 +223,16 @@ def inf_conectividade_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar.")
     latest = df.sort_values("ano").iloc[-1]
-    valor_total = float(latest.get("pct_t1_total") or 0)
-    valor_estadual = float(latest.get("pct_t1_estadual") or 0)
+    valor_total = _safe_float(latest.get("pct_t1_total"))
+    valor_estadual = _safe_float(latest.get("pct_t1_estadual"))
     return {
         "total_estado": {
             "valor": valor_total,
             "tier_distribuicao": {
                 "banda_larga_com_uso_aluno": valor_total,
-                "banda_larga_sem_uso_aluno": float(latest.get("pct_t2_total") or 0),
-                "internet_basica_sem_banda_larga": float(latest.get("pct_t3_total") or 0),
-                "sem_internet": float(latest.get("pct_t4_total") or 0),
+                "banda_larga_sem_uso_aluno": _safe_float(latest.get("pct_t2_total")),
+                "internet_basica_sem_banda_larga": _safe_float(latest.get("pct_t3_total")),
+                "sem_internet": _safe_float(latest.get("pct_t4_total")),
             },
             **_valor_5y(df, "pct_t1_total"),
         },
@@ -233,9 +240,9 @@ def inf_conectividade_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "valor": valor_estadual,
             "tier_distribuicao": {
                 "banda_larga_com_uso_aluno": valor_estadual,
-                "banda_larga_sem_uso_aluno": float(latest.get("pct_t2_estadual") or 0),
-                "internet_basica_sem_banda_larga": float(latest.get("pct_t3_estadual") or 0),
-                "sem_internet": float(latest.get("pct_t4_estadual") or 0),
+                "banda_larga_sem_uso_aluno": _safe_float(latest.get("pct_t2_estadual")),
+                "internet_basica_sem_banda_larga": _safe_float(latest.get("pct_t3_estadual")),
+                "sem_internet": _safe_float(latest.get("pct_t4_estadual")),
             },
             **_valor_5y(df, "pct_t1_estadual"),
         },
@@ -277,9 +284,9 @@ def mer_premio_salarial_escolaridade(df: pd.DataFrame, uf: str) -> dict[str, Any
     if df.empty:
         return _empty_indicator("Sem dados RAIS.")
     latest = df.sort_values("ano").iloc[-1]
-    sem_em = float(latest.get("mediana_sem_em") or 0)
-    em = float(latest.get("mediana_em_completo") or 0)
-    sup = float(latest.get("mediana_superior") or 0)
+    sem_em = _safe_float(latest.get("mediana_sem_em")) or 0
+    em = _safe_float(latest.get("mediana_em_completo")) or 0
+    sup = _safe_float(latest.get("mediana_superior")) or 0
     return {
         "total_estado": {
             "medianas_brl_real": {
