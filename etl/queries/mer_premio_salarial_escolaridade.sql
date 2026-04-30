@@ -25,9 +25,9 @@ WITH vinculos AS (
 
 SELECT
   ano,
-  APPROX_QUANTILES(IF(nivel = 'sem_em', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_sem_em,
-  APPROX_QUANTILES(IF(nivel = 'em_completo', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_em_completo,
-  APPROX_QUANTILES(IF(nivel = 'superior', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_superior,
+  APPROX_QUANTILES(IF(nivel = 'sem_em', valor_remuneracao_media, NULL), 100 IGNORE NULLS)[OFFSET(50)] AS mediana_sem_em,
+  APPROX_QUANTILES(IF(nivel = 'em_completo', valor_remuneracao_media, NULL), 100 IGNORE NULLS)[OFFSET(50)] AS mediana_em_completo,
+  APPROX_QUANTILES(IF(nivel = 'superior', valor_remuneracao_media, NULL), 100 IGNORE NULLS)[OFFSET(50)] AS mediana_superior,
   COUNTIF(nivel = 'sem_em') AS n_sem_em,
   COUNTIF(nivel = 'em_completo') AS n_em_completo,
   COUNTIF(nivel = 'superior') AS n_superior

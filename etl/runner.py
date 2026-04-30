@@ -52,6 +52,8 @@ class BQRunner:
         sql = cls.load_query(indicator_code).replace("{UF}", uf)
         client = cls.get_client()
         logger.debug(f"[{indicator_code}/{uf}] executando query")
-        df = client.query(sql).result().to_dataframe()
+        # create_bqstorage_client=False evita exigir bigquery.readsessions.create
+        # (mais lento mas suficiente pra volumes desse ETL: <10MB por query)
+        df = client.query(sql).result().to_dataframe(create_bqstorage_client=False)
         logger.info(f"[{indicator_code}/{uf}] {len(df)} linhas")
         return df
