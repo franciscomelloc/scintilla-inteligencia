@@ -13,11 +13,15 @@ import argparse
 import json
 import logging
 import sys
+import traceback
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from etl.benchmark import media_nacional, position_rank, top_quartile, vs_meta_pne
 from etl.indicators import INDICATOR_CATALOG, get_indicator_codes
+from etl.processors import PROCESSORS
+from etl.runner import BQRunner
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -26,7 +30,6 @@ logging.basicConfig(
 )
 
 ROOT = Path(__file__).parent.parent
-QUERIES_DIR = ROOT / "etl" / "queries"
 OUTPUT_DIR = ROOT / "output"
 DIAGNOSTIC_DIR = OUTPUT_DIR / "diagnostico"
 SCHEMAS_DIR = ROOT / "etl" / "schemas"
@@ -48,65 +51,94 @@ UF_NAMES: dict[str, str] = {
 }
 
 
-def load_query(indicator_code: str) -> str:
-    """Carrega o SQL versionado para um indicador."""
-    path = QUERIES_DIR / f"{indicator_code}.sql"
-    if not path.exists():
-        raise FileNotFoundError(f"Query SQL não encontrada: {path}")
-    return path.read_text(encoding="utf-8")
-
-
 def run_indicator(code: str, uf: str) -> dict[str, Any]:
-    """
-    Executa o SQL do indicador para um UF e retorna estrutura de saída.
-
-    PLACEHOLDER: até GCP_SA_KEY estar configurado, retorna estrutura vazia.
-    Quando GCP estiver wired, executa basedosdados.read_sql() e processa o DataFrame.
-    """
-    # TODO: substituir por execução real após GCP setup
-    # import basedosdados as bd
-    # query = load_query(code).replace("{UF}", uf)
-    # df = bd.read_sql(query, billing_project_id=os.environ["GCP_BILLING_PROJECT"])
-    # return process_dataframe(code, uf, df)
-
-    logger.warning(f"[{code}/{uf}] sem GCP_SA_KEY — retornando placeholder")
-    return {
-        "vintage": "pendente",
-        "caveat": "GCP_SA_KEY não configurado. Execução real pendente.",
-    }
+    """Executa SQL + processador. Em caso de falha, retorna estrutura com erro."""
+    try:
+        df = BQRunner.run(code, uf)
+        processor = PROCESSORS.get(code)
+        if not processor:
+            return {"vintage": "indisponível", "caveat": f"Processador não implementado: {code}"}
+        return processor(df, uf)
+    except Exception as e:
+        logger.error(f"[{code}/{uf}] {type(e).__name__}: {e}")
+        logger.debug(traceback.format_exc())
+        return {
+            "vintage": "indisponível",
+            "caveat": f"Falhou: {type(e).__name__}: {str(e)[:200]}",
+        }
 
 
 def build_uf(uf: str) -> dict[str, Any]:
     """Gera o JSON completo de um estado."""
     indicators: dict[str, Any] = {}
     for code in get_indicator_codes():
-        try:
-            indicators[code] = run_indicator(code, uf)
-        except Exception as e:
-            logger.error(f"[{code}/{uf}] falhou: {e}")
-            indicators[code] = {
-                "error": str(e),
-                "vintage": "indisponível",
-                "caveat": f"Indicador falhou: {e}",
-            }
+        logger.info(f"[{uf}] {code}")
+        indicators[code] = run_indicator(code, uf)
 
     return {
         "uf": uf,
         "uf_nome": UF_NAMES[uf],
-        "vintage": {
-            "censo_escolar": "pendente",
-            "rais": "pendente",
-            "caged": "pendente",
-            "pnad": "pendente",
-            "ideb": "pendente",
-        },
+        "vintage": _summary_vintage(indicators),
         "last_built": datetime.now(UTC).isoformat(),
         "indicators": indicators,
     }
 
 
+def _summary_vintage(indicators: dict[str, Any]) -> dict[str, str]:
+    """Sumariza vintages das fontes principais a partir dos indicadores."""
+    summary = {
+        "censo_escolar": indicators.get("cob_matriculas_ept_per_jovem", {}).get("vintage", "indisponível"),
+        "rais": indicators.get("mer_premio_salarial_escolaridade", {}).get("vintage", "indisponível"),
+        "caged": indicators.get("mer_saldo_caged_tecnicos", {}).get("vintage", "indisponível"),
+        "pnad": indicators.get("mer_neet_rate", {}).get("vintage", "indisponível"),
+        "ideb": indicators.get("qua_ideb_escolas_ept", {}).get("vintage", "indisponível"),
+    }
+    return summary
+
+
+def fill_benchmarks(all_data: dict[str, dict[str, Any]]) -> None:
+    """
+    Preenche vs_top_quartile, vs_media_nacional, posicao em cada indicador
+    cruzando os 27 estados. Atua in-place no all_data.
+    """
+    for code in get_indicator_codes():
+        meta = INDICATOR_CATALOG[code]
+        polar_inv = meta.get("polaridade_inversa", False)
+
+        # Pra cada recorte, coleta valores de cada UF
+        for recorte in ["total_estado", "rede_estadual"]:
+            if recorte not in meta["recortes"]:
+                continue
+            values_by_uf: dict[str, float | None] = {}
+            for uf, data in all_data.items():
+                ind = data["indicators"].get(code, {})
+                cut = ind.get(recorte, {}) if isinstance(ind, dict) else {}
+                v = cut.get("valor") if isinstance(cut, dict) else None
+                if isinstance(v, (int, float)):
+                    values_by_uf[uf] = float(v)
+                else:
+                    values_by_uf[uf] = None
+
+            # Calcula stats
+            valid = [v for v in values_by_uf.values() if v is not None]
+            tq = top_quartile(valid) if valid else None
+            mn = media_nacional(values_by_uf, peso_pop=True)
+
+            # Aplica em cada UF
+            for uf in values_by_uf:
+                ind = all_data[uf]["indicators"].get(code, {})
+                cut = ind.get(recorte) if isinstance(ind, dict) else None
+                if not isinstance(cut, dict):
+                    continue
+                v = values_by_uf[uf]
+                cut["vs_top_quartile"] = round(v - tq, 2) if (v is not None and tq is not None) else None
+                cut["vs_media_nacional"] = round(v - mn, 2) if (v is not None and mn is not None) else None
+                cut["vs_meta_pne_2034"] = vs_meta_pne(v, code)
+                cut["meta_pne_aplicavel"] = cut["vs_meta_pne_2034"] is not None
+                cut["posicao"] = position_rank(v, values_by_uf, inverse=polar_inv)
+
+
 def build_metadata() -> dict[str, Any]:
-    """Gera metadata.json com info do build."""
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "generator": "scintilla-inteligencia ETL",
@@ -135,14 +167,9 @@ def build_metadata() -> dict[str, Any]:
     }
 
 
-def build_benchmark(all_uf_data: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    """
-    Calcula top-quartile + média nacional + meta PNE para cada indicador
-    cruzando dados de todos os UFs.
-    """
-    # TODO: implementar quando dados reais estiverem populados
+def build_benchmark_summary() -> dict[str, Any]:
     return {
-        "vintage": "pendente",
+        "vintage": "real",
         "data_atualizacao": datetime.now(UTC).date().isoformat(),
         "pne_2024_2034": {
             "versao_referencia": "Lei 15.388/2026 (sancionada em 14/04/2026)",
@@ -172,7 +199,7 @@ def build_benchmark(all_uf_data: dict[str, dict[str, Any]]) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="ETL Scintilla Inteligência")
     parser.add_argument("--uf", help="UF específica (default: todos os 27)")
-    parser.add_argument("--no-cache", action="store_true", help="Ignora cache de queries")
+    parser.add_argument("--no-benchmark", action="store_true", help="Skip benchmark cross-state")
     args = parser.parse_args()
 
     DIAGNOSTIC_DIR.mkdir(parents=True, exist_ok=True)
@@ -182,16 +209,24 @@ def main() -> int:
 
     all_data: dict[str, dict[str, Any]] = {}
     for uf in target_ufs:
-        logger.info(f"[{uf}] iniciando")
+        logger.info(f"=== [{uf}] iniciando ===")
         data = build_uf(uf)
         all_data[uf] = data
+
+    # Benchmark cross-state (só se gerou todos)
+    if len(target_ufs) == 27 and not args.no_benchmark:
+        logger.info("Calculando benchmarks cross-state")
+        fill_benchmarks(all_data)
+
+    # Persiste cada UF
+    for uf, data in all_data.items():
         out_path = DIAGNOSTIC_DIR / f"{uf}.json"
-        out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
         logger.info(f"[{uf}] OK → {out_path.relative_to(ROOT)}")
 
-    # benchmark + metadata só se rodou todos
-    if not args.uf:
-        bench = build_benchmark(all_data)
+    # Benchmark + metadata
+    if len(target_ufs) == 27:
+        bench = build_benchmark_summary()
         (OUTPUT_DIR / "benchmark.json").write_text(
             json.dumps(bench, indent=2, ensure_ascii=False), encoding="utf-8"
         )
@@ -203,13 +238,11 @@ def main() -> int:
     )
     logger.info("metadata.json OK")
 
-    # cópia do schema para distribuição
     schema_src = SCHEMAS_DIR / "uf.schema.json"
     if schema_src.exists():
         (OUTPUT_DIR / "schema.json").write_text(
             schema_src.read_text(encoding="utf-8"), encoding="utf-8"
         )
-        logger.info("schema.json OK")
 
     logger.info("Build concluído.")
     return 0
