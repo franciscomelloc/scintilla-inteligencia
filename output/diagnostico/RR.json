@@ -1,0 +1,756 @@
+{
+  "uf": "RR",
+  "uf_nome": "Roraima",
+  "vintage": {
+    "censo_escolar": "2024",
+    "rais": "2023",
+    "caged": "2025-Q1",
+    "pnad": "2025",
+    "ideb": "2023"
+  },
+  "last_built": "2026-04-30T22:49:46.268637+00:00",
+  "indicators": {
+    "cob_matriculas_ept_per_jovem": {
+      "total_estado": {
+        "valor": 8.32,
+        "valor_5y": [
+          0.0,
+          0.0,
+          0.0,
+          11.39,
+          8.32
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -23.95,
+        "vs_media_nacional": -13.51,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 23
+      },
+      "rede_estadual": {
+        "valor": 0.89,
+        "valor_5y": [
+          0.0,
+          0.0,
+          0.0,
+          1.04,
+          0.89
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -20.57,
+        "vs_media_nacional": -14.61,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 22
+      },
+      "vintage": "2024",
+      "caveat": "Inclui matrículas EPT em EM regular + EJA-técnico. Pop 15-29 PNAD."
+    },
+    "cob_distribuicao_dependencia": {
+      "total_estado": {
+        "federal": 85.12,
+        "estadual": 10.67,
+        "municipal": 0.0,
+        "privada": 4.21,
+        "total_matriculas": 1331,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2024",
+      "caveat": "Sistema S agregado em 'privada'."
+    },
+    "cob_municipios_com_ept": {
+      "total_estado": {
+        "valor": 33.33,
+        "valor_5y": [
+          26.67,
+          33.33
+        ],
+        "anos_5y": [
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -22.65,
+        "vs_media_nacional": -12.81,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 15
+      },
+      "rede_estadual": {
+        "valor": 20.0,
+        "valor_5y": [
+          6.67,
+          20.0
+        ],
+        "anos_5y": [
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -33.92,
+        "vs_media_nacional": -20.86,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 17
+      },
+      "total_municipios": 15,
+      "vintage": "2024",
+      "caveat": "Município conta igual independente do tamanho."
+    },
+    "cob_eixos_cobertos": {
+      "total_estado": {
+        "valor": null,
+        "cursos_distintos": 27,
+        "total_matriculas": 4713,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2020",
+      "caveat": "Mapeamento curso→eixo (CNCT v4) pendente. Reportando contagem bruta de cursos distintos por enquanto."
+    },
+    "cob_distribuicao_modalidade": {
+      "total_estado": {
+        "total_matriculas_ept": 4713,
+        "etapas_distintas": 8,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2020",
+      "caveat": "Classificação etapa_ensino → modalidade (integrada/concomitante/subsequente) pendente."
+    },
+    "qua_taxas_rendimento_ept": {
+      "total_estado": {
+        "aprovacao": 5.96,
+        "reprovacao": 4.85,
+        "abandono": 43.12,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "rede_estadual": {
+        "aprovacao": 5.96,
+        "reprovacao": 4.85,
+        "abandono": 8.4,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2024",
+      "caveat": "Taxas EM agregadas das escolas que ofertam EPT (proxy). Conclusão de coorte real exige cruzamento nominativo."
+    },
+    "qua_ideb_escolas_ept": {
+      "total_estado": {
+        "valor": 4.05,
+        "valor_5y": [
+          4.05
+        ],
+        "anos_5y": [
+          2023
+        ],
+        "vs_top_quartile": -0.83,
+        "vs_media_nacional": -0.55,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 22
+      },
+      "rede_estadual": {
+        "valor": null,
+        "valor_5y": [],
+        "anos_5y": [],
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2023",
+      "caveat": "IDEB-EM bianual. Mede ambiente pedagógico, não componente técnico."
+    },
+    "qua_razao_aluno_professor_ept": {
+      "total_estado": {
+        "valor": 18.7,
+        "valor_5y": [
+          10.34,
+          14.15,
+          14.46,
+          17.53,
+          18.7
+        ],
+        "anos_5y": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020
+        ],
+        "vs_top_quartile": 2.96,
+        "vs_media_nacional": 3.0,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 25
+      },
+      "rede_estadual": {
+        "valor": 16.91,
+        "valor_5y": [
+          4.03,
+          7.4,
+          12.15,
+          14.12,
+          16.91
+        ],
+        "anos_5y": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020
+        ],
+        "vs_top_quartile": -0.18,
+        "vs_media_nacional": 2.46,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 19
+      },
+      "polaridade_inversa": true,
+      "vintage": "2020",
+      "caveat": "Razão menor é melhor. Numerador é matrícula, denominador é docente único."
+    },
+    "inf_conectividade_ept": {
+      "total_estado": {
+        "valor": 83.33,
+        "tier_distribuicao": {
+          "banda_larga_com_uso_aluno": 83.33,
+          "banda_larga_sem_uso_aluno": 8.33,
+          "internet_basica_sem_banda_larga": 8.33,
+          "sem_internet": 0.0
+        },
+        "valor_5y": [
+          75.0,
+          83.33
+        ],
+        "anos_5y": [
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -6.63,
+        "vs_media_nacional": 2.45,
+        "vs_meta_pne_2034": -16.67,
+        "meta_pne_aplicavel": true,
+        "posicao": 14
+      },
+      "rede_estadual": {
+        "valor": 100.0,
+        "tier_distribuicao": {
+          "banda_larga_com_uso_aluno": 100.0,
+          "banda_larga_sem_uso_aluno": 0.0,
+          "internet_basica_sem_banda_larga": 0.0,
+          "sem_internet": 0.0
+        },
+        "valor_5y": [
+          100.0,
+          100.0
+        ],
+        "anos_5y": [
+          2023,
+          2024
+        ],
+        "vs_top_quartile": 9.33,
+        "vs_media_nacional": 23.56,
+        "vs_meta_pne_2034": 0.0,
+        "meta_pne_aplicavel": true,
+        "posicao": 1
+      },
+      "vintage": "2024",
+      "caveat": "Auto-declaratório. Velocidade real (Mbps) não coletada pelo Censo."
+    },
+    "mer_saldo_caged_tecnicos": {
+      "total_estado": {
+        "saldo_12m": 236,
+        "top_3_subfamilias_cbo": [
+          {
+            "cbo": "317205",
+            "saldo": 56
+          },
+          {
+            "cbo": "334115",
+            "saldo": 35
+          },
+          {
+            "cbo": "377110",
+            "saldo": -29
+          }
+        ],
+        "valor_5y": [
+          425.0,
+          103.0,
+          225.0,
+          96.0,
+          236.0
+        ],
+        "anos_5y": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2025-Q1",
+      "caveat": "Apenas vínculos formais. CBO 3xxxx exclui ocupações afins em 5xxxx/7xxxx."
+    },
+    "mer_premio_salarial_escolaridade": {
+      "total_estado": {
+        "medianas_brl_real": {
+          "sem_ensino_medio": 1661.87,
+          "ensino_medio_completo": 1682.62,
+          "superior_completo": 4202.79
+        },
+        "premios_pct": {
+          "em_vs_sem_em": 1.2,
+          "superior_vs_em": 149.8,
+          "superior_vs_sem_em": 152.9
+        },
+        "premio_ept_especifico_publicamente_mensuravel": false,
+        "vintage_rais": "2023",
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2023",
+      "caveat": "RAIS não distingue EM regular de EM técnico em microdados públicos. Prêmio EPT específico exige cruzamento Censo×RAIS por CPF."
+    },
+    "mer_neet_rate": {
+      "total_estado": {
+        "valor": 24.37,
+        "por_faixa_etaria": {
+          "15_17": 5.18,
+          "18_24": 29.74,
+          "25_29": 27.83
+        },
+        "por_sexo": {
+          "homens": 15.55,
+          "mulheres": 33.68
+        },
+        "composicao_neet": {
+          "desempregados_buscando_pct": 18.16,
+          "inativos_nao_procurando_pct": 81.84
+        },
+        "valor_5y": [
+          29.18,
+          26.5,
+          25.51,
+          22.87,
+          24.37
+        ],
+        "anos_5y": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "polaridade_inversa": true,
+        "vs_top_quartile": -2.38,
+        "vs_media_nacional": 4.74,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 16
+      },
+      "vintage": "2025",
+      "caveat": "PNAD amostral. Estados de pop menor têm IC mais amplo."
+    },
+    "din_crescimento_matriculas_5y": {
+      "total_estado": {
+        "crescimento_5y_pct": 8.44,
+        "cagr_5y_pct": 1.63,
+        "matriculas_base": 4346,
+        "matriculas_atual": 4713,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "rede_estadual": {
+        "crescimento_5y_pct": 12.39,
+        "cagr_5y_pct": 2.36,
+        "matriculas_base": 662,
+        "matriculas_atual": 744,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2020",
+      "caveat": "Janela 2015→2020 (Censo matricula table). Decomposição por modalidade pendente."
+    },
+    "din_cursos_novos_ept": {
+      "total_estado": {
+        "cursos_novos_2y": 4,
+        "cursos_descontinuados_2y": 6,
+        "saldo_liquido_2y": -2,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "rede_estadual": {
+        "cursos_novos_2y": 1,
+        "cursos_descontinuados_2y": 1,
+        "saldo_liquido_2y": 0,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2024",
+      "caveat": "Par escola+curso novo em 2024 que não existia 2020-2023."
+    },
+    "pne_m12a": {
+      "total_estado": {
+        "valor": 8.5,
+        "valor_5y": [
+          0.0,
+          0.0,
+          0.0,
+          9.47,
+          8.5
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "por_rede": {
+          "federal": 91.82,
+          "estadual": 2.48,
+          "municipal": 0,
+          "privada": 26.06
+        },
+        "var_bienio_pp": 8.5,
+        "meta_2036_pct": 50.0,
+        "gap_pp": 41.5,
+        "vs_top_quartile": -11.83,
+        "vs_media_nacional": -7.62,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 22
+      },
+      "rede_estadual": {
+        "valor": 2.48,
+        "valor_5y": [
+          0.0,
+          0.0,
+          0.0,
+          1.12,
+          2.48
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -10.76,
+        "vs_media_nacional": -8.87,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 23
+      },
+      "vintage": "2024",
+      "caveat": "Numerador: matrículas em EM-técnico (integrada) + Profissional Técnica concomitante. Denominador: matrículas EM total."
+    },
+    "pne_m12b": {
+      "total_estado": {
+        "valor": 1577,
+        "matriculas_base": 1343,
+        "matriculas_atual": 1577,
+        "ano_base": 2023,
+        "ano_atual": 2024,
+        "meta_2036": 2149,
+        "projecao_2036": 4385,
+        "valor_5y": [
+          0,
+          0,
+          0,
+          1343,
+          1577
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -42519.0,
+        "vs_media_nacional": -94725.85,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 27
+      },
+      "rede_estadual": {
+        "valor": 108,
+        "valor_5y": [
+          0,
+          0,
+          0,
+          137,
+          108
+        ],
+        "anos_5y": [
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "vs_top_quartile": -12652.0,
+        "vs_media_nacional": -22750.1,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 23
+      },
+      "vintage": "2024",
+      "caveat": "Curso subsequente = curso técnico após conclusão do EM. Meta 2036: +60% sobre a base 2020."
+    },
+    "pne_m12c": {
+      "total_estado": {
+        "valor": 0.0,
+        "pct_em": 0.0,
+        "pct_ef": 0.0,
+        "articulada_em": 0,
+        "articulada_ef": 0,
+        "eja_em_total": 3815,
+        "eja_ef_total": 2217,
+        "meta_2031": 25.0,
+        "meta_2036": 50.0,
+        "gap_absoluto_2031": 1508,
+        "vs_top_quartile": -2.04,
+        "vs_media_nacional": -2.14,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 26
+      },
+      "vintage": "2024",
+      "caveat": "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental FIC. Meta progressiva: 25% em 2031 e 50% em 2036."
+    },
+    "pne_m12f": {
+      "total_estado": {
+        "valor": 0.63,
+        "meta_2036_pct": 10.0,
+        "gap_pp": 9.37,
+        "gap_absoluto_jovens": 21963,
+        "ritmo_anual_necessario": 1830,
+        "por_sexo": {
+          "homens": 0.08,
+          "mulheres": 1.2
+        },
+        "por_raca": {
+          "brancos": 0.22,
+          "pretos_pardos": 0.77
+        },
+        "valor_5y": [
+          0.3705917148743898,
+          0.19333740439559788,
+          0.35795673262329564,
+          0.46542636031769413,
+          0.6328678924385852
+        ],
+        "anos_5y": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "vs_top_quartile": 0.0,
+        "vs_media_nacional": 0.05,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 7
+      },
+      "vintage": "2025",
+      "caveat": "PNAD V3007 amostral. Estados de pop menor têm IC mais amplo."
+    },
+    "cob_perfil_alunos": {
+      "total_estado": {
+        "total_matriculas_ept": 4713,
+        "faixa_etaria": {
+          "15_17_pct": 21.5,
+          "18_24_pct": 40.0,
+          "25_mais_pct": 38.4
+        },
+        "sexo": {
+          "masculino_pct": 37.2,
+          "feminino_pct": 62.8
+        },
+        "modalidade": {
+          "integrada_pct": 32.9,
+          "concomitante_pct": 28.1,
+          "subsequente_pct": 39.0,
+          "eja_tecnico_pct": 0.0
+        },
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2020",
+      "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola."
+    },
+    "cob_alcance_ponderado": {
+      "total_estado": {
+        "valor": 79.0,
+        "matriculas_em_em_munis_com_ept": 22043,
+        "matriculas_em_total": 27890,
+        "top5_sem_oferta": [
+          {
+            "municipio": "Rorainópolis",
+            "pop_em_proxy": 1105
+          },
+          {
+            "municipio": "Uiramutã",
+            "pop_em_proxy": 1020
+          },
+          {
+            "municipio": "Normandia",
+            "pop_em_proxy": 956
+          },
+          {
+            "municipio": "Cantá",
+            "pop_em_proxy": 923
+          },
+          {
+            "municipio": "Alto Alegre",
+            "pop_em_proxy": 687
+          }
+        ],
+        "vs_top_quartile": -16.1,
+        "vs_media_nacional": -10.58,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": 18
+      },
+      "vintage": "2024",
+      "caveat": "Cobertura ponderada por matrículas EM (proxy de demanda escolar). Top 5 são municípios SEM EPT com maior matrícula EM."
+    },
+    "qua_saeb_proficiencia_ept": {
+      "total_estado": {
+        "matematica": {
+          "com_ept": 247.1,
+          "sem_ept": 240.5,
+          "diferenca": 6.5
+        },
+        "portugues": {
+          "com_ept": 245.2,
+          "sem_ept": 239.7,
+          "diferenca": 5.5
+        },
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2023",
+      "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT."
+    },
+    "qua_abandono_em_ept": {
+      "total_estado": {
+        "com_ept_pct": 28.16,
+        "sem_ept_pct": 4.78,
+        "diferenca_pp": -23.38,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2024",
+      "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual."
+    },
+    "qua_ingresso_es_pnad": {
+      "total_estado": {
+        "com_ept_pct": 0.0,
+        "sem_ept_pct": 17.4,
+        "diferenca_pp": -17.4,
+        "n_amostra_com_ept": 136,
+        "n_amostra_sem_ept": 15133,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2021-2025",
+      "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16."
+    },
+    "mer_renda_jovens_pnad": {
+      "total_estado": {
+        "medianas": {
+          "sem_em": 1212.0,
+          "em_regular": 1400.0,
+          "tem_ept": 2000.0,
+          "superior_sem_ept": 1518.0
+        },
+        "n_amostra": {
+          "sem_em": 2535,
+          "em_regular": 5712,
+          "tem_ept": 112,
+          "superior_sem_ept": 3411
+        },
+        "premios_pct": {
+          "em_reg_vs_sem_em": 15.5,
+          "ept_vs_em_reg": 42.9,
+          "superior_sem_ept_vs_em_reg": 8.4
+        },
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
+      },
+      "vintage": "2021-2025",
+      "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. Mediana sem ponderação amostral."
+    }
+  }
+}

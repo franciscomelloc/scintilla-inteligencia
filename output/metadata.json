@@ -1,0 +1,350 @@
+{
+  "generated_at": "2026-04-30T23:04:35.430961+00:00",
+  "generator": "scintilla-inteligencia ETL",
+  "catalog": {
+    "total_indicators": 24,
+    "domains": {
+      "cobertura": 5,
+      "qualidade": 3,
+      "infraestrutura": 1,
+      "mercado": 3,
+      "dinamismo": 2
+    }
+  },
+  "indicators": {
+    "cob_matriculas_ept_per_jovem": {
+      "name": "Matrículas EPT por 1.000 jovens 15-29 anos",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula",
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": "expansion_general"
+    },
+    "cob_distribuicao_dependencia": {
+      "name": "Distribuição de matrículas EPT por dependência administrativa",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": null
+    },
+    "cob_municipios_com_ept": {
+      "name": "% municípios com pelo menos 1 escola técnica",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola",
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": null
+    },
+    "cob_eixos_cobertos": {
+      "name": "Eixos tecnológicos cobertos (de 13)",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": null
+    },
+    "cob_distribuicao_modalidade": {
+      "name": "Distribuição de matrículas EPT por modalidade",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": "integrada_concomitante_50pct_2036"
+    },
+    "qua_taxas_rendimento_ept": {
+      "name": "Taxas de rendimento (aprovação/reprovação/abandono) na última série EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_indicadores_educacionais.escola",
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": null
+    },
+    "qua_ideb_escolas_ept": {
+      "name": "IDEB médio das escolas com oferta EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 24,
+      "source": [
+        "br_inep_ideb.escola",
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": null
+    },
+    "qua_razao_aluno_professor_ept": {
+      "name": "Razão aluno/professor em EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": true,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula",
+        "br_inep_censo_escolar.docente"
+      ],
+      "pne_meta": null
+    },
+    "inf_conectividade_ept": {
+      "name": "Conectividade nas escolas com EPT (pirâmide de tiers)",
+      "domain": "infraestrutura",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola",
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": "conectividade_50pct_2y_100pct_10y"
+    },
+    "mer_saldo_caged_tecnicos": {
+      "name": "Saldo CAGED em ocupações CBO 3xxxx (12m)",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 3,
+      "source": [
+        "br_me_caged.microdados_movimentacao"
+      ],
+      "pne_meta": null
+    },
+    "mer_premio_salarial_escolaridade": {
+      "name": "Prêmio salarial por nível de escolaridade",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_me_rais.microdados_vinculos"
+      ],
+      "pne_meta": null
+    },
+    "mer_neet_rate": {
+      "name": "NEET rate — % jovens 15-29 que não estudam nem trabalham",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": true,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": null
+    },
+    "din_crescimento_matriculas_5y": {
+      "name": "Crescimento de matrículas EPT em 5 anos",
+      "domain": "dinamismo",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": "subsequente_60pct"
+    },
+    "din_cursos_novos_ept": {
+      "name": "Cursos novos abertos nos últimos 2 anos",
+      "domain": "dinamismo",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula"
+      ],
+      "pne_meta": null
+    },
+    "pne_m12a": {
+      "name": "Meta 12.a · % EM em integrada+concomitante",
+      "domain": "pne",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": "m12a_50pct_2036"
+    },
+    "pne_m12b": {
+      "name": "Meta 12.b · expansão +60% em cursos subsequentes",
+      "domain": "pne",
+      "recortes": [
+        "total_estado",
+        "rede_estadual"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": "m12b_60pct_2036"
+    },
+    "pne_m12c": {
+      "name": "Meta 12.c · % EJA articulada à profissional",
+      "domain": "pne",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": "m12c_25pct_2031_50pct_2036"
+    },
+    "pne_m12f": {
+      "name": "Meta 12.f · % pop 18-24 com EM técnico concluído",
+      "domain": "pne",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": "m12f_10pct_2036"
+    },
+    "cob_perfil_alunos": {
+      "name": "Perfil dos matriculados EPT — faixa etária, sexo, modalidade",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.matricula",
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": null
+    },
+    "cob_alcance_ponderado": {
+      "name": "% matrículas EM em município com EPT + top 5 munis sem oferta",
+      "domain": "cobertura",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 12,
+      "source": [
+        "br_inep_censo_escolar.escola",
+        "br_bd_diretorios_brasil.municipio"
+      ],
+      "pne_meta": null
+    },
+    "qua_saeb_proficiencia_ept": {
+      "name": "Proficiência SAEB Mat/Port — escolas com EPT vs sem EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 24,
+      "source": [
+        "br_inep_saeb.proficiencia",
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": null
+    },
+    "qua_abandono_em_ept": {
+      "name": "Taxa de abandono EM — escolas com EPT vs sem EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": true,
+      "lag_months": 12,
+      "source": [
+        "br_inep_indicadores_educacionais.escola",
+        "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": null
+    },
+    "qua_ingresso_es_pnad": {
+      "name": "% jovens 18-29 com EM completo cursando ES — com EPT vs sem EPT",
+      "domain": "qualidade",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": null
+    },
+    "mer_renda_jovens_pnad": {
+      "name": "Renda mensal mediana de jovens 18-29 por nível de formação",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": null
+    }
+  }
+}

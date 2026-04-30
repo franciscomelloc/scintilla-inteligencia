@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.org/schemas/uf.schema.json",
+  "title": "Diagnóstico Estadual EPT — UF",
+  "type": "object",
+  "required": ["uf", "uf_nome", "vintage", "last_built", "indicators"],
+  "properties": {
+    "uf": { "type": "string", "minLength": 2, "maxLength": 2 },
+    "uf_nome": { "type": "string" },
+    "vintage": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "last_built": { "type": "string", "format": "date-time" },
+    "indicators": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["vintage", "caveat"],
+        "properties": {
+          "vintage": { "type": "string" },
+          "caveat": { "type": "string" },
+          "polaridade_inversa": { "type": "boolean" }
+        },
+        "patternProperties": {
+          "^(total_estado|rede_estadual)$": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

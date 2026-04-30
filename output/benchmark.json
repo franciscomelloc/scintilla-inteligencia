@@ -1,0 +1,26 @@
+{
+  "vintage": "real",
+  "data_atualizacao": "2026-04-30",
+  "pne_2024_2034": {
+    "versao_referencia": "Lei 15.388/2026 (sancionada em 14/04/2026)",
+    "horizonte_alvo": 2034,
+    "metas": {
+      "cob_distribuicao_modalidade": {
+        "meta_2036": 50,
+        "descricao": "EPT integrada + concomitante ≥ 50% do EM até 2036",
+        "metodologia_disagregacao": "uniforme"
+      },
+      "din_crescimento_matriculas_5y": {
+        "meta_subsequente": 60,
+        "descricao": "Expansão de 60% das matrículas em cursos subsequentes",
+        "metodologia_disagregacao": "uniforme"
+      },
+      "inf_conectividade_ept": {
+        "meta_2028": 50,
+        "meta_2036": 100,
+        "descricao": "50% das escolas com banda larga em 2 anos; 100% em 10 anos",
+        "metodologia_disagregacao": "uniforme"
+      }
+    }
+  }
+}
