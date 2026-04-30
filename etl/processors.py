@@ -393,6 +393,354 @@ def din_cursos_novos_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Indicadores adicionais — Meta 12 PNE + cards reformados (2026-Q2)
+# ---------------------------------------------------------------------------
+
+
+def pne_m12a(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """% do EM em integrada+concomitante. Saída: total + decomposição por rede + 5y."""
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar.")
+    df = df.sort_values("ano")
+    latest = df.iloc[-1]
+    valor = _safe_float(latest.get("pct_total"))
+    valor_estadual = _safe_float(latest.get("pct_estadual"))
+    spark = [_safe_float(v) for v in df["pct_total"].tolist()]
+    spark = [v if v is not None else 0.0 for v in spark]
+    anos = [int(a) for a in df["ano"].tolist()]
+    var_bienio = None
+    if len(df) >= 3:
+        v_now = _safe_float(latest.get("pct_total"))
+        v_2yago = _safe_float(df.iloc[-3].get("pct_total"))
+        if v_now is not None and v_2yago is not None:
+            var_bienio = round(v_now - v_2yago, 2)
+    return {
+        "total_estado": {
+            "valor": valor,
+            "valor_5y": spark,
+            "anos_5y": anos,
+            "por_rede": {
+                "federal": _safe_float(latest.get("pct_federal")) or 0,
+                "estadual": _safe_float(latest.get("pct_estadual")) or 0,
+                "municipal": _safe_float(latest.get("pct_municipal")) or 0,
+                "privada": _safe_float(latest.get("pct_privada")) or 0,
+            },
+            "var_bienio_pp": var_bienio,
+            "meta_2036_pct": 50.0,
+            "gap_pp": round(50.0 - valor, 2) if valor is not None else None,
+        },
+        "rede_estadual": {
+            "valor": valor_estadual,
+            "valor_5y": [_safe_float(v) or 0.0 for v in df["pct_estadual"].tolist()],
+            "anos_5y": anos,
+        },
+        "vintage": str(int(latest["ano"])),
+        "caveat": "Numerador: matrículas em EM-técnico (integrada) + Profissional Técnica concomitante. Denominador: matrículas EM total.",
+    }
+
+
+def pne_m12b(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """Matrículas em curso subsequente 2020-2024 + projeção linear até 2036 + meta +60%."""
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar.")
+    df = df.sort_values("ano")
+    # Base = primeiro ano com qtd > 0 (alguns campos foram populados só a partir de 2023)
+    df_pos = df[df["qtd_subsequente_total"].fillna(0) > 0]
+    if df_pos.empty:
+        return _empty_indicator("Sem dados de subsequente populados em nenhum ano da janela.")
+    base_year = int(df_pos.iloc[0]["ano"])
+    end_year = int(df.iloc[-1]["ano"])
+    base_qtd = int(df_pos.iloc[0]["qtd_subsequente_total"] or 0)
+    end_qtd = int(df.iloc[-1]["qtd_subsequente_total"] or 0)
+    meta_2036 = round(base_qtd * 1.60) if base_qtd else None
+    # Projeção linear: ritmo dos últimos anos extrapolado até 2036
+    proj_2036 = None
+    if len(df) >= 2 and (end_year - base_year) > 0:
+        ritmo = (end_qtd - base_qtd) / (end_year - base_year)
+        proj_2036 = int(end_qtd + ritmo * (2036 - end_year))
+    return {
+        "total_estado": {
+            "valor": end_qtd,
+            "matriculas_base": base_qtd,
+            "matriculas_atual": end_qtd,
+            "ano_base": base_year,
+            "ano_atual": end_year,
+            "meta_2036": meta_2036,
+            "projecao_2036": proj_2036,
+            "valor_5y": [int(v or 0) for v in df["qtd_subsequente_total"].tolist()],
+            "anos_5y": [int(a) for a in df["ano"].tolist()],
+        },
+        "rede_estadual": {
+            "valor": int(df.iloc[-1]["qtd_subsequente_estadual"] or 0),
+            "valor_5y": [int(v or 0) for v in df["qtd_subsequente_estadual"].tolist()],
+            "anos_5y": [int(a) for a in df["ano"].tolist()],
+        },
+        "vintage": str(end_year),
+        "caveat": "Curso subsequente = curso técnico após conclusão do EM. Meta 2036: +60% sobre a base 2020.",
+    }
+
+
+def pne_m12c(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """% EJA articulada / EJA total — por etapa (EM e Fundamental)."""
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar.")
+    df = df.sort_values("ano")
+    latest = df.iloc[-1]
+    art_em = int(latest.get("articulada_em") or 0)
+    eja_em = int(latest.get("eja_em_total") or 0)
+    art_ef = int(latest.get("articulada_ef") or 0)
+    eja_ef = int(latest.get("eja_ef_total") or 0)
+    pct_em = round(100.0 * art_em / eja_em, 2) if eja_em else 0.0
+    pct_ef = round(100.0 * art_ef / eja_ef, 2) if eja_ef else 0.0
+    pct_total = round(100.0 * (art_em + art_ef) / (eja_em + eja_ef), 2) if (eja_em + eja_ef) else 0.0
+    meta_2031 = 25.0
+    meta_2036 = 50.0
+    # Gap absoluto: matrículas que faltam pra meta 2031
+    gap_2031 = int((eja_em + eja_ef) * 0.25 - (art_em + art_ef)) if (eja_em + eja_ef) else 0
+    return {
+        "total_estado": {
+            "valor": pct_total,
+            "pct_em": pct_em,
+            "pct_ef": pct_ef,
+            "articulada_em": art_em,
+            "articulada_ef": art_ef,
+            "eja_em_total": eja_em,
+            "eja_ef_total": eja_ef,
+            "meta_2031": meta_2031,
+            "meta_2036": meta_2036,
+            "gap_absoluto_2031": gap_2031,
+        },
+        "vintage": str(int(latest["ano"])),
+        "caveat": "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental FIC. Meta progressiva: 25% em 2031 e 50% em 2036.",
+    }
+
+
+def pne_m12f(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """% pop 18-24 com EM técnico concluído. Decomposição por sexo e raça."""
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD Contínua.")
+    df = df.sort_values("ano")
+    latest = df.iloc[-1]
+    valor = _safe_float(latest.get("pct_total")) or 0.0
+    pop_total = _safe_float(latest.get("pop_18_24_total")) or 0.0
+    meta_2036 = 10.0
+    gap_pp = round(meta_2036 - valor, 2)
+    # Gap absoluto: jovens a formar até 2036
+    gap_abs = int(pop_total * (meta_2036 - valor) / 100) if valor < meta_2036 else 0
+    return {
+        "total_estado": {
+            "valor": round(valor, 2),
+            "meta_2036_pct": meta_2036,
+            "gap_pp": gap_pp,
+            "gap_absoluto_jovens": gap_abs,
+            "ritmo_anual_necessario": int(gap_abs / 12) if gap_abs > 0 else 0,
+            "por_sexo": {
+                "homens": round(_safe_float(latest.get("pct_homens")) or 0, 2),
+                "mulheres": round(_safe_float(latest.get("pct_mulheres")) or 0, 2),
+            },
+            "por_raca": {
+                "brancos": round(_safe_float(latest.get("pct_brancos")) or 0, 2),
+                "pretos_pardos": round(_safe_float(latest.get("pct_pretos_pardos")) or 0, 2),
+            },
+            "valor_5y": [_safe_float(v) or 0.0 for v in df["pct_total"].tolist()],
+            "anos_5y": [int(a) for a in df["ano"].tolist()],
+        },
+        "vintage": str(int(latest["ano"])),
+        "caveat": "PNAD V3007 amostral. Estados de pop menor têm IC mais amplo.",
+    }
+
+
+def cob_perfil_alunos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """Perfil dos matriculados EPT — faixa etária, sexo, modalidade."""
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar EPT.")
+    row = df.iloc[0]
+    def _i(key: str) -> int:
+        v = row.get(key)
+        if v is None or pd.isna(v):
+            return 0
+        return int(v)
+    total = _i("total")
+    integrada = _i("qtd_integrada")
+    concomitante = _i("qtd_concomitante")
+    subsequente = _i("qtd_subsequente")
+    eja_tec = _i("qtd_eja_tecnico")
+    total_modalidade = integrada + concomitante + subsequente + eja_tec
+    pct = lambda v, t: round(100.0 * v / t, 1) if t else 0.0
+    return {
+        "total_estado": {
+            "total_matriculas_ept": total,
+            "faixa_etaria": {
+                "15_17_pct": pct(_i("faixa_15_17"), total),
+                "18_24_pct": pct(_i("faixa_18_24"), total),
+                "25_mais_pct": pct(_i("faixa_25_mais"), total),
+            },
+            "sexo": {
+                "masculino_pct": pct(_i("masc"), total),
+                "feminino_pct": pct(_i("fem"), total),
+            },
+            "modalidade": {
+                "integrada_pct": pct(integrada, total_modalidade),
+                "concomitante_pct": pct(concomitante, total_modalidade),
+                "subsequente_pct": pct(subsequente, total_modalidade),
+                "eja_tecnico_pct": pct(eja_tec, total_modalidade),
+            },
+        },
+        "vintage": str(_i("ano")),
+        "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola.",
+    }
+
+
+def cob_alcance_ponderado(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """% matrículas EM em município com EPT + top 5 munis sem oferta."""
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar.")
+    row = df.iloc[0]
+    em_em_munis_com_ept = int(row.get("qtd_em_em_munis_com_ept") or 0)
+    em_total = int(row.get("qtd_em_total") or 0)
+    pct_alcance = round(100.0 * em_em_munis_com_ept / em_total, 1) if em_total else 0.0
+    top5 = []
+    raw_top5 = row.get("top5_sem_oferta")
+    if raw_top5 is not None:
+        try:
+            for item in raw_top5:
+                if item is None:
+                    continue
+                top5.append({
+                    "municipio": str(item.get("municipio") or "—"),
+                    "pop_em_proxy": int(item.get("pop_em_proxy") or 0),
+                })
+        except (TypeError, KeyError, AttributeError):
+            pass
+    return {
+        "total_estado": {
+            "valor": pct_alcance,
+            "matriculas_em_em_munis_com_ept": em_em_munis_com_ept,
+            "matriculas_em_total": em_total,
+            "top5_sem_oferta": top5,
+        },
+        "vintage": str(int(row["ano"])),
+        "caveat": "Cobertura ponderada por matrículas EM (proxy de demanda escolar). Top 5 são municípios SEM EPT com maior matrícula EM.",
+    }
+
+
+def qua_saeb_proficiencia_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """Proficiência média SAEB EM em municípios COM EPT vs SEM EPT (proxy)."""
+    if df.empty:
+        return _empty_indicator("Sem dados SAEB.")
+    def get(disc: list[str], muni_com_ept: int) -> float | None:
+        sub = df[(df["disciplina"].isin(disc)) & (df["muni_com_ept"] == muni_com_ept)]
+        if sub.empty:
+            return None
+        return _safe_float(sub.iloc[0]["proficiencia_media"])
+    mat_com = get(["MT", "matematica", "Matemática", "MATEMATICA"], 1)
+    mat_sem = get(["MT", "matematica", "Matemática", "MATEMATICA"], 0)
+    port_com = get(["LP", "lingua_portuguesa", "portugues", "PORTUGUES"], 1)
+    port_sem = get(["LP", "lingua_portuguesa", "portugues", "PORTUGUES"], 0)
+    ano = int(df["ano"].max())
+    return {
+        "total_estado": {
+            "matematica": {
+                "com_ept": round(mat_com, 1) if mat_com is not None else None,
+                "sem_ept": round(mat_sem, 1) if mat_sem is not None else None,
+                "diferenca": round(mat_com - mat_sem, 1) if (mat_com is not None and mat_sem is not None) else None,
+            },
+            "portugues": {
+                "com_ept": round(port_com, 1) if port_com is not None else None,
+                "sem_ept": round(port_sem, 1) if port_sem is not None else None,
+                "diferenca": round(port_com - port_sem, 1) if (port_com is not None and port_sem is not None) else None,
+            },
+        },
+        "vintage": str(ano),
+        "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT.",
+    }
+
+
+def qua_abandono_em_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """Taxa de abandono EM ponderada por matrícula EM, escolas COM EPT vs SEM EPT, rede estadual."""
+    if df.empty:
+        return _empty_indicator("Sem dados Indicadores Educacionais.")
+    df = df.sort_values("ano", ascending=False)
+    latest_year = int(df.iloc[0]["ano"])
+    df_latest = df[df["ano"] == latest_year]
+    com = df_latest[df_latest["tem_ept"] == 1]
+    sem = df_latest[df_latest["tem_ept"] == 0]
+    com_val = _safe_float(com.iloc[0]["taxa_abandono_em_ponderada"]) if not com.empty else None
+    sem_val = _safe_float(sem.iloc[0]["taxa_abandono_em_ponderada"]) if not sem.empty else None
+    return {
+        "total_estado": {
+            "com_ept_pct": round(com_val, 2) if com_val is not None else None,
+            "sem_ept_pct": round(sem_val, 2) if sem_val is not None else None,
+            "diferenca_pp": round(sem_val - com_val, 2) if (com_val is not None and sem_val is not None) else None,
+        },
+        "vintage": str(latest_year),
+        "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual.",
+    }
+
+
+def qua_ingresso_es_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """% jovens 18-29 com EM completo cursando ES, com EPT vs sem EPT (janela 5 anos)."""
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD Contínua.")
+    tec = df[df["grupo"] == "tec"]
+    reg = df[df["grupo"] == "reg"]
+    tec_val = _safe_float(tec.iloc[0]["pct_em_es"]) if not tec.empty else None
+    reg_val = _safe_float(reg.iloc[0]["pct_em_es"]) if not reg.empty else None
+    n_tec = int(tec.iloc[0]["n_amostra"]) if not tec.empty else 0
+    n_reg = int(reg.iloc[0]["n_amostra"]) if not reg.empty else 0
+    return {
+        "total_estado": {
+            "com_ept_pct": round(tec_val, 1) if tec_val is not None else None,
+            "sem_ept_pct": round(reg_val, 1) if reg_val is not None else None,
+            "diferenca_pp": round(tec_val - reg_val, 1) if (tec_val is not None and reg_val is not None) else None,
+            "n_amostra_com_ept": n_tec,
+            "n_amostra_sem_ept": n_reg,
+        },
+        "vintage": "2021-2025",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16.",
+    }
+
+
+def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """Mediana de renda mensal por nível de formação (jovens 18-29, 4 níveis, janela 5 anos)."""
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD Contínua.")
+    def get_mediana(bucket: str) -> tuple[float | None, int]:
+        sub = df[df["bucket"] == bucket]
+        if sub.empty:
+            return None, 0
+        return _safe_float(sub.iloc[0]["mediana_renda"]), int(sub.iloc[0]["n_amostra"])
+    sem_em, n_sem = get_mediana("sem_em")
+    em_reg, n_reg = get_mediana("em_reg")
+    em_tec, n_tec = get_mediana("em_tec")
+    sup, n_sup = get_mediana("superior")
+    pct = lambda a, b: round((a / b - 1) * 100, 1) if (a and b) else None
+    return {
+        "total_estado": {
+            "medianas": {
+                "sem_em": round(sem_em, 2) if sem_em is not None else None,
+                "em_regular": round(em_reg, 2) if em_reg is not None else None,
+                "em_tecnico": round(em_tec, 2) if em_tec is not None else None,
+                "superior": round(sup, 2) if sup is not None else None,
+            },
+            "n_amostra": {
+                "sem_em": n_sem,
+                "em_regular": n_reg,
+                "em_tecnico": n_tec,
+                "superior": n_sup,
+            },
+            "premios_pct": {
+                "em_reg_vs_sem_em": pct(em_reg, sem_em),
+                "ept_vs_em_reg": pct(em_tec, em_reg),
+                "superior_vs_em_reg": pct(sup, em_reg),
+            },
+        },
+        "vintage": "2021-2025",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. Mediana sem ponderação amostral. Inclui trabalho formal e informal.",
+    }
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
@@ -412,4 +760,15 @@ PROCESSORS = {
     "mer_neet_rate": mer_neet_rate,
     "din_crescimento_matriculas_5y": din_crescimento_matriculas_5y,
     "din_cursos_novos_ept": din_cursos_novos_ept,
+    # 10 novos (2026-Q2)
+    "pne_m12a": pne_m12a,
+    "pne_m12b": pne_m12b,
+    "pne_m12c": pne_m12c,
+    "pne_m12f": pne_m12f,
+    "cob_perfil_alunos": cob_perfil_alunos,
+    "cob_alcance_ponderado": cob_alcance_ponderado,
+    "qua_saeb_proficiencia_ept": qua_saeb_proficiencia_ept,
+    "qua_abandono_em_ept": qua_abandono_em_ept,
+    "qua_ingresso_es_pnad": qua_ingresso_es_pnad,
+    "mer_renda_jovens_pnad": mer_renda_jovens_pnad,
 }

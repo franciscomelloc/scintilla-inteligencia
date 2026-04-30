@@ -189,6 +189,112 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.matricula"],
         "pne_meta": None,
     },
+
+    # ============================================================
+    # PNE 2026-2036 · Meta 12 (4 sub-metas calculáveis publicamente)
+    # ============================================================
+    "pne_m12a": {
+        "domain": "pne",
+        "name": "Meta 12.a · % EM em integrada+concomitante",
+        "recortes": ["total_estado", "rede_estadual"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.escola"],
+        "pne_meta": "m12a_50pct_2036",
+    },
+    "pne_m12b": {
+        "domain": "pne",
+        "name": "Meta 12.b · expansão +60% em cursos subsequentes",
+        "recortes": ["total_estado", "rede_estadual"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.escola"],
+        "pne_meta": "m12b_60pct_2036",
+    },
+    "pne_m12c": {
+        "domain": "pne",
+        "name": "Meta 12.c · % EJA articulada à profissional",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.escola"],
+        "pne_meta": "m12c_25pct_2031_50pct_2036",
+    },
+    "pne_m12f": {
+        "domain": "pne",
+        "name": "Meta 12.f · % pop 18-24 com EM técnico concluído",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 6,
+        "source": ["br_ibge_pnadc.microdados"],
+        "pne_meta": "m12f_10pct_2036",
+    },
+
+    # ============================================================
+    # Cobertura — cards reformados (2026-Q2)
+    # ============================================================
+    "cob_perfil_alunos": {
+        "domain": "cobertura",
+        "name": "Perfil dos matriculados EPT — faixa etária, sexo, modalidade",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.matricula", "br_inep_censo_escolar.escola"],
+        "pne_meta": None,
+    },
+    "cob_alcance_ponderado": {
+        "domain": "cobertura",
+        "name": "% matrículas EM em município com EPT + top 5 munis sem oferta",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.escola", "br_bd_diretorios_brasil.municipio"],
+        "pne_meta": None,
+    },
+
+    # ============================================================
+    # Qualidade & Resultado — cards reformados (2026-Q2)
+    # ============================================================
+    "qua_saeb_proficiencia_ept": {
+        "domain": "qualidade",
+        "name": "Proficiência SAEB Mat/Port — escolas com EPT vs sem EPT",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 24,
+        "source": ["br_inep_saeb.proficiencia", "br_inep_censo_escolar.escola"],
+        "pne_meta": None,
+    },
+    "qua_abandono_em_ept": {
+        "domain": "qualidade",
+        "name": "Taxa de abandono EM — escolas com EPT vs sem EPT",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": True,
+        "lag_months": 12,
+        "source": ["br_inep_indicadores_educacionais.escola", "br_inep_censo_escolar.escola"],
+        "pne_meta": None,
+    },
+    "qua_ingresso_es_pnad": {
+        "domain": "qualidade",
+        "name": "% jovens 18-29 com EM completo cursando ES — com EPT vs sem EPT",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 6,
+        "source": ["br_ibge_pnadc.microdados"],
+        "pne_meta": None,
+    },
+
+    # ============================================================
+    # Mercado — card reformado (2026-Q2)
+    # ============================================================
+    "mer_renda_jovens_pnad": {
+        "domain": "mercado",
+        "name": "Renda mensal mediana de jovens 18-29 por nível de formação",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 6,
+        "source": ["br_ibge_pnadc.microdados"],
+        "pne_meta": None,
+    },
 }
 
 

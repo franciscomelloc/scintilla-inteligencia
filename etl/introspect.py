@@ -29,6 +29,8 @@ TABLES_TO_INSPECT = [
     ("basedosdados", "br_inep_censo_escolar", "docente"),
     ("basedosdados", "br_inep_indicadores_educacionais", "escola"),
     ("basedosdados", "br_inep_ideb", "escola"),
+    ("basedosdados", "br_inep_saeb", "escola"),
+    ("basedosdados", "br_inep_enem", "microdados"),
     ("basedosdados", "br_me_caged", "microdados_movimentacao"),
     ("basedosdados", "br_me_rais", "microdados_vinculos"),
     ("basedosdados", "br_ibge_pnadc", "microdados"),
@@ -85,6 +87,45 @@ def main() -> int:
         logger.info(f"Introspecting {full_name}")
         cols = fetch_columns(client, project, dataset, table)
         report["tables"][full_name] = cols
+
+    # Discovery: existe SISTEC ou Plataforma Nilo Peçanha em algum dataset BD?
+    logger.info("Discovery: SISTEC / Nilo Peçanha / qualificação na BD")
+    discovery_query = """
+    SELECT schema_name
+    FROM `basedosdados.INFORMATION_SCHEMA.SCHEMATA`
+    WHERE LOWER(schema_name) LIKE '%mec%'
+       OR LOWER(schema_name) LIKE '%setec%'
+       OR LOWER(schema_name) LIKE '%inep%'
+       OR LOWER(schema_name) LIKE '%educacao%'
+       OR LOWER(schema_name) LIKE '%educac%'
+    ORDER BY schema_name
+    """
+    try:
+        schemas = [row.schema_name for row in client.query(discovery_query).result()]
+        report["education_schemas"] = schemas
+        logger.info(f"Schemas educacionais encontrados: {schemas}")
+
+        # Pra cada schema potencial, listar tabelas que possam conter SISTEC/PNP/qualificação
+        sistec_hits = []
+        for schema in schemas:
+            try:
+                tbl_query = f"""
+                SELECT table_name
+                FROM `basedosdados.{schema}.INFORMATION_SCHEMA.TABLES`
+                ORDER BY table_name
+                """
+                tables = [row.table_name for row in client.query(tbl_query).result()]
+                report[f"tables_in_{schema}"] = tables
+                for t in tables:
+                    if any(k in t.lower() for k in ["sistec", "pec", "nilo", "qualif", "fic", "subsequ", "pronatec", "setec"]):
+                        sistec_hits.append(f"{schema}.{t}")
+            except Exception as e:
+                report[f"tables_in_{schema}"] = {"error": str(e)}
+        report["sistec_pnp_hits"] = sistec_hits
+        logger.info(f"Hits SISTEC/PNP/qualif/FIC: {sistec_hits}")
+    except Exception as e:
+        logger.error(f"Discovery falhou: {e}")
+        report["discovery_error"] = str(e)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     out_path = OUTPUT_DIR / "bd_schema_report.json"
