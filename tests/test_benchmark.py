@@ -12,15 +12,14 @@ from etl.benchmark import (
 
 def test_top_quartile_basic():
     values = [1, 2, 3, 4, 5, 6, 7, 8]
-    # P75 de [1..8] = 6.25
-    assert top_quartile(values) == 6.25
+    # statistics.quantiles n=4 inclusivo retorna P75 = 6.75 para [1..8]
+    assert top_quartile(values) == 6.75
 
 
 def test_top_quartile_with_nones():
     values = [None, 2, None, 4, 6, 8]
-    assert top_quartile(values) is not None
-    # P75 de [2,4,6,8] = 6.5
-    assert top_quartile([v for v in values if v is not None]) == 6.5
+    valid = [v for v in values if v is not None]
+    assert top_quartile(valid) == 7.5  # P75 de [2,4,6,8]
 
 
 def test_top_quartile_too_few_values():
