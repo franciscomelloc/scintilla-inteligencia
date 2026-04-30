@@ -13,7 +13,7 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -100,7 +100,7 @@ def build_uf(uf: str) -> dict[str, Any]:
             "pnad": "pendente",
             "ideb": "pendente",
         },
-        "last_built": datetime.now(timezone.utc).isoformat(),
+        "last_built": datetime.now(UTC).isoformat(),
         "indicators": indicators,
     }
 
@@ -108,7 +108,7 @@ def build_uf(uf: str) -> dict[str, Any]:
 def build_metadata() -> dict[str, Any]:
     """Gera metadata.json com info do build."""
     return {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "generator": "scintilla-inteligencia ETL",
         "catalog": {
             "total_indicators": len(get_indicator_codes()),
@@ -143,7 +143,7 @@ def build_benchmark(all_uf_data: dict[str, dict[str, Any]]) -> dict[str, Any]:
     # TODO: implementar quando dados reais estiverem populados
     return {
         "vintage": "pendente",
-        "data_atualizacao": datetime.now(timezone.utc).date().isoformat(),
+        "data_atualizacao": datetime.now(UTC).date().isoformat(),
         "pne_2024_2034": {
             "versao_referencia": "Lei 15.388/2026 (sancionada em 14/04/2026)",
             "horizonte_alvo": 2034,
