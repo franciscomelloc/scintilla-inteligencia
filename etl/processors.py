@@ -702,7 +702,7 @@ def qua_ingresso_es_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
 
 
 def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
-    """Mediana de renda mensal por nível de formação (jovens 18-29, 4 níveis, janela 5 anos)."""
+    """Mediana de renda mensal por nível de formação (jovens 18-29, 4 níveis não-sobrepostos)."""
     if df.empty:
         return _empty_indicator("Sem dados PNAD Contínua.")
     def get_mediana(bucket: str) -> tuple[float | None, int]:
@@ -712,31 +712,31 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         return _safe_float(sub.iloc[0]["mediana_renda"]), int(sub.iloc[0]["n_amostra"])
     sem_em, n_sem = get_mediana("sem_em")
     em_reg, n_reg = get_mediana("em_reg")
-    em_tec, n_tec = get_mediana("em_tec")
-    sup, n_sup = get_mediana("superior")
+    tem_ept, n_ept = get_mediana("tem_ept")
+    sup_sem_ept, n_sup = get_mediana("superior_sem_ept")
     pct = lambda a, b: round((a / b - 1) * 100, 1) if (a and b) else None
     return {
         "total_estado": {
             "medianas": {
                 "sem_em": round(sem_em, 2) if sem_em is not None else None,
                 "em_regular": round(em_reg, 2) if em_reg is not None else None,
-                "em_tecnico": round(em_tec, 2) if em_tec is not None else None,
-                "superior": round(sup, 2) if sup is not None else None,
+                "tem_ept": round(tem_ept, 2) if tem_ept is not None else None,
+                "superior_sem_ept": round(sup_sem_ept, 2) if sup_sem_ept is not None else None,
             },
             "n_amostra": {
                 "sem_em": n_sem,
                 "em_regular": n_reg,
-                "em_tecnico": n_tec,
-                "superior": n_sup,
+                "tem_ept": n_ept,
+                "superior_sem_ept": n_sup,
             },
             "premios_pct": {
                 "em_reg_vs_sem_em": pct(em_reg, sem_em),
-                "ept_vs_em_reg": pct(em_tec, em_reg),
-                "superior_vs_em_reg": pct(sup, em_reg),
+                "ept_vs_em_reg": pct(tem_ept, em_reg),
+                "superior_sem_ept_vs_em_reg": pct(sup_sem_ept, em_reg),
             },
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. Mediana sem ponderação amostral. Inclui trabalho formal e informal.",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. Mediana sem ponderação amostral.",
     }
 
 

@@ -1,11 +1,10 @@
 -- Indicador: mer_renda_jovens_pnad
--- Renda mediana mensal de jovens 18-29 por nível de formação (4 níveis)
--- VD3005 (INT64): mapeamento empírico em PNAD recente:
---   <12 = sem EM completo
---   12  = EM completo
---   13-16 = Superior (incompleto/completo, especialização, mestrado, doutorado)
--- V3007 = '1': concluiu curso técnico de nível médio
--- VD4019: rendimento habitual mensal do trabalho principal
+-- Renda mediana mensal de jovens 18-29 por nível de formação (4 níveis não-sobrepostos)
+-- VD3005 reflete o nível ATUAL mais alto da pessoa.
+-- V3007='1' significa "fez EPT do EM em algum momento" (não importa se avançou para Superior).
+-- A categoria "EM técnico como teto" (V3007=1 AND VD3005=12) é virtualmente inexistente em
+-- jovens 18-29 — egressos EPT migram para Superior. Por isso o bucket "EPT" engloba toda
+-- a coorte que passou por EPT, independente do destino.
 
 WITH base AS (
   SELECT
@@ -13,9 +12,9 @@ WITH base AS (
     VD4019 AS renda,
     CASE
       WHEN VD3005 < 12 THEN 'sem_em'
-      WHEN VD3005 = 12 AND V3007 = '1' THEN 'em_tec'
       WHEN VD3005 = 12 AND (V3007 != '1' OR V3007 IS NULL) THEN 'em_reg'
-      WHEN VD3005 >= 13 THEN 'superior'
+      WHEN V3007 = '1' THEN 'tem_ept'
+      WHEN VD3005 >= 13 AND (V3007 != '1' OR V3007 IS NULL) THEN 'superior_sem_ept'
       ELSE 'outro'
     END AS bucket
   FROM `basedosdados.br_ibge_pnadc.microdados`
