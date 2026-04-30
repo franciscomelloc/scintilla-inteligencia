@@ -1,0 +1,38 @@
+[project]
+name = "scintilla-inteligencia"
+version = "0.1.0"
+description = "Pipeline ETL — Diagnóstico Estadual de Educação Profissional e Tecnológica"
+requires-python = ">=3.12"
+dependencies = [
+    "basedosdados>=2.0",
+    "pandas>=2.2",
+    "pydantic>=2.7",
+    "google-cloud-bigquery>=3.25",
+    "jsonschema>=4.22",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

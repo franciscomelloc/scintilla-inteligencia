@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.org/schemas/benchmark.schema.json",
+  "title": "Benchmark — top-quartile + média + PNE",
+  "type": "object",
+  "required": ["vintage", "data_atualizacao"],
+  "properties": {
+    "vintage": { "type": "string" },
+    "data_atualizacao": { "type": "string", "format": "date" },
+    "top_quartile": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": ["number", "null"] }
+      }
+    },
+    "media_nacional": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": ["number", "null"] }
+      }
+    },
+    "pne_2024_2034": {
+      "type": "object",
+      "required": ["versao_referencia", "horizonte_alvo", "metas"],
+      "properties": {
+        "versao_referencia": { "type": "string" },
+        "horizonte_alvo": { "type": "integer" },
+        "metas": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["descricao", "metodologia_disagregacao"],
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

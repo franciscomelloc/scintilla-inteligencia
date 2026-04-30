@@ -1,0 +1,15 @@
+id_curso,curso,eixo_tecnologico
+# Catálogo Nacional de Cursos Técnicos v4 (MEC, 2024)
+# Fonte oficial: https://catalogonacionaldecursostecnicos.mec.gov.br
+#
+# IMPORTANTE: este arquivo está como placeholder. Antes do primeiro refresh real,
+# precisa ser populado parsing o Catálogo Nacional v4 do MEC. Esperado ~250 cursos
+# técnicos mapeados aos 13 eixos tecnológicos canônicos.
+#
+# Formato esperado por linha:
+# 41001,"Técnico em Enfermagem","Ambiente e Saúde"
+# 31001,"Técnico em Mecânica","Controle e Processos Industriais"
+# ... (continuar pelo Catálogo v4)
+#
+# Pendência de implementação: rodar etl/scripts/parse_cnct.py (a ser criado)
+# que baixa o PDF/XLS do CNCT e gera este CSV.

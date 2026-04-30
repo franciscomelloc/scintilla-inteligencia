@@ -1,0 +1,57 @@
+name: Cross-repo PR to scintilla-site-v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'output/**'
+
+permissions:
+  contents: read
+
+jobs:
+  pr-to-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout site repo
+        uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/scintilla-site-v2
+          token: ${{ secrets.SITE_REPO_TOKEN }}
+          path: site
+
+      - name: Sync output → site/public/data
+        run: |
+          rm -rf site/public/data
+          mkdir -p site/public/data
+          cp -r source/output/diagnostico site/public/data/
+          cp source/output/benchmark.json site/public/data/
+          cp source/output/metadata.json site/public/data/
+
+      - name: Set branch name
+        id: branch
+        run: echo "name=data-refresh-$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+
+      - name: Create PR in site repo
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.SITE_REPO_TOKEN }}
+          path: site
+          commit-message: "chore(data): refresh trimestral diagnóstico estadual"
+          branch: ${{ steps.branch.outputs.name }}
+          base: main
+          title: "chore(data): refresh trimestral diagnóstico estadual"
+          body: |
+            Refresh automático dos JSONs de diagnóstico estadual.
+
+            Origem: scintilla-inteligencia ETL run em ${{ github.event.head_commit.timestamp }}
+
+            - 27 estados atualizados em public/data/diagnostico/
+            - benchmark.json + metadata.json atualizados
+
+            Após merge: deploy automático via CF Pages → frontend /inteligencia mostra dados frescos.

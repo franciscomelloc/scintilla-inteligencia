@@ -1,0 +1,70 @@
+name: Refresh diagnostic data
+
+on:
+  schedule:
+    # 1º dia útil de jan/abr/jul/out, 06:00 UTC = 03:00 BRT
+    - cron: '0 6 1 1,4,7,10 *'
+  workflow_dispatch:
+    inputs:
+      force_full_rebuild:
+        description: 'Ignorar cache e reconstruir tudo'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python via uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Sync deps
+        run: uv sync
+
+      - name: Auth GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Run ETL build
+        env:
+          GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+        run: uv run python etl/build.py
+
+      - name: Validate output schemas
+        run: uv run pytest tests/test_schema.py tests/test_smoke.py -v
+
+      - name: Set branch name
+        id: branch
+        run: |
+          QUARTER=$(date +%Y-Q$((($(date +%m)-1)/3+1)))
+          echo "name=data-${QUARTER}" >> $GITHUB_OUTPUT
+
+      - name: Create PR with refreshed output
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(data): refresh trimestral ${{ steps.branch.outputs.name }}"
+          branch: ${{ steps.branch.outputs.name }}
+          title: "chore(data): refresh trimestral ${{ steps.branch.outputs.name }}"
+          body: |
+            Refresh automático trimestral dos dados.
+
+            - 27 diagnostico/<UF>.json atualizados
+            - benchmark.json + metadata.json atualizados
+            - vintage de cada fonte registrada nos JSONs
+
+            CI verde indica que schema valida e cada UF tem 14 indicadores.
+
+            Após merge nesse repo, workflow `pr-to-site` abre PR cross-repo em scintilla-site-v2.
+          add-paths: output/

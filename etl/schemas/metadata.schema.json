@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.org/schemas/metadata.schema.json",
+  "title": "Metadata do build",
+  "type": "object",
+  "required": ["generated_at", "generator", "catalog", "indicators"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "generator": { "type": "string" },
+    "catalog": {
+      "type": "object",
+      "required": ["total_indicators", "domains"],
+      "properties": {
+        "total_indicators": { "type": "integer", "minimum": 1 },
+        "domains": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    },
+    "indicators": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "domain", "recortes"],
+        "properties": {
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "recortes": { "type": "array", "items": { "type": "string" } },
+          "polaridade_inversa": { "type": "boolean" },
+          "lag_months": { "type": "integer" },
+          "source": { "type": "array", "items": { "type": "string" } },
+          "pne_meta": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}
