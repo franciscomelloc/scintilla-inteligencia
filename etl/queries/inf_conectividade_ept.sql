@@ -25,14 +25,14 @@ SELECT
   ROUND(100.0 * COUNTIF(tier = 'banda_larga_sem_uso_aluno') / NULLIF(COUNT(*), 0), 2) AS pct_t2_total,
   ROUND(100.0 * COUNTIF(tier = 'internet_basica_sem_banda_larga') / NULLIF(COUNT(*), 0), 2) AS pct_t3_total,
   ROUND(100.0 * COUNTIF(tier = 'sem_internet') / NULLIF(COUNT(*), 0), 2) AS pct_t4_total,
-  ROUND(100.0 * COUNTIF(rede = 'estadual' AND tier = 'banda_larga_com_uso_aluno') /
-        NULLIF(COUNTIF(rede = 'estadual'), 0), 2) AS pct_t1_estadual,
-  ROUND(100.0 * COUNTIF(rede = 'estadual' AND tier = 'banda_larga_sem_uso_aluno') /
-        NULLIF(COUNTIF(rede = 'estadual'), 0), 2) AS pct_t2_estadual,
-  ROUND(100.0 * COUNTIF(rede = 'estadual' AND tier = 'internet_basica_sem_banda_larga') /
-        NULLIF(COUNTIF(rede = 'estadual'), 0), 2) AS pct_t3_estadual,
-  ROUND(100.0 * COUNTIF(rede = 'estadual' AND tier = 'sem_internet') /
-        NULLIF(COUNTIF(rede = 'estadual'), 0), 2) AS pct_t4_estadual
+  ROUND(100.0 * COUNTIF(rede = '2' AND tier = 'banda_larga_com_uso_aluno') /
+        NULLIF(COUNTIF(rede = '2'), 0), 2) AS pct_t1_estadual,
+  ROUND(100.0 * COUNTIF(rede = '2' AND tier = 'banda_larga_sem_uso_aluno') /
+        NULLIF(COUNTIF(rede = '2'), 0), 2) AS pct_t2_estadual,
+  ROUND(100.0 * COUNTIF(rede = '2' AND tier = 'internet_basica_sem_banda_larga') /
+        NULLIF(COUNTIF(rede = '2'), 0), 2) AS pct_t3_estadual,
+  ROUND(100.0 * COUNTIF(rede = '2' AND tier = 'sem_internet') /
+        NULLIF(COUNTIF(rede = '2'), 0), 2) AS pct_t4_estadual
 FROM escolas_classificadas
 GROUP BY ano
 ORDER BY ano;

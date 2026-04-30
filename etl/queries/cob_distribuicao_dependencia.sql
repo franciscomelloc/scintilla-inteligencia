@@ -19,10 +19,10 @@ WITH matriculas_ept AS (
 por_ano AS (
   SELECT
     ano,
-    SUM(IF(rede = 'federal', qtd, 0)) AS federal,
-    SUM(IF(rede = 'estadual', qtd, 0)) AS estadual,
-    SUM(IF(rede = 'municipal', qtd, 0)) AS municipal,
-    SUM(IF(rede = 'privada', qtd, 0)) AS privada,
+    SUM(IF(rede = '1', qtd, 0)) AS federal,
+    SUM(IF(rede = '2', qtd, 0)) AS estadual,
+    SUM(IF(rede = '3', qtd, 0)) AS municipal,
+    SUM(IF(rede = '4', qtd, 0)) AS privada,
     SUM(qtd) AS total
   FROM matriculas_ept
   GROUP BY ano

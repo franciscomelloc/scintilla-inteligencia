@@ -11,9 +11,9 @@ WITH vinculos AS (
     ano,
     valor_remuneracao_media,
     CASE
-      WHEN grau_instrucao_apos_2005 IN ('01','02','03','04','05','06') THEN 'sem_em'
-      WHEN grau_instrucao_apos_2005 = '07' THEN 'em_completo'
-      WHEN grau_instrucao_apos_2005 IN ('08','09','10','11') THEN 'superior'
+      WHEN grau_instrucao_apos_2005 IN ('1','2','3','4','5','6') THEN 'sem_em'
+      WHEN grau_instrucao_apos_2005 = '7' THEN 'em_completo'
+      WHEN grau_instrucao_apos_2005 IN ('8','9','10','11') THEN 'superior'
       ELSE NULL
     END AS nivel
   FROM `basedosdados.br_me_rais.microdados_vinculos`

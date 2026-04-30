@@ -16,7 +16,7 @@ WITH escolas_com_ept AS (
 SELECT
   i.ano,
   ROUND(AVG(i.ideb), 2) AS ideb_total_estado,
-  ROUND(AVG(IF(ept.rede = 'estadual', i.ideb, NULL)), 2) AS ideb_rede_estadual
+  ROUND(AVG(IF(ept.rede = '2', i.ideb, NULL)), 2) AS ideb_rede_estadual
 FROM `basedosdados.br_inep_ideb.escola` i
 INNER JOIN escolas_com_ept ept
   ON i.id_escola = ept.id_escola AND i.ano = ept.ano

@@ -340,29 +340,30 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna ano, rede, etapa_ensino, qtd. Classificação modalidade ainda pendente."""
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar 2019/2024.")
-    qtd_2019 = int(df[df["ano"] == 2019]["qtd"].sum() or 0)
-    qtd_2024 = int(df[df["ano"] == 2024]["qtd"].sum() or 0)
-    qtd_2019_estadual = int(df[(df["ano"] == 2019) & (df["rede"] == "estadual")]["qtd"].sum() or 0)
-    qtd_2024_estadual = int(df[(df["ano"] == 2024) & (df["rede"] == "estadual")]["qtd"].sum() or 0)
-    growth_total = round((qtd_2024 / qtd_2019 - 1) * 100, 2) if qtd_2019 else None
-    growth_estadual = round((qtd_2024_estadual / qtd_2019_estadual - 1) * 100, 2) if qtd_2019_estadual else None
-    cagr_total = round(((qtd_2024 / qtd_2019) ** (1/5) - 1) * 100, 2) if qtd_2019 else None
-    cagr_estadual = round(((qtd_2024_estadual / qtd_2019_estadual) ** (1/5) - 1) * 100, 2) if qtd_2019_estadual else None
+    base_year, end_year = 2015, 2020
+    qtd_base = int(df[df["ano"] == base_year]["qtd"].sum() or 0)
+    qtd_end = int(df[df["ano"] == end_year]["qtd"].sum() or 0)
+    qtd_base_est = int(df[(df["ano"] == base_year) & (df["rede"] == "2")]["qtd"].sum() or 0)
+    qtd_end_est = int(df[(df["ano"] == end_year) & (df["rede"] == "2")]["qtd"].sum() or 0)
+    growth_total = round((qtd_end / qtd_base - 1) * 100, 2) if qtd_base else None
+    growth_est = round((qtd_end_est / qtd_base_est - 1) * 100, 2) if qtd_base_est else None
+    cagr_total = round(((qtd_end / qtd_base) ** (1/5) - 1) * 100, 2) if qtd_base else None
+    cagr_est = round(((qtd_end_est / qtd_base_est) ** (1/5) - 1) * 100, 2) if qtd_base_est else None
     return {
         "total_estado": {
             "crescimento_5y_pct": growth_total,
             "cagr_5y_pct": cagr_total,
-            "matriculas_2020": qtd_2019,  # nota: rotulado 2020 no mock mas a base é 2019
-            "matriculas_2024": qtd_2024,
+            "matriculas_base": qtd_base,
+            "matriculas_atual": qtd_end,
         },
         "rede_estadual": {
-            "crescimento_5y_pct": growth_estadual,
-            "cagr_5y_pct": cagr_estadual,
-            "matriculas_2020": qtd_2019_estadual,
-            "matriculas_2024": qtd_2024_estadual,
+            "crescimento_5y_pct": growth_est,
+            "cagr_5y_pct": cagr_est,
+            "matriculas_base": qtd_base_est,
+            "matriculas_atual": qtd_end_est,
         },
-        "vintage": "2024",
-        "caveat": "Janela 5 anos terminando no Censo Escolar mais recente. Decomposição por modalidade pendente.",
+        "vintage": str(end_year),
+        "caveat": f"Janela {base_year}→{end_year} (Censo matricula table). Decomposição por modalidade pendente.",
     }
 
 

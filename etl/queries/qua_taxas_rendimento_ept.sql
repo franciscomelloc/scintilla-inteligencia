@@ -36,12 +36,12 @@ SELECT
   ROUND(SUM(i.taxa_aprovacao_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_aprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS aprovacao_total,
   ROUND(SUM(i.taxa_reprovacao_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_reprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS reprovacao_total,
   ROUND(SUM(i.taxa_abandono_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_abandono_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS abandono_total,
-  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_aprovacao_em * e.qtd_ept, 0)) /
-        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_aprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS aprovacao_estadual,
-  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_reprovacao_em * e.qtd_ept, 0)) /
-        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_reprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS reprovacao_estadual,
-  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_abandono_em * e.qtd_ept, 0)) /
-        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_abandono_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS abandono_estadual
+  ROUND(SUM(IF(e.rede = '2', i.taxa_aprovacao_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = '2' AND i.taxa_aprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS aprovacao_estadual,
+  ROUND(SUM(IF(e.rede = '2', i.taxa_reprovacao_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = '2' AND i.taxa_reprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS reprovacao_estadual,
+  ROUND(SUM(IF(e.rede = '2', i.taxa_abandono_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = '2' AND i.taxa_abandono_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS abandono_estadual
 FROM escolas_ept e
 LEFT JOIN ind i USING (ano, id_escola)
 GROUP BY e.ano

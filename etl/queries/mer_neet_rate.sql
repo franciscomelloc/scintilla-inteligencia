@@ -18,11 +18,11 @@ WITH pnad AS (
     V2007 AS sexo,
     V1028 AS peso,
     CASE
-      WHEN V3002 != '1' AND VD4002 != '1' THEN 1
+      WHEN COALESCE(V3002, '0') != '1' AND COALESCE(VD4002, '0') != '1' THEN 1
       ELSE 0
     END AS neet,
     CASE
-      WHEN V3002 != '1' AND VD4001 = '1' AND VD4002 != '1' THEN 1
+      WHEN COALESCE(V3002, '0') != '1' AND VD4001 = '1' AND COALESCE(VD4002, '0') != '1' THEN 1
       ELSE 0
     END AS neet_buscando
   FROM `basedosdados.br_ibge_pnadc.microdados`

@@ -24,7 +24,7 @@ total_mun_uf AS (
 SELECT
   e.ano,
   ROUND(100.0 * COUNT(DISTINCT e.id_municipio) / t.total, 2) AS pct_total_estado,
-  ROUND(100.0 * COUNT(DISTINCT CASE WHEN e.rede = 'estadual' THEN e.id_municipio END) / t.total, 2) AS pct_rede_estadual,
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN e.rede = '2' THEN e.id_municipio END) / t.total, 2) AS pct_rede_estadual,
   t.total AS total_municipios
 FROM escolas_com_ept e
 CROSS JOIN total_mun_uf t

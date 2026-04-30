@@ -30,7 +30,7 @@ ept_total AS (
 ept_estadual AS (
   SELECT sigla_uf, ano, SUM(qtd_ept) AS rede_estadual
   FROM matriculas_ept_escola
-  WHERE rede = 'estadual'
+  WHERE rede = '2'
   GROUP BY sigla_uf, ano
 ),
 

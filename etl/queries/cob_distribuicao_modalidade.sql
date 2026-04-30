@@ -12,7 +12,7 @@ SELECT
   etapa_ensino,
   COUNT(*) AS qtd_matriculas
 FROM `basedosdados.br_inep_censo_escolar.matricula`
-WHERE ano BETWEEN 2020 AND 2024
+WHERE ano BETWEEN 2016 AND 2020
   AND sigla_uf = '{UF}'
   AND id_curso_educ_profissional IS NOT NULL
 GROUP BY ano, rede, etapa_ensino
