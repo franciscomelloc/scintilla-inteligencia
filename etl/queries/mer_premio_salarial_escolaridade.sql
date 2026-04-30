@@ -1,38 +1,37 @@
 -- Indicador: mer_premio_salarial_escolaridade
 -- Recortes: apenas total_estado
---
--- Mediana salarial em vínculos formais ativos em 31/dez por nível de escolaridade.
--- 3 níveis: sem EM (grau_instrucao ≤ 5), EM completo (=7), Superior completo (≥9).
--- RAIS NÃO distingue EM regular de EM técnico em microdados públicos —
--- o prêmio EPT específico não é mensurável aqui (vira lead-gen).
--- Correção monetária: IPCA pra ano-base = ano mais recente do RAIS.
+-- Mediana salarial RAIS por nível de escolaridade (3 níveis).
+-- Caveat: RAIS não distingue EM regular de EM técnico → prêmio EPT específico vira lead-gen.
+-- Codes grau_instrucao_apos_2005 (RAIS): 01=Analfabeto..06=Médio incompleto, 07=Médio completo,
+-- 08=Superior incompleto..11=Doutorado.
+-- Mediana via APPROX_QUANTILES (BQ standard).
 
-WITH vinculos_classificados AS (
+WITH vinculos AS (
   SELECT
     ano,
-    salario_mensal,
+    valor_remuneracao_media,
     CASE
-      WHEN grau_instrucao_apos_2005 <= 5 THEN 'sem_ensino_medio'
-      WHEN grau_instrucao_apos_2005 = 7 THEN 'ensino_medio_completo'
-      WHEN grau_instrucao_apos_2005 >= 9 THEN 'superior_completo'
+      WHEN grau_instrucao_apos_2005 IN ('01','02','03','04','05','06') THEN 'sem_em'
+      WHEN grau_instrucao_apos_2005 = '07' THEN 'em_completo'
+      WHEN grau_instrucao_apos_2005 IN ('08','09','10','11') THEN 'superior'
       ELSE NULL
     END AS nivel
   FROM `basedosdados.br_me_rais.microdados_vinculos`
   WHERE ano BETWEEN 2019 AND 2023
     AND sigla_uf = '{UF}'
-    AND salario_mensal > 0
-    AND vinculo_ativo_em_31_12 = 1
+    AND valor_remuneracao_media > 0
+    AND vinculo_ativo_3112 = '1'
 )
 
 SELECT
   ano,
-  -- mediana por nível
-  PERCENTILE_CONT(salario_mensal, 0.5) OVER (PARTITION BY ano, nivel)
-    FILTER (WHERE nivel = 'sem_ensino_medio') AS mediana_sem_em,
-  PERCENTILE_CONT(salario_mensal, 0.5) OVER (PARTITION BY ano, nivel)
-    FILTER (WHERE nivel = 'ensino_medio_completo') AS mediana_em_completo,
-  PERCENTILE_CONT(salario_mensal, 0.5) OVER (PARTITION BY ano, nivel)
-    FILTER (WHERE nivel = 'superior_completo') AS mediana_superior
-FROM vinculos_classificados
+  APPROX_QUANTILES(IF(nivel = 'sem_em', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_sem_em,
+  APPROX_QUANTILES(IF(nivel = 'em_completo', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_em_completo,
+  APPROX_QUANTILES(IF(nivel = 'superior', valor_remuneracao_media, NULL) IGNORE NULLS, 100)[OFFSET(50)] AS mediana_superior,
+  COUNTIF(nivel = 'sem_em') AS n_sem_em,
+  COUNTIF(nivel = 'em_completo') AS n_em_completo,
+  COUNTIF(nivel = 'superior') AS n_superior
+FROM vinculos
 WHERE nivel IS NOT NULL
-GROUP BY ano;
+GROUP BY ano
+ORDER BY ano;

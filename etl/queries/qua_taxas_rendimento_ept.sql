@@ -1,48 +1,48 @@
 -- Indicador: qua_taxas_rendimento_ept
 -- Recortes: total_estado + rede_estadual
--- 3 sub-valores: aprovação, reprovação, abandono — na ÚLTIMA SÉRIE de cada modalidade
+-- 3 sub-valores: aprovação, reprovação, abandono — taxas anuais do EM
 --
--- Pendência: tentar usar primeiro `br_inep_indicadores_educacionais` (cálculo oficial INEP).
--- Fallback se não tem corte modal EPT: calcular via Censo Escolar bruto agregando situacao_aluno.
--- A consulta abaixo é o fallback (mais flexível).
+-- Métrica: média ponderada (peso = quantidade_matricula_medio_tecnico) das taxas EM
+-- nas escolas que ofertam EPT. Caveat: taxas oficiais INEP no EM agregam regular + tec
+-- na mesma escola — taxa EPT-específica exige cruzamento Censo×egressos por aluno (lead-gen).
 
-WITH ultima_serie AS (
-  -- identifica matrículas na última série de cada modalidade EPT
+WITH escolas_ept AS (
+  SELECT
+    e.ano,
+    e.id_escola,
+    e.rede,
+    COALESCE(e.quantidade_matricula_medio_tecnico, 0)
+      + COALESCE(e.quantidade_matricula_eja_medio_tecnico, 0) AS qtd_ept
+  FROM `basedosdados.br_inep_censo_escolar.escola` e
+  WHERE e.ano BETWEEN 2020 AND 2024
+    AND e.sigla_uf = '{UF}'
+    AND (COALESCE(e.quantidade_matricula_medio_tecnico, 0)
+         + COALESCE(e.quantidade_matricula_eja_medio_tecnico, 0)) > 0
+),
+
+ind AS (
   SELECT
     ano,
-    dependencia_administrativa,
-    tipo_oferta,
-    situacao_aluno,
-    COUNT(*) AS qtd
-  FROM `basedosdados.br_inep_censo_escolar.matricula`
+    id_escola,
+    taxa_aprovacao_em,
+    taxa_reprovacao_em,
+    taxa_abandono_em
+  FROM `basedosdados.br_inep_indicadores_educacionais.escola`
   WHERE ano BETWEEN 2020 AND 2024
-    AND tipo_oferta IN ('integrada', 'concomitante', 'subsequente')
-    AND sigla_uf = '{UF}'
-    AND etapa_ensino IN (
-      -- códigos de "última série" por modalidade — validar pós-GCP
-      27, 28,  -- 3ª série EM EPT integrada (placeholder)
-      30, 31   -- última fase concomitante/subsequente (placeholder)
-    )
-  GROUP BY ano, dependencia_administrativa, tipo_oferta, situacao_aluno
 )
 
 SELECT
-  ano,
-  tipo_oferta,
-  -- total_estado
-  100.0 * SUM(CASE WHEN situacao_aluno IN ('aprovado', 'concluinte') THEN qtd ELSE 0 END) /
-    NULLIF(SUM(qtd), 0) AS pct_aprovacao_total,
-  100.0 * SUM(CASE WHEN situacao_aluno = 'reprovado' THEN qtd ELSE 0 END) /
-    NULLIF(SUM(qtd), 0) AS pct_reprovacao_total,
-  100.0 * SUM(CASE WHEN situacao_aluno IN ('abandono', 'transferido') THEN qtd ELSE 0 END) /
-    NULLIF(SUM(qtd), 0) AS pct_abandono_total,
-  -- rede_estadual
-  100.0 * SUM(CASE WHEN dependencia_administrativa = 2 AND situacao_aluno IN ('aprovado', 'concluinte') THEN qtd ELSE 0 END) /
-    NULLIF(SUM(CASE WHEN dependencia_administrativa = 2 THEN qtd ELSE 0 END), 0) AS pct_aprovacao_estadual,
-  100.0 * SUM(CASE WHEN dependencia_administrativa = 2 AND situacao_aluno = 'reprovado' THEN qtd ELSE 0 END) /
-    NULLIF(SUM(CASE WHEN dependencia_administrativa = 2 THEN qtd ELSE 0 END), 0) AS pct_reprovacao_estadual,
-  100.0 * SUM(CASE WHEN dependencia_administrativa = 2 AND situacao_aluno IN ('abandono', 'transferido') THEN qtd ELSE 0 END) /
-    NULLIF(SUM(CASE WHEN dependencia_administrativa = 2 THEN qtd ELSE 0 END), 0) AS pct_abandono_estadual
-FROM ultima_serie
-GROUP BY ano, tipo_oferta
-ORDER BY ano, tipo_oferta;
+  e.ano,
+  ROUND(SUM(i.taxa_aprovacao_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_aprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS aprovacao_total,
+  ROUND(SUM(i.taxa_reprovacao_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_reprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS reprovacao_total,
+  ROUND(SUM(i.taxa_abandono_em * e.qtd_ept) / NULLIF(SUM(IF(i.taxa_abandono_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS abandono_total,
+  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_aprovacao_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_aprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS aprovacao_estadual,
+  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_reprovacao_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_reprovacao_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS reprovacao_estadual,
+  ROUND(SUM(IF(e.rede = 'estadual', i.taxa_abandono_em * e.qtd_ept, 0)) /
+        NULLIF(SUM(IF(e.rede = 'estadual' AND i.taxa_abandono_em IS NOT NULL, e.qtd_ept, 0)), 0), 2) AS abandono_estadual
+FROM escolas_ept e
+LEFT JOIN ind i USING (ano, id_escola)
+GROUP BY e.ano
+ORDER BY e.ano;

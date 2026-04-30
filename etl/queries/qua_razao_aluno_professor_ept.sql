@@ -1,44 +1,50 @@
 -- Indicador: qua_razao_aluno_professor_ept
 -- Recortes: total_estado + rede_estadual
 -- Polaridade: INVERSA (razão menor é melhor)
---
--- Definição inclusiva: docente conta se atua em ≥1 turma com matrícula EPT no ano.
+-- Definição: alunos EPT / docentes que dão aula em turmas com pelo menos 1 matrícula EPT.
 
-WITH matriculas_ept AS (
+WITH turmas_ept AS (
+  SELECT DISTINCT
+    ano,
+    rede,
+    id_turma,
+    id_escola
+  FROM `basedosdados.br_inep_censo_escolar.matricula`
+  WHERE ano BETWEEN 2020 AND 2024
+    AND sigla_uf = '{UF}'
+    AND id_curso_educ_profissional IS NOT NULL
+),
+
+alunos_por_ano AS (
   SELECT
     ano,
-    dependencia_administrativa,
-    id_turma,
-    id_escola,
+    rede,
     COUNT(*) AS qtd_alunos
   FROM `basedosdados.br_inep_censo_escolar.matricula`
   WHERE ano BETWEEN 2020 AND 2024
-    AND tipo_oferta IN ('integrada', 'concomitante', 'subsequente')
     AND sigla_uf = '{UF}'
-  GROUP BY ano, dependencia_administrativa, id_turma, id_escola
+    AND id_curso_educ_profissional IS NOT NULL
+  GROUP BY ano, rede
 ),
 
-docentes_ept AS (
-  -- docentes que dão aula em pelo menos uma turma de matrícula EPT
-  SELECT DISTINCT
+docentes_por_ano AS (
+  SELECT
     d.ano,
-    d.id_docente,
-    m.dependencia_administrativa
+    t.rede,
+    COUNT(DISTINCT d.id_docente) AS qtd_docentes
   FROM `basedosdados.br_inep_censo_escolar.docente` d
-  JOIN matriculas_ept m
-    ON d.id_turma = m.id_turma AND d.ano = m.ano
+  INNER JOIN turmas_ept t
+    ON d.id_turma = t.id_turma AND d.ano = t.ano
   WHERE d.sigla_uf = '{UF}'
+  GROUP BY d.ano, t.rede
 )
 
 SELECT
-  m.ano,
-  -- total_estado
-  SUM(m.qtd_alunos) * 1.0 / COUNT(DISTINCT d.id_docente) AS razao_total_estado,
-  -- rede_estadual
-  SUM(CASE WHEN m.dependencia_administrativa = 2 THEN m.qtd_alunos ELSE 0 END) * 1.0 /
-    NULLIF(COUNT(DISTINCT CASE WHEN d.dependencia_administrativa = 2 THEN d.id_docente END), 0) AS razao_rede_estadual
-FROM matriculas_ept m
-CROSS JOIN docentes_ept d
-WHERE m.ano = d.ano
-GROUP BY m.ano
-ORDER BY m.ano;
+  COALESCE(a.ano, d.ano) AS ano,
+  ROUND(SUM(a.qtd_alunos) * 1.0 / NULLIF(SUM(d.qtd_docentes), 0), 2) AS razao_total_estado,
+  ROUND(SUM(IF(a.rede = 'estadual', a.qtd_alunos, 0)) * 1.0 /
+        NULLIF(SUM(IF(d.rede = 'estadual', d.qtd_docentes, 0)), 0), 2) AS razao_rede_estadual
+FROM alunos_por_ano a
+FULL OUTER JOIN docentes_por_ano d USING (ano, rede)
+GROUP BY ano
+ORDER BY ano;
