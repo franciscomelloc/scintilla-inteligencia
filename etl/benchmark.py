@@ -99,7 +99,11 @@ def vs_meta_pne(value: float | None, indicator_code: str) -> float | None:
     return value - meta_value
 
 
-def position_rank(value: float | None, all_values: dict[str, float], inverse: bool = False) -> int | None:
+def position_rank(
+    value: float | None,
+    all_values: dict[str, float],
+    inverse: bool = False,
+) -> int | None:
     """
     Posição do estado no ranking 1-27.
     inverse=True: menor é melhor (NEET, razão aluno/professor).
@@ -111,7 +115,7 @@ def position_rank(value: float | None, all_values: dict[str, float], inverse: bo
         key=lambda x: x[1],
         reverse=not inverse,
     )
-    for i, (uf, v) in enumerate(valid):
+    for i, (_uf, v) in enumerate(valid):
         if v == value:
             return i + 1
     return None
