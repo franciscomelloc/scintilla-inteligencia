@@ -17,15 +17,18 @@ from __future__ import annotations
 import statistics
 from typing import Any
 
-# Pop 15-29 por UF (PNAD 2024, milhões — fonte: pnad_mapping.md, atualizar com dado real)
+# Pop 15-29 por UF, em milhões. Fonte: PNAD Contínua 2024 (4 trimestres, BD)
+# Query: SUM(V1028)/4/1e6 por sigla_uf, ano=2024, V2009 BETWEEN 15 AND 29
+# Reproduzir: scripts/refresh_pop_15_29.py (a criar) — atualizar anualmente
 POP_15_29_BY_UF: dict[str, float] = {
-    "AC": 0.22, "AL": 0.84, "AP": 0.22, "AM": 1.05, "BA": 3.71,
-    "CE": 2.31, "DF": 0.78, "ES": 1.02, "GO": 1.80, "MA": 1.79,
-    "MT": 0.89, "MS": 0.71, "MG": 5.36, "PA": 2.20, "PB": 1.01,
-    "PR": 2.90, "PE": 2.42, "PI": 0.82, "RJ": 4.36, "RN": 0.89,
-    "RS": 2.85, "RO": 0.45, "RR": 0.16, "SC": 1.90, "SP": 11.66,
-    "SE": 0.59, "TO": 0.40,
+    "AC": 0.25, "AL": 0.84, "AP": 0.25, "AM": 1.15, "BA": 3.41,
+    "CE": 2.10, "DF": 0.74, "ES": 0.89, "GO": 1.76, "MA": 1.80,
+    "MT": 0.88, "MS": 0.64, "MG": 4.69, "PA": 2.30, "PB": 0.90,
+    "PR": 2.60, "PE": 2.20, "PI": 0.77, "RJ": 3.54, "RN": 0.81,
+    "RS": 2.29, "RO": 0.44, "RR": 0.16, "SC": 1.68, "SP": 9.90,
+    "SE": 0.58, "TO": 0.40,
 }
+POP_15_29_VINTAGE = "PNAD Contínua 2024 (média anual)"
 
 # Metas PNE 2024-2034 — referência: pne_mapping.md
 PNE_TARGETS: dict[str, dict[str, Any]] = {

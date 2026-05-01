@@ -104,6 +104,8 @@ def fill_benchmarks(all_data: dict[str, dict[str, Any]]) -> None:
     for code in get_indicator_codes():
         meta = INDICATOR_CATALOG[code]
         polar_inv = meta.get("polaridade_inversa", False)
+        if not meta.get("ranking_aplicavel", True):
+            continue  # valor absoluto/não comparável cross-state
 
         # Pra cada recorte, coleta valores de cada UF
         for recorte in ["total_estado", "rede_estadual"]:

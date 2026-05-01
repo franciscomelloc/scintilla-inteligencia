@@ -104,6 +104,18 @@ def main() -> int:
 
     logger.info(f"Carregados {len(all_data)} estados")
 
+    # Purga indicadores que saíram do catálogo (ex: removidos por bug)
+    valid_codes = set(get_indicator_codes())
+    purged = 0
+    for uf, data in all_data.items():
+        inds = data.get("indicators", {})
+        stale = [k for k in inds if k not in valid_codes]
+        for k in stale:
+            del inds[k]
+            purged += 1
+    if purged:
+        logger.info(f"Purgados {purged} indicadores fora do catálogo")
+
     # Inject valor nos indicadores estruturados
     inject_count = 0
     for code in get_indicator_codes():
@@ -128,6 +140,18 @@ def main() -> int:
     for code in get_indicator_codes():
         meta = INDICATOR_CATALOG[code]
         polar_inv = meta.get("polaridade_inversa", False)
+        if not meta.get("ranking_aplicavel", True):
+            # Limpa qualquer ranking pré-existente
+            for uf, data in all_data.items():
+                ind = _safe_dict(data.get("indicators", {}).get(code))
+                for recorte in meta.get("recortes", []):
+                    cut = ind.get(recorte) if isinstance(ind, dict) else None
+                    if isinstance(cut, dict):
+                        for k in ("vs_top_quartile", "vs_media_nacional", "vs_meta_pne_2034", "posicao"):
+                            cut.pop(k, None)
+                        cut["meta_pne_aplicavel"] = False
+                        cut["ranking_aplicavel"] = False
+            continue
         for recorte in meta.get("recortes", []):
             values_by_uf: dict[str, float | None] = {}
             for uf, data in all_data.items():

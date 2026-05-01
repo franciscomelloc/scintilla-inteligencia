@@ -721,7 +721,7 @@ def qua_ingresso_es_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "n_amostra_sem_ept": n_reg,
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16. 'valor' = diferença pp (com EPT - sem EPT).",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). EPT = V3007='1' (concluiu técnico EM). Avançou ao ES = VD3005 >= 13 (nível concluído inclui Superior incompleto/completo/pós). 'valor' = diferença pp (com EPT - sem EPT).",
     }
 
 
@@ -786,15 +786,13 @@ PROCESSORS = {
     "mer_neet_rate": mer_neet_rate,
     "din_crescimento_matriculas_5y": din_crescimento_matriculas_5y,
     "din_cursos_novos_ept": din_cursos_novos_ept,
-    # 10 novos (2026-Q2)
+    # 10 novos (2026-Q2) — 3 removidos por bug V3007 PNAD trimestral
     "pne_m12a": pne_m12a,
     "pne_m12b": pne_m12b,
     "pne_m12c": pne_m12c,
-    "pne_m12f": pne_m12f,
+    # pne_m12f, qua_ingresso_es_pnad, mer_renda_jovens_pnad: REMOVIDOS
     "cob_perfil_alunos": cob_perfil_alunos,
     "cob_alcance_ponderado": cob_alcance_ponderado,
     "qua_saeb_proficiencia_ept": qua_saeb_proficiencia_ept,
     "qua_abandono_em_ept": qua_abandono_em_ept,
-    "qua_ingresso_es_pnad": qua_ingresso_es_pnad,
-    "mer_renda_jovens_pnad": mer_renda_jovens_pnad,
 }

@@ -149,6 +149,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "lag_months": 3,
         "source": ["br_me_caged.microdados_movimentacao"],
         "pne_meta": None,
+        "ranking_aplicavel": False,  # valor absoluto, não comparável cross-state
     },
     "mer_premio_salarial_escolaridade": {
         "domain": "mercado",
@@ -188,6 +189,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "lag_months": 12,
         "source": ["br_inep_censo_escolar.matricula"],
         "pne_meta": None,
+        "ranking_aplicavel": False,  # contagem absoluta, sensível a tamanho da rede
     },
 
     # ============================================================
@@ -210,6 +212,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "lag_months": 12,
         "source": ["br_inep_censo_escolar.escola"],
         "pne_meta": "m12b_60pct_2036",
+        "ranking_aplicavel": False,  # base = primeiro ano com qtd>0 varia por UF
     },
     "pne_m12c": {
         "domain": "pne",
@@ -220,15 +223,9 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.escola"],
         "pne_meta": "m12c_25pct_2031_50pct_2036",
     },
-    "pne_m12f": {
-        "domain": "pne",
-        "name": "Meta 12.f · % pop 18-24 com EM técnico concluído",
-        "recortes": ["total_estado"],
-        "polaridade_inversa": False,
-        "lag_months": 6,
-        "source": ["br_ibge_pnadc.microdados"],
-        "pne_meta": "m12f_10pct_2036",
-    },
+    # pne_m12f REMOVIDO — V3007 da PNAD trimestral não é "concluiu EPT"
+    # (descoberto em 2026-05-01). Métrica volta quando suplemento anual de
+    # educação for ingerido com variável correta.
 
     # ============================================================
     # Cobertura — cards reformados (2026-Q2)
@@ -241,6 +238,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "lag_months": 12,
         "source": ["br_inep_censo_escolar.matricula", "br_inep_censo_escolar.escola"],
         "pne_meta": None,
+        "ranking_aplicavel": False,  # descritivo, valor = contagem absoluta
     },
     "cob_alcance_ponderado": {
         "domain": "cobertura",
@@ -273,28 +271,12 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_indicadores_educacionais.escola", "br_inep_censo_escolar.escola"],
         "pne_meta": None,
     },
-    "qua_ingresso_es_pnad": {
-        "domain": "qualidade",
-        "name": "% jovens 18-29 com EM completo cursando ES — com EPT vs sem EPT",
-        "recortes": ["total_estado"],
-        "polaridade_inversa": False,
-        "lag_months": 6,
-        "source": ["br_ibge_pnadc.microdados"],
-        "pne_meta": None,
-    },
+    # qua_ingresso_es_pnad REMOVIDO — mesmo bug V3007 (não é EPT na PNAD trimestral)
 
     # ============================================================
     # Mercado — card reformado (2026-Q2)
     # ============================================================
-    "mer_renda_jovens_pnad": {
-        "domain": "mercado",
-        "name": "Renda mensal mediana de jovens 18-29 por nível de formação",
-        "recortes": ["total_estado"],
-        "polaridade_inversa": False,
-        "lag_months": 6,
-        "source": ["br_ibge_pnadc.microdados"],
-        "pne_meta": None,
-    },
+    # mer_renda_jovens_pnad REMOVIDO — mesmo bug V3007 (PNAD trimestral não tem EPT)
 }
 
 

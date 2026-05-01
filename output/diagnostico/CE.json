@@ -28,7 +28,7 @@
           2024
         ],
         "vs_top_quartile": 0.61,
-        "vs_media_nacional": 11.05,
+        "vs_media_nacional": 11.1,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 6
@@ -50,7 +50,7 @@
           2024
         ],
         "vs_top_quartile": 7.74,
-        "vs_media_nacional": 13.7,
+        "vs_media_nacional": 13.77,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 5
@@ -86,7 +86,7 @@
           2024
         ],
         "vs_top_quartile": 0.0,
-        "vs_media_nacional": 9.84,
+        "vs_media_nacional": 10.05,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 7
@@ -102,7 +102,7 @@
           2024
         ],
         "vs_top_quartile": 1.51,
-        "vs_media_nacional": 14.57,
+        "vs_media_nacional": 14.9,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 6
@@ -144,7 +144,7 @@
         "reprovacao": 8.37,
         "abandono": 33.72,
         "vs_top_quartile": 4.93,
-        "vs_media_nacional": 15.98,
+        "vs_media_nacional": 15.86,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 23,
@@ -155,7 +155,7 @@
         "reprovacao": null,
         "abandono": 33.07,
         "vs_top_quartile": 10.38,
-        "vs_media_nacional": 21.4,
+        "vs_media_nacional": 21.3,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 23,
@@ -214,7 +214,7 @@
           2020
         ],
         "vs_top_quartile": 0.0,
-        "vs_media_nacional": 0.04,
+        "vs_media_nacional": 0.07,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 21
@@ -236,7 +236,7 @@
           2020
         ],
         "vs_top_quartile": 0.0,
-        "vs_media_nacional": 2.64,
+        "vs_media_nacional": 2.53,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 21
@@ -263,7 +263,7 @@
           2024
         ],
         "vs_top_quartile": 4.78,
-        "vs_media_nacional": 13.86,
+        "vs_media_nacional": 14.03,
         "vs_meta_pne_2034": -5.260000000000005,
         "meta_pne_aplicavel": true,
         "posicao": 5
@@ -285,7 +285,7 @@
           2024
         ],
         "vs_top_quartile": 5.56,
-        "vs_media_nacional": 19.8,
+        "vs_media_nacional": 20.01,
         "vs_meta_pne_2034": -3.760000000000005,
         "meta_pne_aplicavel": true,
         "posicao": 5
@@ -324,12 +324,9 @@
           2024,
           2025
         ],
-        "vs_top_quartile": -3579.0,
-        "vs_media_nacional": -12892.01,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 9,
-        "valor": 5070.0
+        "valor": 5070.0,
+        "ranking_aplicavel": false
       },
       "vintage": "2025-Q1",
       "caveat": "Apenas vínculos formais. CBO 3xxxx exclui ocupações afins em 5xxxx/7xxxx."
@@ -349,7 +346,7 @@
         "premio_ept_especifico_publicamente_mensuravel": false,
         "vintage_rais": "2023",
         "vs_top_quartile": -28.5,
-        "vs_media_nacional": -13.5,
+        "vs_media_nacional": -13.77,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 17,
@@ -390,7 +387,7 @@
         ],
         "polaridade_inversa": true,
         "vs_top_quartile": 1.8,
-        "vs_media_nacional": 8.92,
+        "vs_media_nacional": 8.69,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 24
@@ -405,7 +402,7 @@
         "matriculas_base": 85584,
         "matriculas_atual": 89029,
         "vs_top_quartile": -9.3,
-        "vs_media_nacional": -2.45,
+        "vs_media_nacional": -2.53,
         "vs_meta_pne_2034": -55.97,
         "meta_pne_aplicavel": true,
         "posicao": 14,
@@ -417,7 +414,7 @@
         "matriculas_base": 44442,
         "matriculas_atual": 55751,
         "vs_top_quartile": -92.03,
-        "vs_media_nacional": -56.59,
+        "vs_media_nacional": -58.68,
         "vs_meta_pne_2034": -34.55,
         "meta_pne_aplicavel": true,
         "posicao": 17,
@@ -431,23 +428,17 @@
         "cursos_novos_2y": 91,
         "cursos_descontinuados_2y": 75,
         "saldo_liquido_2y": 16,
-        "vs_top_quartile": 16.0,
-        "vs_media_nacional": 35.38,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 3,
-        "valor": 16.0
+        "valor": 16.0,
+        "ranking_aplicavel": false
       },
       "rede_estadual": {
         "cursos_novos_2y": 27,
         "cursos_descontinuados_2y": 28,
         "saldo_liquido_2y": -1,
-        "vs_top_quartile": -3.0,
-        "vs_media_nacional": -35.67,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 12,
-        "valor": -1.0
+        "valor": -1.0,
+        "ranking_aplicavel": false
       },
       "vintage": "2024",
       "caveat": "Par escola+curso novo em 2024 que não existia 2020-2023."
@@ -479,7 +470,7 @@
         "meta_2036_pct": 50.0,
         "gap_pp": 29.67,
         "vs_top_quartile": 0.0,
-        "vs_media_nacional": 4.21,
+        "vs_media_nacional": 4.36,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 7
@@ -501,7 +492,7 @@
           2024
         ],
         "vs_top_quartile": 5.59,
-        "vs_media_nacional": 7.48,
+        "vs_media_nacional": 7.54,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 5
@@ -532,11 +523,8 @@
           2023,
           2024
         ],
-        "vs_top_quartile": -5563.0,
-        "vs_media_nacional": -57769.85,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 9
+        "ranking_aplicavel": false
       },
       "rede_estadual": {
         "valor": 45,
@@ -554,11 +542,8 @@
           2023,
           2024
         ],
-        "vs_top_quartile": -12715.0,
-        "vs_media_nacional": -22813.1,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 24
+        "ranking_aplicavel": false
       },
       "vintage": "2024",
       "caveat": "Curso subsequente = curso técnico após conclusão do EM. Meta 2036: +60% sobre a base 2020."
@@ -576,51 +561,13 @@
         "meta_2036": 50.0,
         "gap_absoluto_2031": 34329,
         "vs_top_quartile": 0.0,
-        "vs_media_nacional": -0.1,
+        "vs_media_nacional": -0.2,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 7
       },
       "vintage": "2024",
       "caveat": "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental FIC. Meta progressiva: 25% em 2031 e 50% em 2036."
-    },
-    "pne_m12f": {
-      "total_estado": {
-        "valor": 0.22,
-        "meta_2036_pct": 10.0,
-        "gap_pp": 9.78,
-        "gap_absoluto_jovens": 280670,
-        "ritmo_anual_necessario": 23389,
-        "por_sexo": {
-          "homens": 0.12,
-          "mulheres": 0.32
-        },
-        "por_raca": {
-          "brancos": 0.51,
-          "pretos_pardos": 0.11
-        },
-        "valor_5y": [
-          0.22495180332200967,
-          0.30069142399855403,
-          0.289681823752109,
-          0.4254173102705545,
-          0.2193607754521615
-        ],
-        "anos_5y": [
-          2021,
-          2022,
-          2023,
-          2024,
-          2025
-        ],
-        "vs_top_quartile": -0.41,
-        "vs_media_nacional": -0.36,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 26
-      },
-      "vintage": "2025",
-      "caveat": "PNAD V3007 amostral. Estados de pop menor têm IC mais amplo."
     },
     "cob_perfil_alunos": {
       "total_estado": {
@@ -640,12 +587,9 @@
           "subsequente_pct": 33.6,
           "eja_tecnico_pct": 0.4
         },
-        "vs_top_quartile": -19720.0,
-        "vs_media_nacional": -79878.91,
-        "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 8,
-        "valor": 89029.0
+        "valor": 89029.0,
+        "ranking_aplicavel": false
       },
       "vintage": "2020",
       "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola."
@@ -678,7 +622,7 @@
           }
         ],
         "vs_top_quartile": -5.6,
-        "vs_media_nacional": -0.08,
+        "vs_media_nacional": 0.27,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 10
@@ -699,7 +643,7 @@
           "diferenca": 5.2
         },
         "vs_top_quartile": -1.0,
-        "vs_media_nacional": 5.04,
+        "vs_media_nacional": 4.92,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 7,
@@ -714,7 +658,7 @@
         "sem_ept_pct": 12.15,
         "diferenca_pp": -20.81,
         "vs_top_quartile": 15.8,
-        "vs_media_nacional": 23.41,
+        "vs_media_nacional": 23.29,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 24,
@@ -722,52 +666,6 @@
       },
       "vintage": "2024",
       "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual."
-    },
-    "qua_ingresso_es_pnad": {
-      "total_estado": {
-        "com_ept_pct": 0.0,
-        "sem_ept_pct": 15.4,
-        "diferenca_pp": -15.4,
-        "n_amostra_com_ept": 372,
-        "n_amostra_sem_ept": 49761,
-        "vs_top_quartile": -0.9,
-        "vs_media_nacional": 3.27,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 8,
-        "valor": -15.4
-      },
-      "vintage": "2021-2025",
-      "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16."
-    },
-    "mer_renda_jovens_pnad": {
-      "total_estado": {
-        "medianas": {
-          "sem_em": 800.0,
-          "em_regular": 1200.0,
-          "tem_ept": 1518.0,
-          "superior_sem_ept": 1412.0
-        },
-        "n_amostra": {
-          "sem_em": 8345,
-          "em_regular": 18007,
-          "tem_ept": 249,
-          "superior_sem_ept": 8452
-        },
-        "premios_pct": {
-          "em_reg_vs_sem_em": 50.0,
-          "ept_vs_em_reg": 26.5,
-          "superior_sem_ept_vs_em_reg": 17.7
-        },
-        "vs_top_quartile": -20.2,
-        "vs_media_nacional": -13.81,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 21,
-        "valor": 26.5
-      },
-      "vintage": "2021-2025",
-      "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. Mediana sem ponderação amostral."
     }
   }
 }
