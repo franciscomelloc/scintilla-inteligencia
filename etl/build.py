@@ -87,7 +87,7 @@ def build_uf(uf: str) -> dict[str, Any]:
 def _summary_vintage(indicators: dict[str, Any]) -> dict[str, str]:
     """Sumariza vintages das fontes principais a partir dos indicadores."""
     summary = {
-        "censo_escolar": indicators.get("cob_matriculas_ept_per_jovem", {}).get("vintage", "indisponível"),
+        "censo_escolar": indicators.get("cob_municipios_com_ept", {}).get("vintage", "indisponível"),
         "rais": indicators.get("mer_premio_salarial_escolaridade", {}).get("vintage", "indisponível"),
         "caged": indicators.get("mer_saldo_caged_tecnicos", {}).get("vintage", "indisponível"),
         "pnad": indicators.get("mer_neet_rate", {}).get("vintage", "indisponível"),

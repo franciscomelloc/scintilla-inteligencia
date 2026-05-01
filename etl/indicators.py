@@ -51,16 +51,12 @@ class UFDiagnostic(BaseModel):
 # ============================================================
 
 INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
+    # cob_matriculas_ept_per_jovem REMOVIDO — indicador estava calculado mas
+    # nunca exibido no painel; denominador (15-29) e numerador (inclui EJA 25+)
+    # tinham faixas etárias incoerentes. Substituído pelos cards já no ar:
+    # cob_alcance_ponderado e cob_municipios_com_ept.
+
     # Domínio Cobertura
-    "cob_matriculas_ept_per_jovem": {
-        "domain": "cobertura",
-        "name": "Matrículas EPT por 1.000 jovens 15-29 anos",
-        "recortes": ["total_estado", "rede_estadual"],
-        "polaridade_inversa": False,
-        "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula", "br_ibge_pnadc.microdados"],
-        "pne_meta": "expansion_general",  # Meta de expansão EPT
-    },
     "cob_distribuicao_dependencia": {
         "domain": "cobertura",
         "name": "Distribuição de matrículas EPT por dependência administrativa",

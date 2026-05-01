@@ -10,54 +10,6 @@
   },
   "last_built": "2026-04-30T22:06:52.876448+00:00",
   "indicators": {
-    "cob_matriculas_ept_per_jovem": {
-      "total_estado": {
-        "valor": 6.68,
-        "valor_5y": [
-          0.0,
-          0.0,
-          0.0,
-          6.1,
-          6.68
-        ],
-        "anos_5y": [
-          2020,
-          2021,
-          2022,
-          2023,
-          2024
-        ],
-        "vs_top_quartile": -25.59,
-        "vs_media_nacional": -15.1,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 26
-      },
-      "rede_estadual": {
-        "valor": 0.0,
-        "valor_5y": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "anos_5y": [
-          2020,
-          2021,
-          2022,
-          2023,
-          2024
-        ],
-        "vs_top_quartile": -21.46,
-        "vs_media_nacional": -15.43,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 27
-      },
-      "vintage": "2024",
-      "caveat": "Inclui matrículas EPT em EM regular + EJA-técnico. Pop 15-29 PNAD."
-    },
     "cob_distribuicao_dependencia": {
       "total_estado": {
         "federal": 79.66,
@@ -552,11 +504,11 @@
         "meta_2031": 25.0,
         "meta_2036": 50.0,
         "gap_absoluto_2031": 13351,
-        "vs_top_quartile": -0.12,
-        "vs_media_nacional": -0.32,
+        "vs_top_quartile": -3.65,
+        "vs_media_nacional": -1.63,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 9
+        "posicao": 12
       },
       "vintage": "2024",
       "caveat": "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental FIC. Meta progressiva: 25% em 2031 e 50% em 2036."

@@ -10,54 +10,6 @@
   },
   "last_built": "2026-04-30T22:37:15.165451+00:00",
   "indicators": {
-    "cob_matriculas_ept_per_jovem": {
-      "total_estado": {
-        "valor": 15.36,
-        "valor_5y": [
-          0.0,
-          0.0,
-          0.0,
-          14.44,
-          15.36
-        ],
-        "anos_5y": [
-          2020,
-          2021,
-          2022,
-          2023,
-          2024
-        ],
-        "vs_top_quartile": -16.91,
-        "vs_media_nacional": -6.42,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 12
-      },
-      "rede_estadual": {
-        "valor": 10.81,
-        "valor_5y": [
-          0.0,
-          0.0,
-          0.0,
-          10.41,
-          10.81
-        ],
-        "anos_5y": [
-          2020,
-          2021,
-          2022,
-          2023,
-          2024
-        ],
-        "vs_top_quartile": -10.65,
-        "vs_media_nacional": -4.62,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": 10
-      },
-      "vintage": "2024",
-      "caveat": "Inclui matrículas EPT em EM regular + EJA-técnico. Pop 15-29 PNAD."
-    },
     "cob_distribuicao_dependencia": {
       "total_estado": {
         "federal": 24.73,
@@ -552,18 +504,18 @@
     },
     "pne_m12c": {
       "total_estado": {
-        "valor": 0.47,
-        "pct_em": 0.59,
+        "valor": 0.58,
+        "pct_em": 0.87,
         "pct_ef": 0.38,
-        "articulada_em": 298,
+        "articulada_em": 438,
         "articulada_ef": 281,
         "eja_em_total": 50136,
         "eja_ef_total": 73576,
         "meta_2031": 25.0,
         "meta_2036": 50.0,
-        "gap_absoluto_2031": 30349,
-        "vs_top_quartile": -1.57,
-        "vs_media_nacional": -1.77,
+        "gap_absoluto_2031": 30209,
+        "vs_top_quartile": -4.99,
+        "vs_media_nacional": -2.97,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 23

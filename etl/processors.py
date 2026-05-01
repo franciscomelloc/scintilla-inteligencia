@@ -52,27 +52,6 @@ def _ano_mais_recente(df: pd.DataFrame) -> int | None:
 # ---------------------------------------------------------------------------
 
 
-def cob_matriculas_ept_per_jovem(df: pd.DataFrame, uf: str) -> dict[str, Any]:
-    """SQL retorna: ano, valor_total_estado, valor_rede_estadual."""
-    if df.empty:
-        return _empty_indicator("Sem dados Censo+PNAD para o estado.")
-    latest = df.sort_values("ano").iloc[-1]
-    spark_total = _valor_5y(df, "valor_total_estado")
-    spark_estadual = _valor_5y(df, "valor_rede_estadual")
-    return {
-        "total_estado": {
-            "valor": float(latest["valor_total_estado"]) if pd.notna(latest["valor_total_estado"]) else None,
-            **spark_total,
-        },
-        "rede_estadual": {
-            "valor": float(latest["valor_rede_estadual"]) if pd.notna(latest["valor_rede_estadual"]) else None,
-            **spark_estadual,
-        },
-        "vintage": str(int(latest["ano"])),
-        "caveat": "Inclui matrículas EPT em EM regular + EJA-técnico. Pop 15-29 PNAD.",
-    }
-
-
 def cob_distribuicao_dependencia(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna: ano, pct_federal, pct_estadual, pct_municipal, pct_privada, total."""
     if df.empty:
@@ -780,7 +759,6 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
 
 
 PROCESSORS = {
-    "cob_matriculas_ept_per_jovem": cob_matriculas_ept_per_jovem,
     "cob_distribuicao_dependencia": cob_distribuicao_dependencia,
     "cob_municipios_com_ept": cob_municipios_com_ept,
     "cob_eixos_cobertos": cob_eixos_cobertos,
