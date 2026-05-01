@@ -104,7 +104,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "domain": "qualidade",
         "name": "Taxas de rendimento (aprovação/reprovação/abandono) na última série EPT",
         "recortes": ["total_estado", "rede_estadual"],
-        "polaridade_inversa": False,
+        "polaridade_inversa": True,
         "lag_months": 12,
         "source": ["br_inep_indicadores_educacionais.escola", "br_inep_censo_escolar.matricula"],
         "pne_meta": None,

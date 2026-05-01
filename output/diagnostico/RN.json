@@ -143,21 +143,23 @@
         "aprovacao": 4.76,
         "reprovacao": 4.01,
         "abandono": 12.04,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -16.75,
+        "vs_media_nacional": -5.7,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 7,
+        "valor": 12.04
       },
       "rede_estadual": {
         "aprovacao": 4.76,
         "reprovacao": 4.06,
         "abandono": 7.38,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -15.32,
+        "vs_media_nacional": -4.29,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 11,
+        "valor": 7.38
       },
       "vintage": "2024",
       "caveat": "Taxas EM agregadas das escolas que ofertam EPT (proxy). Conclusão de coorte real exige cruzamento nominativo."
@@ -322,11 +324,12 @@
           2024,
           2025
         ],
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -5969.0,
+        "vs_media_nacional": -15282.01,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 16,
+        "valor": 2680.0
       },
       "vintage": "2025-Q1",
       "caveat": "Apenas vínculos formais. CBO 3xxxx exclui ocupações afins em 5xxxx/7xxxx."
@@ -345,11 +348,12 @@
         },
         "premio_ept_especifico_publicamente_mensuravel": false,
         "vintage_rais": "2023",
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": 10.1,
+        "vs_media_nacional": 25.1,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 3,
+        "valor": 140.7
       },
       "vintage": "2023",
       "caveat": "RAIS não distingue EM regular de EM técnico em microdados públicos. Prêmio EPT específico exige cruzamento Censo×RAIS por CPF."
@@ -400,22 +404,24 @@
         "cagr_5y_pct": 2.53,
         "matriculas_base": 39637,
         "matriculas_atual": 44920,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": null
+        "vs_top_quartile": 0.0,
+        "vs_media_nacional": 6.85,
+        "vs_meta_pne_2034": -46.67,
+        "meta_pne_aplicavel": true,
+        "posicao": 7,
+        "valor": 13.33
       },
       "rede_estadual": {
         "crescimento_5y_pct": 1060.25,
         "cagr_5y_pct": 63.27,
         "matriculas_base": 712,
         "matriculas_atual": 8261,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
-        "vs_meta_pne_2034": null,
-        "meta_pne_aplicavel": false,
-        "posicao": null
+        "vs_top_quartile": 942.77,
+        "vs_media_nacional": 978.21,
+        "vs_meta_pne_2034": 1000.25,
+        "meta_pne_aplicavel": true,
+        "posicao": 1,
+        "valor": 1060.25
       },
       "vintage": "2020",
       "caveat": "Janela 2015→2020 (Censo matricula table). Decomposição por modalidade pendente."
@@ -425,21 +431,23 @@
         "cursos_novos_2y": 41,
         "cursos_descontinuados_2y": 53,
         "saldo_liquido_2y": -12,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -12.0,
+        "vs_media_nacional": 7.38,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 10,
+        "valor": -12.0
       },
       "rede_estadual": {
         "cursos_novos_2y": 6,
         "cursos_descontinuados_2y": 6,
         "saldo_liquido_2y": 0,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -2.0,
+        "vs_media_nacional": -34.67,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 9,
+        "valor": 0.0
       },
       "vintage": "2024",
       "caveat": "Par escola+curso novo em 2024 que não existia 2020-2023."
@@ -632,11 +640,12 @@
           "subsequente_pct": 46.0,
           "eja_tecnico_pct": 0.8
         },
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -63829.0,
+        "vs_media_nacional": -123987.91,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 11,
+        "valor": 44920.0
       },
       "vintage": "2020",
       "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola."
@@ -689,11 +698,12 @@
           "sem_ept": 261.4,
           "diferenca": -0.3
         },
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -7.25,
+        "vs_media_nacional": -1.21,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 14,
+        "valor": -1.25
       },
       "vintage": "2023",
       "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT."
@@ -703,11 +713,12 @@
         "com_ept_pct": 5.4,
         "sem_ept_pct": 1.81,
         "diferenca_pp": -3.59,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -11.77,
+        "vs_media_nacional": -4.16,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 7,
+        "valor": 5.4
       },
       "vintage": "2024",
       "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual."
@@ -719,11 +730,12 @@
         "diferenca_pp": -15.4,
         "n_amostra_com_ept": 236,
         "n_amostra_sem_ept": 18268,
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -0.9,
+        "vs_media_nacional": 3.27,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 8,
+        "valor": -15.4
       },
       "vintage": "2021-2025",
       "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16."
@@ -747,11 +759,12 @@
           "ept_vs_em_reg": 22.9,
           "superior_sem_ept_vs_em_reg": 15.2
         },
-        "vs_top_quartile": null,
-        "vs_media_nacional": null,
+        "vs_top_quartile": -23.8,
+        "vs_media_nacional": -17.41,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null
+        "posicao": 25,
+        "valor": 22.9
       },
       "vintage": "2021-2025",
       "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. Mediana sem ponderação amostral."

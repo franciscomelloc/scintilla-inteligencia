@@ -163,19 +163,25 @@ def qua_taxas_rendimento_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     if df.empty:
         return _empty_indicator("Sem dados Indicadores Educacionais cruzando com escolas EPT.")
     latest = df.sort_values("ano").iloc[-1]
+    # `taxa_aprovacao_em` no basedosdados.br_inep_indicadores_educacionais.escola
+    # tem escala atípica (max ~20, avg ~5) — não é percentual convencional. Por isso
+    # 'valor' fica None pra não enviesar o ranking. `taxa_abandono_em` está OK (0-100).
     return {
         "total_estado": {
+            "valor": _safe_float(latest.get("abandono_total")),
             "aprovacao": _safe_float(latest.get("aprovacao_total")),
             "reprovacao": _safe_float(latest.get("reprovacao_total")),
             "abandono": _safe_float(latest.get("abandono_total")),
         },
         "rede_estadual": {
+            "valor": _safe_float(latest.get("abandono_estadual")),
             "aprovacao": _safe_float(latest.get("aprovacao_estadual")),
             "reprovacao": _safe_float(latest.get("reprovacao_estadual")),
             "abandono": _safe_float(latest.get("abandono_estadual")),
         },
+        "polaridade_inversa": True,
         "vintage": str(int(latest["ano"])),
-        "caveat": "Taxas EM agregadas das escolas que ofertam EPT (proxy). Conclusão de coorte real exige cruzamento nominativo.",
+        "caveat": "Taxa de abandono EM ponderada por matrículas EPT (proxy). taxa_aprovacao_em do BD está em escala atípica (~0-20) e foi exibida no card mas não usada para ranking.",
     }
 
 
@@ -270,6 +276,7 @@ def mer_saldo_caged_tecnicos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             pass
     return {
         "total_estado": {
+            "valor": float(saldo_12m),
             "saldo_12m": saldo_12m,
             "top_3_subfamilias_cbo": top3,
             **_valor_5y(df, "saldo_12m"),
@@ -287,8 +294,10 @@ def mer_premio_salarial_escolaridade(df: pd.DataFrame, uf: str) -> dict[str, Any
     sem_em = _safe_float(latest.get("mediana_sem_em")) or 0
     em = _safe_float(latest.get("mediana_em_completo")) or 0
     sup = _safe_float(latest.get("mediana_superior")) or 0
+    superior_vs_em = round((sup / em - 1) * 100, 1) if em else None
     return {
         "total_estado": {
+            "valor": superior_vs_em,
             "medianas_brl_real": {
                 "sem_ensino_medio": round(sem_em, 2),
                 "ensino_medio_completo": round(em, 2),
@@ -296,7 +305,7 @@ def mer_premio_salarial_escolaridade(df: pd.DataFrame, uf: str) -> dict[str, Any
             },
             "premios_pct": {
                 "em_vs_sem_em": round((em / sem_em - 1) * 100, 1) if sem_em else None,
-                "superior_vs_em": round((sup / em - 1) * 100, 1) if em else None,
+                "superior_vs_em": superior_vs_em,
                 "superior_vs_sem_em": round((sup / sem_em - 1) * 100, 1) if sem_em else None,
             },
             "premio_ept_especifico_publicamente_mensuravel": False,
@@ -351,12 +360,14 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     cagr_est = round(((qtd_end_est / qtd_base_est) ** (1/5) - 1) * 100, 2) if qtd_base_est else None
     return {
         "total_estado": {
+            "valor": growth_total,
             "crescimento_5y_pct": growth_total,
             "cagr_5y_pct": cagr_total,
             "matriculas_base": qtd_base,
             "matriculas_atual": qtd_end,
         },
         "rede_estadual": {
+            "valor": growth_est,
             "crescimento_5y_pct": growth_est,
             "cagr_5y_pct": cagr_est,
             "matriculas_base": qtd_base_est,
@@ -376,16 +387,20 @@ def din_cursos_novos_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     desc_total = int(row.get("cursos_descontinuados_total") or 0)
     novos_estadual = int(row.get("cursos_novos_estadual") or 0)
     desc_estadual = int(row.get("cursos_descontinuados_estadual") or 0)
+    saldo_total = novos_total - desc_total
+    saldo_est = novos_estadual - desc_estadual
     return {
         "total_estado": {
+            "valor": float(saldo_total),
             "cursos_novos_2y": novos_total,
             "cursos_descontinuados_2y": desc_total,
-            "saldo_liquido_2y": novos_total - desc_total,
+            "saldo_liquido_2y": saldo_total,
         },
         "rede_estadual": {
+            "valor": float(saldo_est),
             "cursos_novos_2y": novos_estadual,
             "cursos_descontinuados_2y": desc_estadual,
-            "saldo_liquido_2y": novos_estadual - desc_estadual,
+            "saldo_liquido_2y": saldo_est,
         },
         "vintage": "2024",
         "caveat": "Par escola+curso novo em 2024 que não existia 2020-2023.",
@@ -569,6 +584,7 @@ def cob_perfil_alunos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     pct = lambda v, t: round(100.0 * v / t, 1) if t else 0.0
     return {
         "total_estado": {
+            "valor": float(total),
             "total_matriculas_ept": total,
             "faixa_etaria": {
                 "15_17_pct": pct(_i("faixa_15_17"), total),
@@ -638,21 +654,26 @@ def qua_saeb_proficiencia_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     port_com = get(["LP", "lingua_portuguesa", "portugues", "PORTUGUES"], 1)
     port_sem = get(["LP", "lingua_portuguesa", "portugues", "PORTUGUES"], 0)
     ano = int(df["ano"].max())
+    diff_mat = (mat_com - mat_sem) if (mat_com is not None and mat_sem is not None) else None
+    diff_port = (port_com - port_sem) if (port_com is not None and port_sem is not None) else None
+    diffs = [d for d in (diff_mat, diff_port) if d is not None]
+    valor_premio = round(sum(diffs) / len(diffs), 1) if diffs else None
     return {
         "total_estado": {
+            "valor": valor_premio,
             "matematica": {
                 "com_ept": round(mat_com, 1) if mat_com is not None else None,
                 "sem_ept": round(mat_sem, 1) if mat_sem is not None else None,
-                "diferenca": round(mat_com - mat_sem, 1) if (mat_com is not None and mat_sem is not None) else None,
+                "diferenca": round(diff_mat, 1) if diff_mat is not None else None,
             },
             "portugues": {
                 "com_ept": round(port_com, 1) if port_com is not None else None,
                 "sem_ept": round(port_sem, 1) if port_sem is not None else None,
-                "diferenca": round(port_com - port_sem, 1) if (port_com is not None and port_sem is not None) else None,
+                "diferenca": round(diff_port, 1) if diff_port is not None else None,
             },
         },
         "vintage": str(ano),
-        "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT.",
+        "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT. 'valor' = média dos prêmios MT+LP.",
     }
 
 
@@ -669,6 +690,7 @@ def qua_abandono_em_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     sem_val = _safe_float(sem.iloc[0]["taxa_abandono_em_ponderada"]) if not sem.empty else None
     return {
         "total_estado": {
+            "valor": round(com_val, 2) if com_val is not None else None,
             "com_ept_pct": round(com_val, 2) if com_val is not None else None,
             "sem_ept_pct": round(sem_val, 2) if sem_val is not None else None,
             "diferenca_pp": round(sem_val - com_val, 2) if (com_val is not None and sem_val is not None) else None,
@@ -688,16 +710,18 @@ def qua_ingresso_es_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     reg_val = _safe_float(reg.iloc[0]["pct_em_es"]) if not reg.empty else None
     n_tec = int(tec.iloc[0]["n_amostra"]) if not tec.empty else 0
     n_reg = int(reg.iloc[0]["n_amostra"]) if not reg.empty else 0
+    diff = (tec_val - reg_val) if (tec_val is not None and reg_val is not None) else None
     return {
         "total_estado": {
+            "valor": round(diff, 1) if diff is not None else None,
             "com_ept_pct": round(tec_val, 1) if tec_val is not None else None,
             "sem_ept_pct": round(reg_val, 1) if reg_val is not None else None,
-            "diferenca_pp": round(tec_val - reg_val, 1) if (tec_val is not None and reg_val is not None) else None,
+            "diferenca_pp": round(diff, 1) if diff is not None else None,
             "n_amostra_com_ept": n_tec,
             "n_amostra_sem_ept": n_reg,
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025) para cobrir estados de menor amostra. EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16.",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). EPT = V3007='1' (concluiu técnico EM). Cursando ES = V3009A entre 12-16. 'valor' = diferença pp (com EPT - sem EPT).",
     }
 
 
@@ -715,8 +739,10 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     tem_ept, n_ept = get_mediana("tem_ept")
     sup_sem_ept, n_sup = get_mediana("superior_sem_ept")
     pct = lambda a, b: round((a / b - 1) * 100, 1) if (a and b) else None
+    premio_ept = pct(tem_ept, em_reg)
     return {
         "total_estado": {
+            "valor": premio_ept,
             "medianas": {
                 "sem_em": round(sem_em, 2) if sem_em is not None else None,
                 "em_regular": round(em_reg, 2) if em_reg is not None else None,
@@ -731,12 +757,12 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             },
             "premios_pct": {
                 "em_reg_vs_sem_em": pct(em_reg, sem_em),
-                "ept_vs_em_reg": pct(tem_ept, em_reg),
+                "ept_vs_em_reg": premio_ept,
                 "superior_sem_ept_vs_em_reg": pct(sup_sem_ept, em_reg),
             },
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. Mediana sem ponderação amostral.",
+        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. 'valor' = prêmio % EPT vs EM regular. Mediana sem ponderação amostral.",
     }
 
 
