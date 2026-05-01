@@ -358,23 +358,31 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     growth_est = round((qtd_end_est / qtd_base_est - 1) * 100, 2) if qtd_base_est else None
     cagr_total = round(((qtd_end / qtd_base) ** (1/5) - 1) * 100, 2) if qtd_base else None
     cagr_est = round(((qtd_end_est / qtd_base_est) ** (1/5) - 1) * 100, 2) if qtd_base_est else None
+    # Threshold: redes com base < 1000 matrículas têm crescimento % muito sensível a
+    # ruído (RN rede estadual cresceu 1060% partindo de 712). Suprime tanto valor
+    # exibido quanto o que entra no ranking.
+    BASE_MIN = 1000
+    valor_total = growth_total if qtd_base >= BASE_MIN else None
+    valor_est = growth_est if qtd_base_est >= BASE_MIN else None
     return {
         "total_estado": {
-            "valor": growth_total,
-            "crescimento_5y_pct": growth_total,
-            "cagr_5y_pct": cagr_total,
+            "valor": valor_total,
+            "crescimento_5y_pct": valor_total,
+            "cagr_5y_pct": cagr_total if qtd_base >= BASE_MIN else None,
             "matriculas_base": qtd_base,
             "matriculas_atual": qtd_end,
+            "base_insuficiente": qtd_base < BASE_MIN,
         },
         "rede_estadual": {
-            "valor": growth_est,
-            "crescimento_5y_pct": growth_est,
-            "cagr_5y_pct": cagr_est,
+            "valor": valor_est,
+            "crescimento_5y_pct": valor_est,
+            "cagr_5y_pct": cagr_est if qtd_base_est >= BASE_MIN else None,
             "matriculas_base": qtd_base_est,
             "matriculas_atual": qtd_end_est,
+            "base_insuficiente": qtd_base_est < BASE_MIN,
         },
         "vintage": str(end_year),
-        "caveat": f"Janela {base_year}→{end_year} (Censo matricula table). Decomposição por modalidade pendente.",
+        "caveat": f"Janela {base_year}→{end_year} (Censo matricula table). Redes com base <{BASE_MIN} matrículas têm crescimento suprimido (alta variância). Decomposição por modalidade pendente.",
     }
 
 

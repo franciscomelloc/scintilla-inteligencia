@@ -60,6 +60,10 @@ def derive_valor(code: str, recorte: str, cut: dict[str, Any]) -> float | None:
         return float(v) if isinstance(v, (int, float)) else None
 
     if code == "din_crescimento_matriculas_5y":
+        # Threshold: redes com base <1000 são suprimidas do ranking (alta variância)
+        base = cut.get("matriculas_base")
+        if isinstance(base, (int, float)) and base < 1000:
+            return None
         v = cut.get("crescimento_5y_pct")
         return float(v) if isinstance(v, (int, float)) else None
 
@@ -116,6 +120,23 @@ def main() -> int:
     if purged:
         logger.info(f"Purgados {purged} indicadores fora do catálogo")
 
+    # Suprime crescimento_5y_pct e cagr_5y_pct para redes com base < 1000 (regra do
+    # processor — JSONs antigos podem ter ficado com valores inflados antes do fix)
+    BASE_MIN = 1000
+    for uf, data in all_data.items():
+        ind = _safe_dict(data.get("indicators", {}).get("din_crescimento_matriculas_5y"))
+        for recorte in ("total_estado", "rede_estadual"):
+            cut = ind.get(recorte) if isinstance(ind, dict) else None
+            if not isinstance(cut, dict):
+                continue
+            base = cut.get("matriculas_base")
+            if isinstance(base, (int, float)) and base < BASE_MIN:
+                cut["crescimento_5y_pct"] = None
+                cut["cagr_5y_pct"] = None
+                cut["base_insuficiente"] = True
+            else:
+                cut["base_insuficiente"] = False
+
     # Inject valor nos indicadores estruturados
     inject_count = 0
     for code in get_indicator_codes():
@@ -127,11 +148,15 @@ def main() -> int:
                 if not cut:
                     continue
                 # Force override em indicadores onde 'valor' deve ser recalculado
-                # toda passada (ex: qua_taxas_rendimento_ept teve fix de polaridade)
-                force_override = code in {"qua_taxas_rendimento_ept"}
+                # toda passada (fix de polaridade ou suppression por threshold)
+                force_override = code in {"qua_taxas_rendimento_ept", "din_crescimento_matriculas_5y"}
                 if force_override or "valor" not in cut or cut.get("valor") is None:
                     derived = derive_valor(code, recorte, cut)
-                    if derived is not None:
+                    if force_override:
+                        # Aceita None: força sobrescrita mesmo pra suprimir valor
+                        cut["valor"] = derived
+                        inject_count += 1
+                    elif derived is not None:
                         cut["valor"] = derived
                         inject_count += 1
     logger.info(f"Injected 'valor' em {inject_count} células")

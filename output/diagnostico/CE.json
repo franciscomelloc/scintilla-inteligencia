@@ -406,7 +406,8 @@
         "vs_meta_pne_2034": -55.97,
         "meta_pne_aplicavel": true,
         "posicao": 14,
-        "valor": 4.03
+        "valor": 4.03,
+        "base_insuficiente": false
       },
       "rede_estadual": {
         "crescimento_5y_pct": 25.45,
@@ -418,7 +419,8 @@
         "vs_meta_pne_2034": -34.55,
         "meta_pne_aplicavel": true,
         "posicao": 17,
-        "valor": 25.45
+        "valor": 25.45,
+        "base_insuficiente": false
       },
       "vintage": "2020",
       "caveat": "Janela 2015→2020 (Censo matricula table). Decomposição por modalidade pendente."

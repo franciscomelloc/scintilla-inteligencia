@@ -402,11 +402,12 @@
         "vs_meta_pne_2034": -51.56,
         "meta_pne_aplicavel": true,
         "posicao": 11,
-        "valor": 8.44
+        "valor": 8.44,
+        "base_insuficiente": false
       },
       "rede_estadual": {
-        "crescimento_5y_pct": 12.39,
-        "cagr_5y_pct": 2.36,
+        "crescimento_5y_pct": null,
+        "cagr_5y_pct": null,
         "matriculas_base": 662,
         "matriculas_atual": 744,
         "vs_top_quartile": -105.09,
@@ -414,7 +415,8 @@
         "vs_meta_pne_2034": -47.61,
         "meta_pne_aplicavel": true,
         "posicao": 20,
-        "valor": 12.39
+        "valor": 12.39,
+        "base_insuficiente": true
       },
       "vintage": "2020",
       "caveat": "Janela 2015→2020 (Censo matricula table). Decomposição por modalidade pendente."
