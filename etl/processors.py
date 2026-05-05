@@ -753,6 +753,43 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     }
 
 
+def qua_aderencia_docente_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna 1 linha com: ano, docentes_total, pct_superior_total,
+    pct_pos_lato_total, pct_pos_stricto_total, docentes_estadual,
+    pct_superior_estadual, pct_pos_lato_estadual, pct_pos_stricto_estadual.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar — docentes EPT.")
+    row = df.iloc[0]
+    docentes_total = int(row.get("docentes_total") or 0)
+    docentes_estadual = int(row.get("docentes_estadual") or 0)
+    return {
+        "total_estado": {
+            "valor": _safe_float(row.get("pct_superior_total")),
+            "pct_superior": _safe_float(row.get("pct_superior_total")),
+            "pct_pos_lato": _safe_float(row.get("pct_pos_lato_total")),
+            "pct_pos_stricto": _safe_float(row.get("pct_pos_stricto_total")),
+            "n_docentes": docentes_total,
+        },
+        "rede_estadual": {
+            "valor": _safe_float(row.get("pct_superior_estadual")),
+            "pct_superior": _safe_float(row.get("pct_superior_estadual")),
+            "pct_pos_lato": _safe_float(row.get("pct_pos_lato_estadual")),
+            "pct_pos_stricto": _safe_float(row.get("pct_pos_stricto_estadual")),
+            "n_docentes": docentes_estadual,
+        },
+        "vintage": str(int(row["ano"])),
+        "caveat": (
+            "Universo: docentes que ensinam disciplina profissionalizante em curso EPT "
+            "(disciplina_profissionalizante='1' E id_curso_educ_profissional NOT NULL). "
+            "Mede formação BRUTA: % com superior, % com pós lato (especialização), % com "
+            "pós stricto (mestrado ou doutorado). Não mede aderência por área — um historiador "
+            "que dá aula de Mecânica conta como 'tem superior'. Aderência por área exige "
+            "mapping CINE-Brasil → eixo CNCT (próximo ciclo)."
+        ),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Mercado 10x — 3 cards novos (2026-Q2)
 # ---------------------------------------------------------------------------
@@ -997,6 +1034,7 @@ PROCESSORS = {
     "cob_alcance_ponderado": cob_alcance_ponderado,
     "qua_saeb_proficiencia_ept": qua_saeb_proficiencia_ept,
     "qua_abandono_em_ept": qua_abandono_em_ept,
+    "qua_aderencia_docente_ept": qua_aderencia_docente_ept,
     # Mercado 10x (2026-Q2)
     "mer_demanda_cbo_top": mer_demanda_cbo_top,
     "mer_demanda_mesorregiao": mer_demanda_mesorregiao,

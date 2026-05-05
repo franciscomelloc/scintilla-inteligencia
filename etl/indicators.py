@@ -267,6 +267,16 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_indicadores_educacionais.escola", "br_inep_censo_escolar.escola"],
         "pne_meta": None,
     },
+    "qua_aderencia_docente_ept": {
+        "domain": "qualidade",
+        "name": "Formação dos docentes que ensinam disciplina profissionalizante",
+        "recortes": ["total_estado", "rede_estadual"],
+        "polaridade_inversa": False,
+        "lag_months": 12,
+        "source": ["br_inep_censo_escolar.docente"],
+        "pne_meta": None,
+        "lead_gen": "Aderência por área (curso superior afim do eixo CNCT) exige mapping CINE-Brasil → eixo CNCT, ainda não construído.",
+    },
     # qua_ingresso_es_pnad REMOVIDO — mesmo bug V3007 (não é EPT na PNAD trimestral)
 
     # ============================================================
