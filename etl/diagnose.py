@@ -225,6 +225,36 @@ DISCOVERY_QUERIES = {
            OR LOWER(table_name) LIKE '%curso_tec%'
            OR LOWER(table_name) LIKE '%eixo%'
     """,
+    # CBO 84xxxx (trabalhadores indústria alimentícia/bebidas) MG —
+    # potencial mapping pra Eixo 9 Produção Alimentícia. Top por
+    # admissões pra ver volumes reais.
+    "caged_cbo84_mg_top": """
+        SELECT cbo_2002, COUNTIF(saldo_movimentacao > 0) AS n_admissoes,
+               SUM(saldo_movimentacao) AS saldo_12m
+        FROM `basedosdados.br_me_caged.microdados_movimentacao`
+        WHERE sigla_uf = 'MG'
+          AND ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+          AND cbo_2002 IS NOT NULL
+          AND (cbo_2002 LIKE '84%' OR cbo_2002 LIKE '76%')
+        GROUP BY cbo_2002
+        HAVING n_admissoes >= 100
+        ORDER BY n_admissoes DESC
+        LIMIT 20
+    """,
+    # CBO 5xxxx em MG — cuidadores, atendentes (potencial Eixo 2 Educ/Social)
+    "caged_cbo5_mg_top": """
+        SELECT cbo_2002, COUNTIF(saldo_movimentacao > 0) AS n_admissoes,
+               SUM(saldo_movimentacao) AS saldo_12m
+        FROM `basedosdados.br_me_caged.microdados_movimentacao`
+        WHERE sigla_uf = 'MG'
+          AND ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+          AND cbo_2002 IS NOT NULL
+          AND (cbo_2002 LIKE '514%' OR cbo_2002 LIKE '516%' OR cbo_2002 LIKE '517%')
+        GROUP BY cbo_2002
+        HAVING n_admissoes >= 100
+        ORDER BY n_admissoes DESC
+        LIMIT 20
+    """,
     # Red team aderência: top cursos EPT MG 2020 por matrícula. Valida
     # se Eixo 3 > Eixo 4 em MG é real ou contaminação do mapping.
     "censo_top_cursos_mg_2020": """
