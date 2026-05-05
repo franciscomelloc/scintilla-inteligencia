@@ -63,7 +63,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "recortes": ["total_estado"],
         "polaridade_inversa": False,
         "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula"],
+        "source": ["br_inep_censo_escolar.turma"],
         "pne_meta": None,
     },
     "cob_municipios_com_ept": {
@@ -81,7 +81,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "recortes": ["total_estado", "rede_estadual"],
         "polaridade_inversa": False,
         "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula"],
+        "source": ["br_inep_censo_escolar.turma"],
         "reference": ["etl/reference/cnct_curso_eixo.csv"],
         "pne_meta": None,
     },
@@ -91,7 +91,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "recortes": ["total_estado", "rede_estadual"],
         "polaridade_inversa": False,
         "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula"],
+        "source": ["br_inep_censo_escolar.turma"],
         "pne_meta": "integrada_concomitante_50pct_2036",  # PNE M1
     },
 
@@ -174,7 +174,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "recortes": ["total_estado", "rede_estadual"],
         "polaridade_inversa": False,
         "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula"],
+        "source": ["br_inep_censo_escolar.turma"],
         "pne_meta": "subsequente_60pct",  # PNE M2
     },
     "din_cursos_novos_ept": {
@@ -183,7 +183,7 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "recortes": ["total_estado", "rede_estadual"],
         "polaridade_inversa": False,
         "lag_months": 12,
-        "source": ["br_inep_censo_escolar.matricula"],
+        "source": ["br_inep_censo_escolar.turma"],
         "pne_meta": None,
         "ranking_aplicavel": False,  # contagem absoluta, sensível a tamanho da rede
     },
