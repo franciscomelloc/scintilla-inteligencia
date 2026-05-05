@@ -873,12 +873,19 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     - over_supply: gap > +5pp (forma mais que mercado absorve)
     - under_supply: gap < -5pp (mercado quer mais do que estado forma)
     - match: -5 ≤ gap ≤ +5
-    Eixos com oferta=0 E demanda=0 ficam flag sem_dado=true.
+
+    Eixos com demanda não-mensurável em CBO 3xxxx (porque cai em CBO 7xxx,
+    8xxx ou 0xxx — fora do filtro) ficam marcados sem_dado=True
+    independentemente de oferta — evita falsos "Excesso de Oferta":
+    - 2 Desenvolvimento Educacional e Social (cai em CBO 33xxxx, já filtrado)
+    - 8 Militar (CBO 0xxxx, fora do escopo)
+    - 9 Produção Alimentícia (majoritariamente CBO 7-8 operacional)
     """
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar/CAGED para aderência.")
 
     THR = 5.0  # corte de classificação em pontos percentuais
+    EIXOS_SEM_DEMANDA_MENSURAVEL = {2, 8, 9}
 
     eixos = []
     over_supply = []
@@ -898,11 +905,15 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         oferta_pct = float(oferta_pct) if pd.notna(oferta_pct) else None
         demanda_pct = float(demanda_pct) if pd.notna(demanda_pct) else None
 
-        sem_dado = (oferta_n == 0 and demanda_n_adm == 0)
+        # Eixos sem demanda mensurável em CBO 3xxxx ficam flag sem_dado
+        # mesmo se oferta_n > 0 — não dá pra classificar gap quando a
+        # base não captura a demanda. Evita falso "Excesso de Oferta".
+        forcar_sem_dado = eixo_id in EIXOS_SEM_DEMANDA_MENSURAVEL
+        sem_dado = forcar_sem_dado or (oferta_n == 0 and demanda_n_adm == 0)
         gap_pp: float | None = None
         status = None
 
-        if oferta_pct is not None and demanda_pct is not None:
+        if not sem_dado and oferta_pct is not None and demanda_pct is not None:
             gap_pp = round(oferta_pct - demanda_pct, 2)
             if gap_pp > THR:
                 status = "over_supply"
