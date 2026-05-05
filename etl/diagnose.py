@@ -258,6 +258,65 @@ DISCOVERY_QUERIES = {
         GROUP BY V3002, V3009A, VD3004
         ORDER BY n DESC LIMIT 50
     """,
+    # Investigação aderência docente — qual é o último ano disponível com
+    # disciplina_profissionalizante e/ou id_curso_educ_profissional populados?
+    # MG = referência (depois generaliza pros 27).
+    "docente_anos_todos_mg": """
+        SELECT ano, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG'
+        GROUP BY ano ORDER BY ano DESC LIMIT 10
+    """,
+    "docente_anos_disciplina_prof_mg": """
+        SELECT ano,
+               COUNT(*) AS n_total,
+               COUNTIF(SAFE_CAST(disciplina_profissionalizante AS STRING) = '1') AS n_prof_1
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG'
+        GROUP BY ano ORDER BY ano DESC LIMIT 10
+    """,
+    "docente_anos_curso_ept_mg": """
+        SELECT ano,
+               COUNT(*) AS n_total,
+               COUNTIF(id_curso_educ_profissional IS NOT NULL) AS n_curso_ept
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG'
+        GROUP BY ano ORDER BY ano DESC LIMIT 10
+    """,
+    "docente_anos_combo_mg": """
+        SELECT ano,
+               COUNTIF(SAFE_CAST(disciplina_profissionalizante AS STRING) = '1'
+                       AND id_curso_educ_profissional IS NOT NULL) AS n_prof_e_ept,
+               COUNTIF(SAFE_CAST(disciplina_profissionalizante AS STRING) = '1') AS n_prof_only
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG'
+        GROUP BY ano ORDER BY ano DESC LIMIT 10
+    """,
+    "docente_rede_distrib_2024_mg": """
+        SELECT rede, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG' AND ano = 2024
+        GROUP BY rede ORDER BY n DESC
+    """,
+    "docente_rede_distrib_disc_prof_mais_recente_mg": """
+        SELECT ano, rede, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.docente`
+        WHERE sigla_uf = 'MG'
+          AND ano IN (2020, 2021, 2022, 2023, 2024)
+          AND SAFE_CAST(disciplina_profissionalizante AS STRING) = '1'
+        GROUP BY ano, rede ORDER BY ano DESC, n DESC
+    """,
+    # Tipos das colunas docente — confirma se são INT64 ou STRING
+    "docente_tipos_colunas_chave": """
+        SELECT column_name, data_type
+        FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name = 'docente'
+          AND column_name IN ('disciplina_profissionalizante', 'rede',
+                              'especializacao', 'mestrado', 'doutorado',
+                              'id_curso_educ_profissional', 'id_curso_1',
+                              'escolaridade')
+        ORDER BY column_name
+    """,
 }
 
 
