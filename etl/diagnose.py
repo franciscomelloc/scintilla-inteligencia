@@ -99,6 +99,16 @@ DISCOVERY_QUERIES = {
         WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
         GROUP BY ano, VD4007 ORDER BY ano DESC, n DESC LIMIT 30
     """,
+    "pnad_v3002_v3009a_vd3004_cross_18_20": """
+        SELECT V3002, V3009A, VD3004, COUNT(*) AS n,
+               SUM(V1028) AS pop_ponderada
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND V3009A IN ('10', '11', '12', '13')
+        GROUP BY V3002, V3009A, VD3004
+        ORDER BY n DESC LIMIT 30
+    """,
 }
 
 
