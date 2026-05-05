@@ -885,7 +885,7 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     ano_followup = int(anos_ordenados[-1])
     ano_base = int(anos_ordenados[-2])
 
-    CAMINHOS = ["so_formal", "so_informal", "formal_estuda", "informal_estuda", "so_estuda", "neet"]
+    CAMINHOS = ["so_formal", "so_informal", "formal_estuda", "informal_estuda", "so_estuda", "neet", "outro_estuda"]
 
     def _agg_coorte(sub: pd.DataFrame) -> dict[str, Any] | None:
         """Agrega percentuais ponderados por caminho (6 categorias disjuntas)."""
