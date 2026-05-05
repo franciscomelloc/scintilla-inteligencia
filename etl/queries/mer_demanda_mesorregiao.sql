@@ -15,6 +15,9 @@
 -- - Piso de 50 admissões/mesorregião pra mediana — abaixo, salário fica null
 --   (caveat: amostra insuficiente).
 -- - Mesorregiões com saldo absoluto < 30 são suprimidas do output (ruído).
+-- - Excluído subgrupo CBO 33xxxx ("Técnicos da educação" — professores
+--   leigos, instrutores, auxiliares/inspetores escolares). Mesma exclusão
+--   aplicada em mer_demanda_cbo_top — manter consistência entre cards.
 
 WITH base AS (
   SELECT
@@ -27,6 +30,7 @@ WITH base AS (
   WHERE c.sigla_uf = '{UF}'
     AND c.cbo_2002 IS NOT NULL
     AND c.cbo_2002 LIKE '3%'
+    AND c.cbo_2002 NOT LIKE '33%'
     AND c.id_municipio IS NOT NULL
 ),
 

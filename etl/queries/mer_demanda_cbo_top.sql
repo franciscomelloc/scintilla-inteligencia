@@ -18,6 +18,16 @@
 -- estatística do IBGE/MTE — inclui ocupações que exigem formação técnica
 -- formal. Não captura técnicos que entram em CBO 7xxxx (operacionais
 -- qualificados). Comparação com Censo Escolar EPT é descritiva, não causal.
+--
+-- Exclusão: subgrupo CBO 33xxxx ("Técnicos da educação"). Inclui professores
+-- leigos no ensino fundamental/médio (331x), professores práticos (332x),
+-- instrutores de cursos livres (333x) e auxiliares/inspetores escolares
+-- (334x — inspetor de alunos, monitor de transporte escolar, secretário
+-- escolar). Essas ocupações NÃO são formadas por curso técnico EPT — são
+-- funções escolares que entram em CBO 3 por convenção classificatória do
+-- MTE. Mantê-las no ranking dá impressão errada de que professor é EPT.
+-- Verificado em diagnose (caged_cbo3_top30_br): 8 das top 30 ocupações
+-- nacionais por saldo são 33xxxx.
 
 WITH base AS (
   SELECT
@@ -29,6 +39,7 @@ WITH base AS (
   WHERE sigla_uf = '{UF}'
     AND cbo_2002 IS NOT NULL
     AND cbo_2002 LIKE '3%'
+    AND cbo_2002 NOT LIKE '33%'
 ),
 
 ano_mais_recente AS (
