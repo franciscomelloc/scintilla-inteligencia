@@ -81,6 +81,24 @@ DISCOVERY_QUERIES = {
         WHERE sigla_uf = 'MG' AND ano = 2023
         GROUP BY vinculo_ativo_3112 ORDER BY n DESC
     """,
+    "pnad_v3009a_18_20_2024_2025": """
+        SELECT ano, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, V3009A ORDER BY ano DESC, n DESC LIMIT 30
+    """,
+    "pnad_vd3004_18_20_2024_2025": """
+        SELECT ano, VD3004, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, VD3004 ORDER BY ano DESC, n DESC LIMIT 30
+    """,
+    "pnad_vd4007_18_20_2024_2025": """
+        SELECT ano, VD4007, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, VD4007 ORDER BY ano DESC, n DESC LIMIT 30
+    """,
 }
 
 
