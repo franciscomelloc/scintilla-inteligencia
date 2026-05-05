@@ -23,18 +23,19 @@
 --   V2009 idade
 --   V1028 peso pessoal pós-estratificado
 --   V3002 frequenta escola (1=Sim)
---   V3009A nível atual de ensino — codes oficiais PNAD Contínua:
---          1=Maternal/Pré, 2=Alfabetização, 3=Regular fundamental,
---          4=EJA fundamental, 5=Regular médio, 6=EJA médio,
---          7=Educação profissional média (técnico), 8=Pré-vestibular,
---          9=Superior graduação, 10=Especialização, 11=Mestrado, 12=Doutorado.
---          Filtro 9-12 captura "cursando ensino superior" (graduação ou pós).
+--   V3009A nível atual de ensino — codes encontrados na BD via diagnose
+--          (etl/diagnose.py query pnad_v3009a_18_20_2024_2025):
+--          7=Médio regular, 8=Médio EJA, 10=Superior graduação,
+--          11=Especialização, 12=Mestrado, 13=Doutorado.
+--          Filtro 10-13 = "cursando ensino superior" (graduação + pós).
 --   VD3004 nível mais elevado alcançado (5='Médio completo', 6='Superior incompleto',
---          7='Superior completo')
+--          7='Superior completo'). Filtro 5-7 inclui quem cursa superior agora.
 --   VD4002 condição de ocupação (1=Ocupado, 2=Desocupado)
---   VD4007 tipo de empregador / posição (1='Empregado com carteira',
---          7='Trab. doméstico com carteira', 8='Militar', 9='Estatutário';
---          demais = informal/conta-própria)
+--   VD4007 posição na ocupação — codes 1-4 na BD (agregados oficiais):
+--          1=Empregado com carteira, 2=Doméstico, 3=Empregado sem carteira,
+--          4=Estatutário/militar. Formal estrito = ('1','4'); doméstico ('2')
+--          é ambíguo (carteira opcional) — classificado como informal por
+--          conservadorismo.
 --
 -- Rigor:
 -- - Pesa por V1028 (peso pessoal pós-estratificado oficial).
@@ -80,14 +81,14 @@ categorizado AS (
     -- 6 caminhos disjuntos (mutuamente exclusivos, soma <= 100%)
     CASE
       -- Cursando superior + trabalha
-      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12')
-           AND p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'formal_estuda'
-      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12')
+      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13')
+           AND p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'formal_estuda'
+      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13')
            AND p.VD4002 = '1' THEN 'informal_estuda'
       -- Cursando superior sem trabalhar
-      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12') THEN 'so_estuda'
+      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13') THEN 'so_estuda'
       -- Trabalha sem cursar superior
-      WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'so_formal'
+      WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'so_formal'
       WHEN p.VD4002 = '1' THEN 'so_informal'
       -- Não trabalha, não cursa superior, não frequenta nada
       WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '1' THEN 'neet'
