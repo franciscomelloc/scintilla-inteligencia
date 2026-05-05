@@ -961,9 +961,9 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         "caveat": (
             f"PNAD Contínua Q1/{ano_base} → Q1/{ano_followup}. Coorte sintética: comparação "
             "de duas ondas independentes da amostra rotativa, não tracking individual. "
-            "EM completo (VD3004 ≥ 5) inclui EM regular + EM técnico misturados — limitação "
-            "estrutural da PNAD trimestral. Pesos V1028 oficiais. Categorias suprimidas com "
-            "n_amostral < 50 (corte IBGE)."
+            "Cohort 18-20 completa (não filtrada por escolaridade). 'Cursa superior' = "
+            "V3002='1' (frequenta) AND V3003A IN ('8','9','10','11') (graduação ou pós). "
+            "Pesos V1028 oficiais. Categorias suprimidas com n_amostral < 50 (corte IBGE)."
         ),
         "ranking_aplicavel": False,
     }
