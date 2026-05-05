@@ -109,6 +109,22 @@ DISCOVERY_QUERIES = {
         GROUP BY V3002, V3009A, VD3004
         ORDER BY n DESC LIMIT 30
     """,
+    "pnad_v3001_v3002_v3003_v3009A_18_20": """
+        SELECT V3001, V3002, V3003, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V3001, V3002, V3003, V3009A
+        ORDER BY n DESC LIMIT 30
+    """,
+    "pnad_v3002_eq_1_breakdown": """
+        SELECT V3002, V3003, V3009, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V3002 = '1'
+        GROUP BY V3002, V3003, V3009, V3009A
+        ORDER BY n DESC LIMIT 20
+    """,
 }
 
 
