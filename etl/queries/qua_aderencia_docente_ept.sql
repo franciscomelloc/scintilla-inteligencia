@@ -15,11 +15,15 @@
 -- não construído. Esse card mede FORMAÇÃO BRUTA (tem superior? tem pós?), não
 -- compatibilidade de área. Documentado no caveat.
 
+-- Tipos das colunas booleanas na BD não estão padronizados (algumas são INT64,
+-- outras STRING). Uso SAFE_CAST(... AS STRING) = '1' como comparação defensiva
+-- que funciona em ambos.
+
 WITH ano_max AS (
   SELECT MAX(ano) AS ano_ref
   FROM `basedosdados.br_inep_censo_escolar.docente`
   WHERE sigla_uf = '{UF}'
-    AND disciplina_profissionalizante = '1'
+    AND SAFE_CAST(disciplina_profissionalizante AS STRING) = '1'
     AND id_curso_educ_profissional IS NOT NULL
 ),
 
@@ -35,7 +39,7 @@ base AS (
   CROSS JOIN ano_max a
   WHERE d.sigla_uf = '{UF}'
     AND d.ano = a.ano_ref
-    AND d.disciplina_profissionalizante = '1'
+    AND SAFE_CAST(d.disciplina_profissionalizante AS STRING) = '1'
     AND d.id_curso_educ_profissional IS NOT NULL
 ),
 
@@ -44,10 +48,10 @@ base AS (
 distintos AS (
   SELECT
     id_docente,
-    MAX(IF(rede = '2', 1, 0)) AS in_estadual,
+    MAX(IF(SAFE_CAST(rede AS STRING) = '2', 1, 0)) AS in_estadual,
     MAX(IF(id_curso_1 IS NOT NULL, 1, 0)) AS tem_superior,
-    MAX(IF(especializacao = '1', 1, 0)) AS tem_lato,
-    MAX(IF(mestrado = '1' OR doutorado = '1', 1, 0)) AS tem_stricto
+    MAX(IF(SAFE_CAST(especializacao AS STRING) = '1', 1, 0)) AS tem_lato,
+    MAX(IF(SAFE_CAST(mestrado AS STRING) = '1' OR SAFE_CAST(doutorado AS STRING) = '1', 1, 0)) AS tem_stricto
   FROM base
   GROUP BY id_docente
 )
