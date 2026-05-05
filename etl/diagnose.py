@@ -373,6 +373,64 @@ DISCOVERY_QUERIES = {
         GROUP BY V3002, V3009A, VD3004
         ORDER BY n DESC LIMIT 50
     """,
+    # Validação heatmap eixo × mesorregião — cruzamento CAGED CBO 3xxxx em MG
+    # ano mais recente. Mostra se a matriz tem cells suficientes pra heatmap.
+    "heatmap_eixo_meso_mg_distrib": """
+        WITH base AS (
+          SELECT
+            c.cbo_2002,
+            c.id_municipio,
+            c.saldo_movimentacao,
+            c.salario_mensal,
+            CASE
+              WHEN c.cbo_2002 BETWEEN '321000' AND '326999' THEN '01-Ambiente_Saude'
+              WHEN c.cbo_2002 LIKE '311%' OR c.cbo_2002 LIKE '313%' THEN '03-Controle_Industrial'
+              WHEN c.cbo_2002 LIKE '351%' AND c.cbo_2002 != '351605' THEN '04-Gestao_Negocios'
+              WHEN c.cbo_2002 LIKE '354%' AND c.cbo_2002 != '354820' THEN '04-Gestao_Negocios'
+              WHEN c.cbo_2002 LIKE '391%' THEN '04-Gestao_Negocios'
+              WHEN c.cbo_2002 LIKE '371%' THEN '05-Turismo'
+              WHEN c.cbo_2002 = '354820' THEN '05-Turismo'
+              WHEN c.cbo_2002 LIKE '317%' THEN '06-TI'
+              WHEN c.cbo_2002 LIKE '312%' OR c.cbo_2002 LIKE '318%' THEN '07-Infraestrutura'
+              WHEN c.cbo_2002 LIKE '374%' OR c.cbo_2002 LIKE '376%' THEN '10-Cultural_Design'
+              WHEN c.cbo_2002 LIKE '314%' OR c.cbo_2002 LIKE '300%' THEN '11-Producao_Industrial'
+              WHEN c.cbo_2002 LIKE '301%' THEN '12-Recursos_Naturais'
+              WHEN c.cbo_2002 = '351605' THEN '13-Seguranca'
+              ELSE NULL
+            END AS eixo
+          FROM `basedosdados.br_me_caged.microdados_movimentacao` c
+          WHERE c.sigla_uf = 'MG'
+            AND c.cbo_2002 IS NOT NULL
+            AND c.cbo_2002 LIKE '3%'
+            AND c.cbo_2002 NOT LIKE '33%'
+            AND c.id_municipio IS NOT NULL
+            AND c.ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+        ),
+        municipio AS (
+          SELECT id_municipio, nome_mesorregiao FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+        ),
+        agg AS (
+          SELECT
+            m.nome_mesorregiao,
+            b.eixo,
+            SUM(b.saldo_movimentacao) AS saldo_12m,
+            COUNTIF(b.saldo_movimentacao > 0) AS n_admissoes,
+            APPROX_QUANTILES(IF(b.saldo_movimentacao > 0 AND b.salario_mensal > 0, b.salario_mensal, NULL), 100 IGNORE NULLS)[OFFSET(50)] AS sal_mediano
+          FROM base b
+          JOIN municipio m USING (id_municipio)
+          WHERE b.eixo IS NOT NULL
+          GROUP BY m.nome_mesorregiao, b.eixo
+        )
+        SELECT * FROM agg
+        ORDER BY n_admissoes DESC
+        LIMIT 100
+    """,
+    # Resumo: quantas mesorregiões e cells válidas (>=30 admissões) por estado
+    "heatmap_meso_count_por_estado": """
+        SELECT m.sigla_uf, COUNT(DISTINCT m.id_mesorregiao) AS n_mesos
+        FROM `basedosdados.br_bd_diretorios_brasil.municipio` m
+        GROUP BY m.sigla_uf ORDER BY n_mesos DESC
+    """,
 }
 
 
