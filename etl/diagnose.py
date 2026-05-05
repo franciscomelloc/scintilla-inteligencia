@@ -225,6 +225,18 @@ DISCOVERY_QUERIES = {
            OR LOWER(table_name) LIKE '%curso_tec%'
            OR LOWER(table_name) LIKE '%eixo%'
     """,
+    # Anos disponíveis em escola e turma (matrícula foi descontinuada da BD)
+    "censo_escola_anos_full": """
+        SELECT ano, COUNT(*) AS n_escolas
+        FROM `basedosdados.br_inep_censo_escolar.escola`
+        GROUP BY ano ORDER BY ano DESC LIMIT 20
+    """,
+    "censo_turma_anos_full": """
+        SELECT ano, COUNT(*) AS n_turmas,
+               SUM(IF(id_curso_educ_profissional IS NOT NULL, 1, 0)) AS n_turmas_ept
+        FROM `basedosdados.br_inep_censo_escolar.turma`
+        GROUP BY ano ORDER BY ano DESC LIMIT 20
+    """,
     # Lista TODAS as tabelas do dataset Censo Escolar com últimos anos.
     "censo_all_tables_max_year": """
         WITH tabelas AS (
