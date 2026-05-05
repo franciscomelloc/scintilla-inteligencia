@@ -36,7 +36,7 @@
 
 WITH censo_oferta AS (
   SELECT
-    DIV(id_curso_educ_profissional, 1000) AS eixo_id,
+    DIV(SAFE_CAST(id_curso_educ_profissional AS INT64), 1000) AS eixo_id,
     COUNT(*) AS n_matriculas
   FROM `basedosdados.br_inep_censo_escolar.matricula`
   WHERE sigla_uf = '{UF}'
