@@ -141,6 +141,46 @@ DISCOVERY_QUERIES = {
         GROUP BY V4019, V4012, V4029, V4032
         ORDER BY n DESC LIMIT 30
     """,
+    # Sanity check: pop ponderada total 18-20 BR vs subset com EM completo
+    # vs subset cursando superior. Permite comparar com benchmarks INEP/PNAD.
+    "pnad_base_size_18_20_2025_br": """
+        SELECT
+          'todos_18_20' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        UNION ALL
+        SELECT
+          'com_em_completo' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND VD3004 IN ('5','6','7')
+        UNION ALL
+        SELECT
+          'cursando_superior' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND V3002 = '2' AND V3009A IN ('10','11','12','13')
+    """,
+    # Cross V3009A x VD3004 sem filtro de base. Verifica se V3009A='10'
+    # aparece com VD3004 que NÃO seja '5','6','7' (e.g. EM incompleto)
+    # — caso afirmativo, sugere que V3009A captura "ever attended" e
+    # pessoa pode ter abandonado EM ainda em superior. Improvável mas
+    # worth checking.
+    "pnad_v3009a_vd3004_sem_base_18_20": """
+        SELECT V3002, V3009A, VD3004, COUNT(*) AS n,
+               SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V3002, V3009A, VD3004
+        ORDER BY n DESC LIMIT 50
+    """,
 }
 
 
