@@ -225,6 +225,121 @@ DISCOVERY_QUERIES = {
            OR LOWER(table_name) LIKE '%curso_tec%'
            OR LOWER(table_name) LIKE '%eixo%'
     """,
+    # Anos disponíveis em escola e turma (matrícula foi descontinuada da BD)
+    "censo_escola_anos_full": """
+        SELECT ano, COUNT(*) AS n_escolas
+        FROM `basedosdados.br_inep_censo_escolar.escola`
+        GROUP BY ano ORDER BY ano DESC LIMIT 20
+    """,
+    "censo_turma_anos_full": """
+        SELECT ano, COUNT(*) AS n_turmas,
+               SUM(IF(id_curso_educacao_profissional IS NOT NULL, 1, 0)) AS n_turmas_ept
+        FROM `basedosdados.br_inep_censo_escolar.turma`
+        GROUP BY ano ORDER BY ano DESC LIMIT 20
+    """,
+    # Lista colunas de turma — talvez tenha qt_matriculados pra somar
+    "censo_turma_columns": """
+        SELECT column_name FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name = 'turma'
+        ORDER BY column_name
+    """,
+    # Lista TODAS as tabelas do dataset Censo Escolar com últimos anos.
+    "censo_all_tables_max_year": """
+        WITH tabelas AS (
+          SELECT table_name
+          FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.TABLES`
+          WHERE table_type = 'BASE TABLE'
+        )
+        SELECT table_name FROM tabelas ORDER BY table_name
+    """,
+    # Tenta tabela 'matricula_aluno' caso exista versão recente
+    "censo_matricula_aluno_anos": """
+        SELECT ano, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.matricula_aluno`
+        GROUP BY ano ORDER BY ano DESC LIMIT 5
+    """,
+    # Tenta tabela aluno
+    "censo_aluno_anos": """
+        SELECT ano, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.aluno`
+        GROUP BY ano ORDER BY ano DESC LIMIT 5
+    """,
+    # Re-check anos disponíveis Censo Escolar — BD pode ter sido atualizada.
+    "censo_matricula_anos_full_2025": """
+        SELECT ano, COUNT(*) AS n_matriculas,
+               SUM(IF(id_curso_educ_profissional IS NOT NULL, 1, 0)) AS n_ept
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        GROUP BY ano ORDER BY ano DESC LIMIT 15
+    """,
+    # CBO 84xxxx (trabalhadores indústria alimentícia/bebidas) MG —
+    # potencial mapping pra Eixo 9 Produção Alimentícia. Top por
+    # admissões pra ver volumes reais.
+    "caged_cbo84_mg_top": """
+        SELECT cbo_2002, COUNTIF(saldo_movimentacao > 0) AS n_admissoes,
+               SUM(saldo_movimentacao) AS saldo_12m
+        FROM `basedosdados.br_me_caged.microdados_movimentacao`
+        WHERE sigla_uf = 'MG'
+          AND ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+          AND cbo_2002 IS NOT NULL
+          AND (cbo_2002 LIKE '84%' OR cbo_2002 LIKE '76%')
+        GROUP BY cbo_2002
+        HAVING n_admissoes >= 100
+        ORDER BY n_admissoes DESC
+        LIMIT 20
+    """,
+    # CBO 5xxxx em MG — cuidadores, atendentes (potencial Eixo 2 Educ/Social)
+    "caged_cbo5_mg_top": """
+        SELECT cbo_2002, COUNTIF(saldo_movimentacao > 0) AS n_admissoes,
+               SUM(saldo_movimentacao) AS saldo_12m
+        FROM `basedosdados.br_me_caged.microdados_movimentacao`
+        WHERE sigla_uf = 'MG'
+          AND ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+          AND cbo_2002 IS NOT NULL
+          AND (cbo_2002 LIKE '514%' OR cbo_2002 LIKE '516%' OR cbo_2002 LIKE '517%')
+        GROUP BY cbo_2002
+        HAVING n_admissoes >= 100
+        ORDER BY n_admissoes DESC
+        LIMIT 20
+    """,
+    # Red team aderência: top cursos EPT MG 2020 por matrícula. Valida
+    # se Eixo 3 > Eixo 4 em MG é real ou contaminação do mapping.
+    "censo_top_cursos_mg_2020": """
+        SELECT id_curso_educ_profissional AS id_curso,
+               DIV(SAFE_CAST(id_curso_educ_profissional AS INT64), 1000) AS eixo_id,
+               COUNT(*) AS n_matriculas
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        WHERE ano = 2020
+          AND sigla_uf = 'MG'
+          AND id_curso_educ_profissional IS NOT NULL
+        GROUP BY id_curso, eixo_id
+        ORDER BY n_matriculas DESC
+        LIMIT 30
+    """,
+    # Sanity: oferta agregada por eixo MG 2020 vs cob_eixos_cobertos
+    # já em prod (mesmo Censo). Bate?
+    "censo_eixos_mg_2020_agg": """
+        SELECT DIV(SAFE_CAST(id_curso_educ_profissional AS INT64), 1000) AS eixo_id,
+               COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        WHERE ano = 2020 AND sigla_uf = 'MG'
+          AND id_curso_educ_profissional IS NOT NULL
+        GROUP BY eixo_id ORDER BY eixo_id
+    """,
+    # Top CBO 3xxxx MG por ADMISSÕES (não saldo) — proxy alternativo
+    # de demanda. Ver se ranking muda.
+    "caged_cbo3_mg_admissoes_top": """
+        SELECT cbo_2002, COUNTIF(saldo_movimentacao > 0) AS n_admissoes,
+               SUM(saldo_movimentacao) AS saldo_12m
+        FROM `basedosdados.br_me_caged.microdados_movimentacao`
+        WHERE sigla_uf = 'MG'
+          AND ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+          AND cbo_2002 IS NOT NULL AND cbo_2002 LIKE '3%'
+          AND cbo_2002 NOT LIKE '33%'
+        GROUP BY cbo_2002
+        HAVING n_admissoes >= 100
+        ORDER BY n_admissoes DESC
+        LIMIT 30
+    """,
     # Top 30 CBO 3xxxx BR por saldo CAGED + descrição. Permite revisar
     # caso a caso quais excluir como "não-EPT" (professores leigos,
     # auxiliares escolares, atletas, etc).

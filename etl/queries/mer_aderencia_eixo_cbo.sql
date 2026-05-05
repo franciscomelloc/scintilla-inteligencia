@@ -35,17 +35,22 @@
 --   mer_demanda_cbo_top).
 
 WITH censo_oferta AS (
+  -- Tabela `turma` (último ano disponível 2024) tem `quantidade_matriculas`
+  -- por turma e id_curso_educacao_profissional. A tabela `matricula` foi
+  -- descontinuada na BD em 2020. Usar `turma` resolve a defasagem
+  -- (1 ano vs CAGED 2025 em vez de 5 anos).
   SELECT
-    DIV(id_curso_educ_profissional, 1000) AS eixo_id,
-    COUNT(*) AS n_matriculas
-  FROM `basedosdados.br_inep_censo_escolar.matricula`
+    DIV(SAFE_CAST(id_curso_educacao_profissional AS INT64), 1000) AS eixo_id,
+    SUM(quantidade_matriculas) AS n_matriculas
+  FROM `basedosdados.br_inep_censo_escolar.turma`
   WHERE sigla_uf = '{UF}'
     AND ano = (
       SELECT MAX(ano)
-      FROM `basedosdados.br_inep_censo_escolar.matricula`
-      WHERE sigla_uf = '{UF}' AND id_curso_educ_profissional IS NOT NULL
+      FROM `basedosdados.br_inep_censo_escolar.turma`
+      WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
     )
-    AND id_curso_educ_profissional IS NOT NULL
+    AND id_curso_educacao_profissional IS NOT NULL
+    AND quantidade_matriculas IS NOT NULL
   GROUP BY eixo_id
 ),
 
@@ -54,6 +59,16 @@ oferta_total AS (
 ),
 
 caged_base AS (
+  -- Filtro principal: CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx
+  -- (Técnicos da educação — exclusão acordada com mer_demanda_cbo_top).
+  -- Expansão asimétrica em eixos onde a demanda real cai em CBO operacional
+  -- (egresso EPT vira operador, não técnico):
+  --   Eixo 9 (Produção Alimentícia): CBO 84xxxx
+  --     Trabalhadores da indústria alimentícia/laticínios/abatedouros.
+  --     MG tem 35k+ admissões só no top 8 (JBS, Itambé, Cooperativa Central).
+  --   Eixo 2 (Educacional/Social): CBO 5162xx
+  --     Cuidadores de idosos e crianças (egresso de Téc Cuidador).
+  --   Eixo 8 (Militar): NÃO incluído — CAGED não cobre FFAA (estatutário).
   SELECT
     cbo_2002,
     saldo_movimentacao
@@ -63,12 +78,15 @@ caged_base AS (
       SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`
     )
     AND cbo_2002 IS NOT NULL
-    AND cbo_2002 LIKE '3%'
-    AND cbo_2002 NOT LIKE '33%'  -- exclui Técnicos da educação
+    AND (
+      (cbo_2002 LIKE '3%' AND cbo_2002 NOT LIKE '33%')  -- Técnicos NM, exceto educação
+      OR cbo_2002 LIKE '84%'                              -- Eixo 9 Prod Alimentícia
+      OR cbo_2002 LIKE '5162%'                            -- Eixo 2 Cuidadores
+    )
 ),
 
 caged_eixo AS (
-  -- Mapping CBO 3xxxx → eixo INEP. Cada CBO em UM único eixo.
+  -- Mapping CBO → eixo INEP. Cada CBO em UM único eixo.
   -- Documentado em etl/reference/eixo_cnct_to_cbo3.md.
   SELECT
     CASE
@@ -76,6 +94,10 @@ caged_eixo AS (
       WHEN cbo_2002 = '351605' THEN 13
       -- Eixo 5 Turismo (CBO específico, prioridade alta)
       WHEN cbo_2002 = '354820' THEN 5
+      -- Eixo 9 Produção Alimentícia (CBO 84xxxx — operadores indústria alim.)
+      WHEN cbo_2002 LIKE '84%' THEN 9
+      -- Eixo 2 Educacional/Social (CBO 5162xx — cuidadores)
+      WHEN cbo_2002 LIKE '5162%' THEN 2
       -- Eixo 1 Ambiente e Saúde
       WHEN cbo_2002 LIKE '321%' OR cbo_2002 LIKE '322%' OR cbo_2002 LIKE '323%'
            OR cbo_2002 LIKE '324%' OR cbo_2002 LIKE '325%' OR cbo_2002 LIKE '326%'
@@ -96,7 +118,7 @@ caged_eixo AS (
       WHEN cbo_2002 LIKE '351%' OR cbo_2002 LIKE '352%' OR cbo_2002 LIKE '353%'
            OR cbo_2002 LIKE '354%' OR cbo_2002 LIKE '391%'
         THEN 4
-      ELSE NULL  -- CBO 3xxxx sem eixo CNCT correspondente
+      ELSE NULL  -- CBO sem eixo CNCT correspondente
     END AS eixo_id,
     saldo_movimentacao
   FROM caged_base
@@ -113,7 +135,12 @@ demanda_eixo AS (
 ),
 
 demanda_total AS (
-  SELECT SUM(ABS(saldo)) AS total_saldo_abs FROM demanda_eixo
+  -- Demanda agregada usa ADMISSÕES, não saldo. Saldo subdimensiona
+  -- setores de alta rotatividade (Gestão, Vendas, Comércio) — esses
+  -- têm muitas admissões e muitas demissões, saldo baixo. Admissões
+  -- captura "oportunidades de entrada" pra egressos EPT — proxy correto
+  -- de demanda de formação. Saldo continua reportado como info.
+  SELECT SUM(n_admissoes) AS total_admissoes FROM demanda_eixo
 ),
 
 eixos AS (
@@ -145,9 +172,15 @@ SELECT
     ELSE NULL END AS oferta_pct,
   COALESCE(d.saldo, 0) AS demanda_saldo,
   COALESCE(d.n_admissoes, 0) AS demanda_n_admissoes,
-  CASE WHEN dt.total_saldo_abs > 0
-    THEN ROUND(100.0 * ABS(COALESCE(d.saldo, 0)) / dt.total_saldo_abs, 2)
-    ELSE NULL END AS demanda_pct
+  CASE WHEN dt.total_admissoes > 0
+    THEN ROUND(100.0 * COALESCE(d.n_admissoes, 0) / dt.total_admissoes, 2)
+    ELSE NULL END AS demanda_pct,
+  (SELECT MAX(ano)
+     FROM `basedosdados.br_inep_censo_escolar.turma`
+     WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
+  ) AS ano_oferta_censo,
+  (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+    AS ano_demanda_caged
 FROM eixos e
 LEFT JOIN censo_oferta o USING (eixo_id)
 LEFT JOIN demanda_eixo d USING (eixo_id)
