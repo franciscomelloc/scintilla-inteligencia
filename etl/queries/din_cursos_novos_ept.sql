@@ -1,30 +1,32 @@
 -- Indicador: din_cursos_novos_ept
--- Janela: pares (id_escola, id_curso) que aparecem em 2020 e não existiam em 2016-2019.
--- Descontinuados: existiam em 2019 e sumiram em 2020.
--- (matricula table tem 2020 como ano mais recente em BD)
+-- Janela: pares (id_escola, id_curso) que aparecem em 2024 e não existiam em 2020-2023.
+-- Descontinuados: existiam em 2023 e sumiram em 2024.
+--
+-- Fonte: tabela `turma` (matricula descontinuada após 2020 na BD).
+-- Ano atual = 2024; janela de comparação = 2020-2023.
 
 WITH pares_por_ano AS (
   SELECT DISTINCT
     ano,
     rede,
     id_escola,
-    id_curso_educ_profissional AS id_curso
-  FROM `basedosdados.br_inep_censo_escolar.matricula`
-  WHERE ano BETWEEN 2016 AND 2020
+    id_curso_educacao_profissional AS id_curso
+  FROM `basedosdados.br_inep_censo_escolar.turma`
+  WHERE ano BETWEEN 2020 AND 2024
     AND sigla_uf = '{UF}'
-    AND id_curso_educ_profissional IS NOT NULL
+    AND id_curso_educacao_profissional IS NOT NULL
 ),
 
 pares_atual AS (
   SELECT rede, id_escola, id_curso
   FROM pares_por_ano
-  WHERE ano = 2020
+  WHERE ano = 2024
 ),
 
 pares_anterior AS (
   SELECT DISTINCT id_escola, id_curso
   FROM pares_por_ano
-  WHERE ano BETWEEN 2016 AND 2019
+  WHERE ano BETWEEN 2020 AND 2023
 ),
 
 novos AS (
@@ -38,7 +40,7 @@ novos AS (
 pares_anterior_recente AS (
   SELECT rede, id_escola, id_curso
   FROM pares_por_ano
-  WHERE ano = 2019
+  WHERE ano = 2023
 ),
 
 descontinuados AS (

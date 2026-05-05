@@ -328,7 +328,7 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna ano, rede, etapa_ensino, qtd. Classificação modalidade ainda pendente."""
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar 2019/2024.")
-    base_year, end_year = 2015, 2020
+    base_year, end_year = 2019, 2024
     qtd_base = int(df[df["ano"] == base_year]["qtd"].sum() or 0)
     qtd_end = int(df[df["ano"] == end_year]["qtd"].sum() or 0)
     qtd_base_est = int(df[(df["ano"] == base_year) & (df["rede"] == "2")]["qtd"].sum() or 0)
@@ -361,7 +361,7 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "base_insuficiente": qtd_base_est < BASE_MIN,
         },
         "vintage": str(end_year),
-        "caveat": f"Janela {base_year}→{end_year} (Censo matricula table). Redes com base <{BASE_MIN} matrículas têm crescimento suprimido (alta variância). Decomposição por modalidade pendente.",
+        "caveat": f"Janela {base_year}→{end_year} (Censo Escolar via tabela turma). Redes com base <{BASE_MIN} matrículas têm crescimento suprimido (alta variância). Decomposição por modalidade pendente.",
     }
 
 
