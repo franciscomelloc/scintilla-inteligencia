@@ -970,8 +970,8 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         },
         "vintage": str(_detect_year(df, "ano_oferta_censo") or "ND"),
         "caveat": (
-            "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar 2020 — "
-            "último ano disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao "
+            "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar — "
+            "agregado da tabela turma com quantidade_matriculas, último ano disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao "
             "eixo. Admissões em vez de saldo: saldo subdimensiona setores de alta "
             "rotatividade. Filtro principal CBO 3xxxx (Técnicos NM), com expansão "
             "asimétrica nos eixos onde a demanda real cai em CBO operacional: "

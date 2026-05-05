@@ -35,17 +35,22 @@
 --   mer_demanda_cbo_top).
 
 WITH censo_oferta AS (
+  -- Tabela `turma` (último ano disponível 2024) tem `quantidade_matriculas`
+  -- por turma e id_curso_educacao_profissional. A tabela `matricula` foi
+  -- descontinuada na BD em 2020. Usar `turma` resolve a defasagem
+  -- (1 ano vs CAGED 2025 em vez de 5 anos).
   SELECT
-    DIV(SAFE_CAST(id_curso_educ_profissional AS INT64), 1000) AS eixo_id,
-    COUNT(*) AS n_matriculas
-  FROM `basedosdados.br_inep_censo_escolar.matricula`
+    DIV(SAFE_CAST(id_curso_educacao_profissional AS INT64), 1000) AS eixo_id,
+    SUM(quantidade_matriculas) AS n_matriculas
+  FROM `basedosdados.br_inep_censo_escolar.turma`
   WHERE sigla_uf = '{UF}'
     AND ano = (
       SELECT MAX(ano)
-      FROM `basedosdados.br_inep_censo_escolar.matricula`
-      WHERE sigla_uf = '{UF}' AND id_curso_educ_profissional IS NOT NULL
+      FROM `basedosdados.br_inep_censo_escolar.turma`
+      WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
     )
-    AND id_curso_educ_profissional IS NOT NULL
+    AND id_curso_educacao_profissional IS NOT NULL
+    AND quantidade_matriculas IS NOT NULL
   GROUP BY eixo_id
 ),
 
@@ -171,8 +176,8 @@ SELECT
     THEN ROUND(100.0 * COALESCE(d.n_admissoes, 0) / dt.total_admissoes, 2)
     ELSE NULL END AS demanda_pct,
   (SELECT MAX(ano)
-     FROM `basedosdados.br_inep_censo_escolar.matricula`
-     WHERE sigla_uf = '{UF}' AND id_curso_educ_profissional IS NOT NULL
+     FROM `basedosdados.br_inep_censo_escolar.turma`
+     WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
   ) AS ano_oferta_censo,
   (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
     AS ano_demanda_caged
