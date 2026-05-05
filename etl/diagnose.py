@@ -233,9 +233,15 @@ DISCOVERY_QUERIES = {
     """,
     "censo_turma_anos_full": """
         SELECT ano, COUNT(*) AS n_turmas,
-               SUM(IF(id_curso_educ_profissional IS NOT NULL, 1, 0)) AS n_turmas_ept
+               SUM(IF(id_curso_educacao_profissional IS NOT NULL, 1, 0)) AS n_turmas_ept
         FROM `basedosdados.br_inep_censo_escolar.turma`
         GROUP BY ano ORDER BY ano DESC LIMIT 20
+    """,
+    # Lista colunas de turma — talvez tenha qt_matriculados pra somar
+    "censo_turma_columns": """
+        SELECT column_name FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name = 'turma'
+        ORDER BY column_name
     """,
     # Lista TODAS as tabelas do dataset Censo Escolar com últimos anos.
     "censo_all_tables_max_year": """
