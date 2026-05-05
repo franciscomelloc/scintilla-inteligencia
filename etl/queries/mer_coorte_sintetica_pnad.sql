@@ -34,11 +34,19 @@
 --   VD3004 nível mais elevado alcançado (5='Médio completo', 6='Superior incompleto',
 --          7='Superior completo'). Filtro 5-7 inclui quem cursa superior agora.
 --   VD4002 condição de ocupação (1=Ocupado, 2=Desocupado)
---   VD4007 posição na ocupação — codes 1-4 na BD (agregados oficiais):
---          1=Empregado com carteira, 2=Doméstico, 3=Empregado sem carteira,
---          4=Estatutário/militar. Formal estrito = ('1','4'); doméstico ('2')
---          é ambíguo (carteira opcional) — classificado como informal por
---          conservadorismo.
+--   V4012 categoria do trabalho principal — codes oficiais PNAD na BD:
+--          1=Trab. doméstico, 2=Militar/policial, 3=Empregado privado,
+--          4=Empregado público, 5=Empregador, 6=Conta-própria,
+--          7=Trab. familiar auxiliar.
+--   V4029 carteira de trabalho assinada (no trabalho principal):
+--          '1'=Sim, '2'=Não. Aplicável quando V4012 IN ('1', '3') (privado).
+--   Definição de FORMAL: V4029='1' (carteira sim) OR V4012 IN ('2','4','5')
+--          (militar / público presumido formal / empregador). Informal = resto
+--          dos ocupados (sem carteira, conta-própria, familiar auxiliar,
+--          doméstico sem carteira).
+--   ATENÇÃO: VD4007 (posição agregada) na BD só preserva codes 1-4 e perde
+--          conta-própria/empregador/familiar. NÃO usar para classificar
+--          formal/informal. Usar V4012 + V4029 diretamente.
 --
 -- Rigor:
 -- - Pesa por V1028 (peso pessoal pós-estratificado oficial).
@@ -59,7 +67,8 @@ WITH pnad AS (
     V3009A,
     VD3004,
     VD4002,
-    VD4007
+    V4012,
+    V4029
   FROM `basedosdados.br_ibge_pnadc.microdados`
   WHERE sigla_uf = '{UF}'
     AND trimestre = 1
@@ -82,19 +91,31 @@ categorizado AS (
     p.idade,
     p.peso,
     -- 6 caminhos disjuntos (mutuamente exclusivos, soma <= 100%)
+    -- Helper: definição de FORMAL = V4029='1' (com carteira) OR V4012 em
+    -- {2=militar, 4=empregado público, 5=empregador}. Informal = ocupado
+    -- sem essas condições.
     CASE
-      -- Cursando superior + trabalha
+      -- Cursando superior + trabalha formal
       WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13')
-           AND p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'formal_estuda'
+           AND p.VD4002 = '1'
+           AND (p.V4029 = '1' OR p.V4012 IN ('2', '4', '5'))
+        THEN 'formal_estuda'
+      -- Cursando superior + trabalha informal
       WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13')
-           AND p.VD4002 = '1' THEN 'informal_estuda'
+           AND p.VD4002 = '1'
+        THEN 'informal_estuda'
       -- Cursando superior sem trabalhar
-      WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13') THEN 'so_estuda'
-      -- Trabalha sem cursar superior
-      WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'so_formal'
+      WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13')
+        THEN 'so_estuda'
+      -- Trabalha formal sem cursar superior
+      WHEN p.VD4002 = '1'
+           AND (p.V4029 = '1' OR p.V4012 IN ('2', '4', '5'))
+        THEN 'so_formal'
+      -- Trabalha informal sem cursar superior
       WHEN p.VD4002 = '1' THEN 'so_informal'
-      -- Não trabalha, não cursa superior, não frequenta nada
-      WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '2' THEN 'neet'
+      -- NEET: nem ocupado nem frequenta
+      WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '2'
+        THEN 'neet'
       ELSE 'outro'
     END AS caminho
   FROM pnad p
