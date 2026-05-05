@@ -754,6 +754,222 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Mercado 10x — 3 cards novos (2026-Q2)
+# ---------------------------------------------------------------------------
+
+
+def mer_demanda_cbo_top(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna: ano_referencia, cbo_2002, cbo_descricao, saldo_12m,
+    n_admissoes, n_desligamentos, salario_p25, salario_mediano, salario_p75.
+
+    Top 15 já vem ordenado pelo SQL. Reportamos os 10 com maior saldo absoluto
+    + os 3 com maior salário mediano (mesmo se saldo modesto), pra mostrar
+    onde o mercado paga melhor. Sem invenção: descrição vem do diretório CBO
+    da BD; se for null, usa só o código.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados CAGED em CBO 3xxxx para o estado.")
+
+    ano = int(df["ano_referencia"].iloc[0])
+
+    rows = df.to_dict("records")
+    for r in rows:
+        if not r.get("cbo_descricao"):
+            r["cbo_descricao"] = None
+
+    top_10_saldo = sorted(rows, key=lambda r: r["saldo_12m"] or 0, reverse=True)[:10]
+
+    # Top salário entre os com saldo positivo + n_admissoes >= 50 (estabilidade)
+    candidatos_sal = [r for r in rows if (r.get("saldo_12m") or 0) > 0 and (r.get("n_admissoes") or 0) >= 50]
+    top_3_salario = sorted(candidatos_sal, key=lambda r: r["salario_mediano"] or 0, reverse=True)[:3]
+
+    def _strip(r: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "cbo": r["cbo_2002"],
+            "descricao": r.get("cbo_descricao"),
+            "saldo_12m": int(r["saldo_12m"]) if r.get("saldo_12m") is not None else None,
+            "n_admissoes": int(r["n_admissoes"]) if r.get("n_admissoes") is not None else None,
+            "salario_mediano": _safe_float(r.get("salario_mediano")),
+            "salario_p25": _safe_float(r.get("salario_p25")),
+            "salario_p75": _safe_float(r.get("salario_p75")),
+        }
+
+    return {
+        "total_estado": {
+            "ano_referencia": ano,
+            "top_saldo": [_strip(r) for r in top_10_saldo],
+            "top_salario": [_strip(r) for r in top_3_salario],
+            "n_total_cbos_listados": len(rows),
+        },
+        "vintage": str(ano),
+        "caveat": (
+            f"CAGED {ano} — saldo de movimentação em CBO 3xxxx (Técnicos de Nível Médio). "
+            "Salário mediano apenas em admissões com salário > 0. "
+            "Descrição CBO via diretório oficial; quando ausente, mostra código."
+        ),
+        "ranking_aplicavel": False,  # lista, não valor único comparável
+    }
+
+
+def mer_demanda_mesorregiao(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna: ano_referencia, id_mesorregiao, nome_mesorregiao, sigla_uf_meso,
+    saldo_12m, n_admissoes, salario_mediano, salario_p25, salario_p75.
+
+    Para uma UF: lista as mesorregiões do estado ordenadas por saldo CBO 3xxxx.
+    Para BR: lista nacional das top mesorregiões — geometricamente desconexas.
+    Frontend deve detectar via ufs_distintos > 1 e renderizar como ranking nacional.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados CAGED por mesorregião para o estado.")
+
+    ano = int(df["ano_referencia"].iloc[0])
+
+    saldo_total = float(df["saldo_12m"].sum()) if not df["saldo_12m"].isna().all() else 0.0
+
+    rows = []
+    for _, r in df.iterrows():
+        saldo = int(r["saldo_12m"]) if pd.notna(r["saldo_12m"]) else 0
+        share = (saldo / saldo_total * 100) if saldo_total else None
+        rows.append({
+            "id_mesorregiao": r["id_mesorregiao"],
+            "nome": r["nome_mesorregiao"],
+            "sigla_uf": r.get("sigla_uf_meso"),
+            "saldo_12m": saldo,
+            "share_pct": round(share, 2) if share is not None else None,
+            "n_admissoes": int(r["n_admissoes"]) if pd.notna(r["n_admissoes"]) else 0,
+            "salario_mediano": _safe_float(r.get("salario_mediano")),
+            "salario_p25": _safe_float(r.get("salario_p25")),
+            "salario_p75": _safe_float(r.get("salario_p75")),
+        })
+
+    saldos_validos = [r["saldo_12m"] for r in rows if r["saldo_12m"] is not None]
+    ufs_distintos = df["sigla_uf_meso"].dropna().unique().tolist() if "sigla_uf_meso" in df.columns else []
+
+    return {
+        "total_estado": {
+            "ano_referencia": ano,
+            "mesorregioes": rows,
+            "n_mesorregioes": len(rows),
+            "saldo_total": int(saldo_total) if saldo_total is not None else None,
+            "saldo_max": max(saldos_validos) if saldos_validos else None,
+            "saldo_min": min(saldos_validos) if saldos_validos else None,
+            "modo_nacional": len(ufs_distintos) > 1,  # frontend usa pra decidir layout
+        },
+        "vintage": str(ano),
+        "caveat": (
+            f"CAGED {ano} — saldo CBO 3xxxx por mesorregião (IBGE). "
+            "Mesorregiões com |saldo| < 30 suprimidas. Salário mediano só com n ≥ 50 admissões."
+        ),
+        "ranking_aplicavel": False,
+    }
+
+
+def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna linhas (ano, idade, sexo, caminho, pop_ponderada, n_amostral)
+    para 2 ondas: ano_followup-1 (jovens 18-19) e ano_followup (jovens 19-20).
+
+    Coorte sintética: PNAD trimestral é amostra rotativa; comparamos a turma
+    18-19 com EM completo no Q1 ano X com a turma 19-20 em Q1 ano X+1. Não
+    é tracking individual — é comparação de coortes etárias com mesmo perfil
+    educacional.
+
+    4 caminhos disjuntos: formal, informal, superior, neet (+ "outro" residual).
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD trimestral para coorte sintética.")
+
+    if df["ano"].nunique() < 2:
+        return _empty_indicator("PNAD trimestral só com 1 ano disponível — coorte sintética exige 2 ondas.")
+
+    anos_ordenados = sorted(df["ano"].dropna().unique().tolist())
+    ano_followup = int(anos_ordenados[-1])
+    ano_base = int(anos_ordenados[-2])
+
+    CAMINHOS = ["so_formal", "so_informal", "formal_estuda", "informal_estuda", "so_estuda", "neet", "outro_estuda"]
+
+    def _agg_coorte(sub: pd.DataFrame) -> dict[str, Any] | None:
+        """Agrega percentuais ponderados por caminho (6 categorias disjuntas)."""
+        if sub.empty:
+            return None
+        total_pop = sub["pop_ponderada"].sum()
+        total_n = int(sub["n_amostral"].sum())
+        if total_pop <= 0 or total_n < 50:
+            return {
+                "amostra_insuficiente": True,
+                "n_amostral": total_n,
+            }
+        result: dict[str, float | None] = {}
+        for cam in CAMINHOS:
+            mask = sub["caminho"] == cam
+            pop_cam = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
+            result[f"{cam}_pct"] = round(pop_cam / total_pop * 100, 2)
+        # Agregados úteis pra renderer e leitura
+        result["trabalha_estuda_pct"] = round(result["formal_estuda_pct"] + result["informal_estuda_pct"], 2)
+        result["estuda_total_pct"] = round(result["trabalha_estuda_pct"] + result["so_estuda_pct"], 2)
+        result["trabalha_total_pct"] = round(
+            result["so_formal_pct"] + result["so_informal_pct"]
+            + result["formal_estuda_pct"] + result["informal_estuda_pct"], 2
+        )
+        return {
+            "amostra_insuficiente": False,
+            "n_amostral": total_n,
+            **result,
+        }
+
+    # Coorte base: idade 18 ou 19 no ano_base
+    base_total = df[(df["ano"] == ano_base) & (df["idade"].isin([18, 19]))]
+    followup_total = df[(df["ano"] == ano_followup) & (df["idade"].isin([19, 20]))]
+
+    coorte_base = _agg_coorte(base_total)
+    coorte_followup = _agg_coorte(followup_total)
+
+    # Por sexo
+    coorte_por_sexo: dict[str, dict[str, Any]] = {}
+    for sexo_code, sexo_label in [("1", "homens"), ("2", "mulheres")]:
+        b_sex = base_total[base_total["sexo"] == sexo_code]
+        f_sex = followup_total[followup_total["sexo"] == sexo_code]
+        coorte_por_sexo[sexo_label] = {
+            "base": _agg_coorte(b_sex),
+            "followup": _agg_coorte(f_sex),
+        }
+
+    # Deltas pp (followup - base) — só se ambos válidos
+    deltas: dict[str, float | None] = {}
+    if (
+        coorte_base
+        and coorte_followup
+        and not coorte_base.get("amostra_insuficiente")
+        and not coorte_followup.get("amostra_insuficiente")
+    ):
+        for cam in CAMINHOS + ["trabalha_estuda", "estuda_total", "trabalha_total"]:
+            k = f"{cam}_pct"
+            b = coorte_base.get(k)
+            f = coorte_followup.get(k)
+            deltas[cam] = round(f - b, 2) if (b is not None and f is not None) else None
+
+    return {
+        "total_estado": {
+            "ano_base": ano_base,
+            "ano_followup": ano_followup,
+            "trimestre": 1,
+            "coorte_base": coorte_base,
+            "coorte_followup": coorte_followup,
+            "deltas_pp": deltas if deltas else None,
+            "por_sexo": coorte_por_sexo,
+        },
+        "vintage": str(ano_followup),
+        "caveat": (
+            f"PNAD Contínua Q1/{ano_base} → Q1/{ano_followup}. Coorte sintética: comparação "
+            "de duas ondas independentes da amostra rotativa, não tracking individual. "
+            "Cohort 18-20 completa (não filtrada por escolaridade). 'Cursa superior' = "
+            "V3002='1' (frequenta) AND V3003A IN ('8','9','10','11') (graduação ou pós). "
+            "Pesos V1028 oficiais. Categorias suprimidas com n_amostral < 50 (corte IBGE)."
+        ),
+        "ranking_aplicavel": False,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
@@ -781,4 +997,8 @@ PROCESSORS = {
     "cob_alcance_ponderado": cob_alcance_ponderado,
     "qua_saeb_proficiencia_ept": qua_saeb_proficiencia_ept,
     "qua_abandono_em_ept": qua_abandono_em_ept,
+    # Mercado 10x (2026-Q2)
+    "mer_demanda_cbo_top": mer_demanda_cbo_top,
+    "mer_demanda_mesorregiao": mer_demanda_mesorregiao,
+    "mer_coorte_sintetica_pnad": mer_coorte_sintetica_pnad,
 }

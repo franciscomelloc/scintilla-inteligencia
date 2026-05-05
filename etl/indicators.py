@@ -270,8 +270,41 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
     # qua_ingresso_es_pnad REMOVIDO — mesmo bug V3007 (não é EPT na PNAD trimestral)
 
     # ============================================================
-    # Mercado — card reformado (2026-Q2)
+    # Mercado 10x — cards novos (2026-Q2)
+    # Inserção de jovens no mercado de trabalho com rigor metodológico:
+    # demanda agregada (CAGED), distribuição geográfica (mesorregião IBGE),
+    # trajetória 12m pós-EM (PNAD coorte sintética).
     # ============================================================
+    "mer_demanda_cbo_top": {
+        "domain": "mercado",
+        "name": "Top 10 ocupações técnicas por saldo CAGED (12m)",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 3,
+        "source": ["br_me_caged.microdados_movimentacao", "br_bd_diretorios_brasil.cbo_2002"],
+        "pne_meta": None,
+        "ranking_aplicavel": False,
+    },
+    "mer_demanda_mesorregiao": {
+        "domain": "mercado",
+        "name": "Saldo CBO 3xxxx por mesorregião IBGE (12m)",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 3,
+        "source": ["br_me_caged.microdados_movimentacao", "br_bd_diretorios_brasil.municipio"],
+        "pne_meta": None,
+        "ranking_aplicavel": False,
+    },
+    "mer_coorte_sintetica_pnad": {
+        "domain": "mercado",
+        "name": "Coorte sintética 18-19 → 19-20 — 4 caminhos pós-EM (PNAD)",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 6,
+        "source": ["br_ibge_pnadc.microdados"],
+        "pne_meta": None,
+        "ranking_aplicavel": False,
+    },
     # mer_renda_jovens_pnad REMOVIDO — mesmo bug V3007 (PNAD trimestral não tem EPT)
 }
 

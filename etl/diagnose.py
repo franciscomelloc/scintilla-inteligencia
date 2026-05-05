@@ -81,6 +81,183 @@ DISCOVERY_QUERIES = {
         WHERE sigla_uf = 'MG' AND ano = 2023
         GROUP BY vinculo_ativo_3112 ORDER BY n DESC
     """,
+    "pnad_v3009a_18_20_2024_2025": """
+        SELECT ano, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, V3009A ORDER BY ano DESC, n DESC LIMIT 30
+    """,
+    "pnad_vd3004_18_20_2024_2025": """
+        SELECT ano, VD3004, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, VD3004 ORDER BY ano DESC, n DESC LIMIT 30
+    """,
+    "pnad_vd4007_18_20_2024_2025": """
+        SELECT ano, VD4007, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano IN (2024, 2025) AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+        GROUP BY ano, VD4007 ORDER BY ano DESC, n DESC LIMIT 30
+    """,
+    "pnad_v3002_v3009a_vd3004_cross_18_20": """
+        SELECT V3002, V3009A, VD3004, COUNT(*) AS n,
+               SUM(V1028) AS pop_ponderada
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND V3009A IN ('10', '11', '12', '13')
+        GROUP BY V3002, V3009A, VD3004
+        ORDER BY n DESC LIMIT 30
+    """,
+    "pnad_v3001_v3002_v3003_v3009A_18_20": """
+        SELECT V3001, V3002, V3003, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V3001, V3002, V3003, V3009A
+        ORDER BY n DESC LIMIT 30
+    """,
+    "pnad_v3002_eq_1_breakdown": """
+        SELECT V3002, V3003, V3009, V3009A, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V3002 = '1'
+        GROUP BY V3002, V3003, V3009, V3009A
+        ORDER BY n DESC LIMIT 20
+    """,
+    "pnad_vd4002_vd4007_v4009_full_18_20": """
+        SELECT VD4002, VD4007, V4009, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY VD4002, VD4007, V4009
+        ORDER BY n DESC LIMIT 50
+    """,
+    "pnad_v4019_v4012_v4029_18_20": """
+        SELECT V4019, V4012, V4029, V4032, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND VD4002 = '1'
+        GROUP BY V4019, V4012, V4029, V4032
+        ORDER BY n DESC LIMIT 30
+    """,
+    # Sanity check: pop ponderada total 18-20 BR vs subset com EM completo
+    # vs subset cursando superior. Permite comparar com benchmarks INEP/PNAD.
+    "pnad_base_size_18_20_2025_br": """
+        SELECT
+          'todos_18_20' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        UNION ALL
+        SELECT
+          'com_em_completo' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND VD3004 IN ('5','6','7')
+        UNION ALL
+        SELECT
+          'cursando_superior' AS recorte, COUNT(*) AS n,
+          SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+          AND V3002 = '2' AND V3009A IN ('10','11','12','13')
+    """,
+    # Tenta variáveis V3003A, V3002A pra encontrar curso ATUAL quando
+    # V3002='1'. Diagnose anterior mostrou V3009A SEMPRE null com V3002=1.
+    "pnad_v3003a_18_20_v3002_1": """
+        SELECT V3003A, COUNT(*) AS n, SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V3002 = '1' AND V1028 IS NOT NULL
+        GROUP BY V3003A ORDER BY n DESC LIMIT 30
+    """,
+    # Inspeciona schema completo: lista todas colunas na tabela
+    "pnad_columns_with_v300_v301": """
+        SELECT column_name
+        FROM `basedosdados.br_ibge_pnadc.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name = 'microdados'
+          AND (column_name LIKE 'V300%' OR column_name LIKE 'V301%' OR column_name LIKE 'VD30%')
+        ORDER BY column_name
+    """,
+    # Confirma população absoluta cursando vs concluído vs nunca:
+    # Brasil 18-20 deve ter ~9M pessoas. Taxa líquida superior 18-24=25%.
+    # Se >35% aparece como "cursando", semântica está errada.
+    "pnad_v3002_1_taxa_freq": """
+        SELECT V2009, COUNT(*) AS n, SUM(V1028) AS pop_pond,
+          SUM(IF(V3002='1', V1028, 0)) AS pop_freq,
+          SUM(IF(V3002='2', V1028, 0)) AS pop_nfreq
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V2009 ORDER BY V2009
+    """,
+    # Enumera códigos distintos id_curso_educ_profissional na BD (último
+    # ano disponível = 2020, BD não importou 2021+). Permite avaliar se
+    # mapping manual é viável (~250 = tratável).
+    "censo_id_curso_distinct_2020": """
+        SELECT id_curso_educ_profissional, COUNT(*) AS n_matriculas
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        WHERE ano = 2020
+          AND id_curso_educ_profissional IS NOT NULL
+        GROUP BY id_curso_educ_profissional
+        ORDER BY n_matriculas DESC
+    """,
+    # Inspeciona se BD tem diretório oficial id_curso_educ_profissional →
+    # eixo tecnológico. Se sim, evita popular CSV manual.
+    "censo_curso_educ_profissional_columns": """
+        SELECT table_name, column_name
+        FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.COLUMNS`
+        WHERE LOWER(column_name) LIKE '%eixo%'
+           OR LOWER(column_name) LIKE '%curso_educ%'
+           OR LOWER(table_name) LIKE '%curso%'
+        ORDER BY table_name, column_name
+    """,
+    # Verifica se há tabela diretório curso → eixo na BD
+    "bd_diretorios_cnct": """
+        SELECT table_name
+        FROM `basedosdados.br_bd_diretorios_brasil.INFORMATION_SCHEMA.TABLES`
+        WHERE LOWER(table_name) LIKE '%cnct%'
+           OR LOWER(table_name) LIKE '%curso_tec%'
+           OR LOWER(table_name) LIKE '%eixo%'
+    """,
+    # Top 30 CBO 3xxxx BR por saldo CAGED + descrição. Permite revisar
+    # caso a caso quais excluir como "não-EPT" (professores leigos,
+    # auxiliares escolares, atletas, etc).
+    "caged_cbo3_top30_br": """
+        WITH base AS (
+          SELECT cbo_2002, SUM(saldo_movimentacao) AS saldo_12m,
+                 COUNTIF(saldo_movimentacao > 0) AS n_admissoes
+          FROM `basedosdados.br_me_caged.microdados_movimentacao`
+          WHERE ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+            AND cbo_2002 IS NOT NULL AND cbo_2002 LIKE '3%'
+          GROUP BY cbo_2002
+        )
+        SELECT b.cbo_2002, c.descricao, b.saldo_12m, b.n_admissoes
+        FROM base b
+        LEFT JOIN `basedosdados.br_bd_diretorios_brasil.cbo_2002` c
+          ON b.cbo_2002 = c.cbo_2002
+        ORDER BY ABS(b.saldo_12m) DESC
+        LIMIT 30
+    """,
+    # Cross V3009A x VD3004 sem filtro de base. Verifica se V3009A='10'
+    # aparece com VD3004 que NÃO seja '5','6','7' (e.g. EM incompleto)
+    # — caso afirmativo, sugere que V3009A captura "ever attended" e
+    # pessoa pode ter abandonado EM ainda em superior. Improvável mas
+    # worth checking.
+    "pnad_v3009a_vd3004_sem_base_18_20": """
+        SELECT V3002, V3009A, VD3004, COUNT(*) AS n,
+               SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V3002, V3009A, VD3004
+        ORDER BY n DESC LIMIT 50
+    """,
 }
 
 
