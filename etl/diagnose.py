@@ -225,6 +225,27 @@ DISCOVERY_QUERIES = {
            OR LOWER(table_name) LIKE '%curso_tec%'
            OR LOWER(table_name) LIKE '%eixo%'
     """,
+    # Lista TODAS as tabelas do dataset Censo Escolar com últimos anos.
+    "censo_all_tables_max_year": """
+        WITH tabelas AS (
+          SELECT table_name
+          FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.TABLES`
+          WHERE table_type = 'BASE TABLE'
+        )
+        SELECT table_name FROM tabelas ORDER BY table_name
+    """,
+    # Tenta tabela 'matricula_aluno' caso exista versão recente
+    "censo_matricula_aluno_anos": """
+        SELECT ano, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.matricula_aluno`
+        GROUP BY ano ORDER BY ano DESC LIMIT 5
+    """,
+    # Tenta tabela aluno
+    "censo_aluno_anos": """
+        SELECT ano, COUNT(*) AS n
+        FROM `basedosdados.br_inep_censo_escolar.aluno`
+        GROUP BY ano ORDER BY ano DESC LIMIT 5
+    """,
     # Re-check anos disponíveis Censo Escolar — BD pode ter sido atualizada.
     "censo_matricula_anos_full_2025": """
         SELECT ano, COUNT(*) AS n_matriculas,
