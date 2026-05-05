@@ -196,6 +196,16 @@ DISCOVERY_QUERIES = {
           AND V1028 IS NOT NULL
         GROUP BY V2009 ORDER BY V2009
     """,
+    # Enumera códigos distintos id_curso_educ_profissional na BD com volume.
+    # Permite avaliar se mapping manual é viável (~250 = tratável).
+    "censo_id_curso_distinct_2023": """
+        SELECT id_curso_educ_profissional, COUNT(*) AS n_matriculas
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        WHERE ano = 2023
+          AND id_curso_educ_profissional IS NOT NULL
+        GROUP BY id_curso_educ_profissional
+        ORDER BY n_matriculas DESC
+    """,
     # Inspeciona se BD tem diretório oficial id_curso_educ_profissional →
     # eixo tecnológico. Se sim, evita popular CSV manual.
     "censo_curso_educ_profissional_columns": """
