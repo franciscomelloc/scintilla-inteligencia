@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-04-30T23:04:35.430961+00:00",
+  "generated_at": "2026-05-05T15:29:30.423012+00:00",
   "generator": "scintilla-inteligencia ETL",
   "catalog": {
-    "total_indicators": 24,
+    "total_indicators": 20,
     "domains": {
       "cobertura": 5,
       "qualidade": 3,
@@ -12,21 +12,6 @@
     }
   },
   "indicators": {
-    "cob_matriculas_ept_per_jovem": {
-      "name": "Matrículas EPT por 1.000 jovens 15-29 anos",
-      "domain": "cobertura",
-      "recortes": [
-        "total_estado",
-        "rede_estadual"
-      ],
-      "polaridade_inversa": false,
-      "lag_months": 12,
-      "source": [
-        "br_inep_censo_escolar.matricula",
-        "br_ibge_pnadc.microdados"
-      ],
-      "pne_meta": "expansion_general"
-    },
     "cob_distribuicao_dependencia": {
       "name": "Distribuição de matrículas EPT por dependência administrativa",
       "domain": "cobertura",
@@ -90,7 +75,7 @@
         "total_estado",
         "rede_estadual"
       ],
-      "polaridade_inversa": false,
+      "polaridade_inversa": true,
       "lag_months": 12,
       "source": [
         "br_inep_indicadores_educacionais.escola",
@@ -251,19 +236,6 @@
       ],
       "pne_meta": "m12c_25pct_2031_50pct_2036"
     },
-    "pne_m12f": {
-      "name": "Meta 12.f · % pop 18-24 com EM técnico concluído",
-      "domain": "pne",
-      "recortes": [
-        "total_estado"
-      ],
-      "polaridade_inversa": false,
-      "lag_months": 6,
-      "source": [
-        "br_ibge_pnadc.microdados"
-      ],
-      "pne_meta": "m12f_10pct_2036"
-    },
     "cob_perfil_alunos": {
       "name": "Perfil dos matriculados EPT — faixa etária, sexo, modalidade",
       "domain": "cobertura",
@@ -317,32 +289,6 @@
       "source": [
         "br_inep_indicadores_educacionais.escola",
         "br_inep_censo_escolar.escola"
-      ],
-      "pne_meta": null
-    },
-    "qua_ingresso_es_pnad": {
-      "name": "% jovens 18-29 com EM completo cursando ES — com EPT vs sem EPT",
-      "domain": "qualidade",
-      "recortes": [
-        "total_estado"
-      ],
-      "polaridade_inversa": false,
-      "lag_months": 6,
-      "source": [
-        "br_ibge_pnadc.microdados"
-      ],
-      "pne_meta": null
-    },
-    "mer_renda_jovens_pnad": {
-      "name": "Renda mensal mediana de jovens 18-29 por nível de formação",
-      "domain": "mercado",
-      "recortes": [
-        "total_estado"
-      ],
-      "polaridade_inversa": false,
-      "lag_months": 6,
-      "source": [
-        "br_ibge_pnadc.microdados"
       ],
       "pne_meta": null
     }
