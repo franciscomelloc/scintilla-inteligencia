@@ -965,16 +965,19 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         },
         "vintage": str(_detect_year(df, "ano_oferta_censo") or "ND"),
         "caveat": (
-            "Aderência calculada cruzando matrículas EPT por eixo CNCT (Censo "
-            "Escolar) com saldo CAGED em CBO 3xxxx mapeada ao eixo. Censo Escolar "
-            "na BD vai até 2020 (defasagem de ~5 anos vs CAGED). Eixo INEP derivado "
-            "do id_curso_educ_profissional (codifica eixo no número). CBO mapeada "
-            "ao eixo via convenção documentada em etl/reference/eixo_cnct_to_cbo3.md. "
-            "Excluído subgrupo CBO 33xxxx (Técnicos da educação) — coerência com "
-            "outros cards. Eixos sem demanda CBO 3 mensurável (Militar, Educacional, "
-            "Produção Alimentícia) ficam com demanda_pct=0. Gap_pp positivo = "
-            "over_supply (forma mais que absorve); negativo = under_supply (mercado "
-            "demanda mais que estado forma). Limite de classificação: |5pp|."
+            "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar 2020 — "
+            "último ano disponível na BD) com ADMISSÕES CAGED em CBO 3xxxx mapeada "
+            "ao eixo. Admissões em vez de saldo: saldo subdimensiona setores de alta "
+            "rotatividade (Gestão, Vendas) que têm muitas admissões e demissões. "
+            "Admissões captura oportunidades reais de entrada pra egressos EPT. "
+            "Saldo segue reportado como informação. Eixo INEP derivado de "
+            "DIV(id_curso, 1000). CBO mapeada ao eixo via "
+            "etl/reference/eixo_cnct_to_cbo3.md. Excluído CBO 33xxxx (Téc. da "
+            "educação). Eixos sem CBO 3 mensurável (Educacional/Social, Militar, "
+            "Produção Alimentícia) ficam Sem Dado — não dá pra classificar gap "
+            "quando a base não captura demanda. Gap_pp positivo = excesso (forma "
+            "mais que absorve); negativo = insuficiente (mercado demanda mais que "
+            "estado forma). Limite de classificação: |5pp|."
         ),
         "ranking_aplicavel": False,
     }

@@ -113,7 +113,12 @@ demanda_eixo AS (
 ),
 
 demanda_total AS (
-  SELECT SUM(ABS(saldo)) AS total_saldo_abs FROM demanda_eixo
+  -- Demanda agregada usa ADMISSÕES, não saldo. Saldo subdimensiona
+  -- setores de alta rotatividade (Gestão, Vendas, Comércio) — esses
+  -- têm muitas admissões e muitas demissões, saldo baixo. Admissões
+  -- captura "oportunidades de entrada" pra egressos EPT — proxy correto
+  -- de demanda de formação. Saldo continua reportado como info.
+  SELECT SUM(n_admissoes) AS total_admissoes FROM demanda_eixo
 ),
 
 eixos AS (
@@ -145,8 +150,8 @@ SELECT
     ELSE NULL END AS oferta_pct,
   COALESCE(d.saldo, 0) AS demanda_saldo,
   COALESCE(d.n_admissoes, 0) AS demanda_n_admissoes,
-  CASE WHEN dt.total_saldo_abs > 0
-    THEN ROUND(100.0 * ABS(COALESCE(d.saldo, 0)) / dt.total_saldo_abs, 2)
+  CASE WHEN dt.total_admissoes > 0
+    THEN ROUND(100.0 * COALESCE(d.n_admissoes, 0) / dt.total_admissoes, 2)
     ELSE NULL END AS demanda_pct,
   (SELECT MAX(ano)
      FROM `basedosdados.br_inep_censo_escolar.matricula`
