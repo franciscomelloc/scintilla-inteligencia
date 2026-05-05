@@ -306,6 +306,19 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "ranking_aplicavel": False,
     },
     # mer_renda_jovens_pnad REMOVIDO — mesmo bug V3007 (PNAD trimestral não tem EPT)
+    "mer_aderencia_eixo_cbo": {
+        "domain": "mercado",
+        "name": "Aderência oferta EPT × demanda CBO por eixo CNCT",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 3,
+        "source": [
+            "br_inep_censo_escolar.matricula",
+            "br_me_caged.microdados_movimentacao",
+        ],
+        "pne_meta": None,
+        "ranking_aplicavel": False,
+    },
 }
 
 

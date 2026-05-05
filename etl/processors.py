@@ -864,6 +864,118 @@ def mer_demanda_mesorregiao(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     }
 
 
+def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna 13 linhas (1 por eixo CNCT) com:
+      eixo_id, eixo_nome, oferta_n, oferta_pct, demanda_saldo,
+      demanda_n_admissoes, demanda_pct.
+
+    Calcula gap_pp = oferta_pct - demanda_pct e classifica:
+    - over_supply: gap > +5pp (forma mais que mercado absorve)
+    - under_supply: gap < -5pp (mercado quer mais do que estado forma)
+    - match: -5 ≤ gap ≤ +5
+    Eixos com oferta=0 E demanda=0 ficam flag sem_dado=true.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados Censo Escolar/CAGED para aderência.")
+
+    THR = 5.0  # corte de classificação em pontos percentuais
+
+    eixos = []
+    over_supply = []
+    under_supply = []
+    matches = []
+
+    for _, row in df.sort_values("eixo_id").iterrows():
+        eixo_id = int(row["eixo_id"])
+        eixo_nome = str(row["eixo_nome"])
+        oferta_n = int(row.get("oferta_n", 0) or 0)
+        demanda_saldo = int(row.get("demanda_saldo", 0) or 0)
+        demanda_n_adm = int(row.get("demanda_n_admissoes", 0) or 0)
+
+        # Pode ser None quando totais zerados
+        oferta_pct = row.get("oferta_pct")
+        demanda_pct = row.get("demanda_pct")
+        oferta_pct = float(oferta_pct) if pd.notna(oferta_pct) else None
+        demanda_pct = float(demanda_pct) if pd.notna(demanda_pct) else None
+
+        sem_dado = (oferta_n == 0 and demanda_n_adm == 0)
+        gap_pp: float | None = None
+        status = None
+
+        if oferta_pct is not None and demanda_pct is not None:
+            gap_pp = round(oferta_pct - demanda_pct, 2)
+            if gap_pp > THR:
+                status = "over_supply"
+            elif gap_pp < -THR:
+                status = "under_supply"
+            else:
+                status = "match"
+
+        item = {
+            "eixo_id": eixo_id,
+            "eixo_nome": eixo_nome,
+            "oferta_n": oferta_n,
+            "oferta_pct": oferta_pct,
+            "demanda_saldo": demanda_saldo,
+            "demanda_n_admissoes": demanda_n_adm,
+            "demanda_pct": demanda_pct,
+            "gap_pp": gap_pp,
+            "status": status,
+            "sem_dado": sem_dado,
+        }
+        eixos.append(item)
+        if status == "over_supply":
+            over_supply.append(item)
+        elif status == "under_supply":
+            under_supply.append(item)
+        elif status == "match":
+            matches.append(item)
+
+    over_supply.sort(key=lambda x: x["gap_pp"], reverse=True)
+    under_supply.sort(key=lambda x: x["gap_pp"])
+
+    total_oferta = sum(e["oferta_n"] for e in eixos)
+    total_saldo_caged = sum(e["demanda_saldo"] for e in eixos)
+    total_admissoes = sum(e["demanda_n_admissoes"] for e in eixos)
+
+    return {
+        "total_estado": {
+            "ano_oferta_censo": _detect_year(df, "ano_oferta_censo"),
+            "ano_demanda_caged": _detect_year(df, "ano_demanda_caged"),
+            "total_matriculas_ept": total_oferta,
+            "total_saldo_caged": total_saldo_caged,
+            "total_admissoes_caged": total_admissoes,
+            "eixos": eixos,
+            "top_under_supply": under_supply[:3],
+            "top_over_supply": over_supply[:3],
+            "n_match": len(matches),
+            "n_over_supply": len(over_supply),
+            "n_under_supply": len(under_supply),
+        },
+        "vintage": str(_detect_year(df, "ano_oferta_censo") or "ND"),
+        "caveat": (
+            "Aderência calculada cruzando matrículas EPT por eixo CNCT (Censo "
+            "Escolar) com saldo CAGED em CBO 3xxxx mapeada ao eixo. Censo Escolar "
+            "na BD vai até 2020 (defasagem de ~5 anos vs CAGED). Eixo INEP derivado "
+            "do id_curso_educ_profissional (codifica eixo no número). CBO mapeada "
+            "ao eixo via convenção documentada em etl/reference/eixo_cnct_to_cbo3.md. "
+            "Excluído subgrupo CBO 33xxxx (Técnicos da educação) — coerência com "
+            "outros cards. Eixos sem demanda CBO 3 mensurável (Militar, Educacional, "
+            "Produção Alimentícia) ficam com demanda_pct=0. Gap_pp positivo = "
+            "over_supply (forma mais que absorve); negativo = under_supply (mercado "
+            "demanda mais que estado forma). Limite de classificação: |5pp|."
+        ),
+        "ranking_aplicavel": False,
+    }
+
+
+def _detect_year(df: pd.DataFrame, col: str) -> int | None:
+    """Helper opcional pra extrair ano de uma coluna se existir."""
+    if col in df.columns and not df[col].dropna().empty:
+        return int(df[col].max())
+    return None
+
+
 def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna linhas (ano, idade, sexo, caminho, pop_ponderada, n_amostral)
     para 2 ondas: ano_followup-1 (jovens 18-19) e ano_followup (jovens 19-20).
@@ -1001,4 +1113,5 @@ PROCESSORS = {
     "mer_demanda_cbo_top": mer_demanda_cbo_top,
     "mer_demanda_mesorregiao": mer_demanda_mesorregiao,
     "mer_coorte_sintetica_pnad": mer_coorte_sintetica_pnad,
+    "mer_aderencia_eixo_cbo": mer_aderencia_eixo_cbo,
 }

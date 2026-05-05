@@ -147,7 +147,13 @@ SELECT
   COALESCE(d.n_admissoes, 0) AS demanda_n_admissoes,
   CASE WHEN dt.total_saldo_abs > 0
     THEN ROUND(100.0 * ABS(COALESCE(d.saldo, 0)) / dt.total_saldo_abs, 2)
-    ELSE NULL END AS demanda_pct
+    ELSE NULL END AS demanda_pct,
+  (SELECT MAX(ano)
+     FROM `basedosdados.br_inep_censo_escolar.matricula`
+     WHERE sigla_uf = '{UF}' AND id_curso_educ_profissional IS NOT NULL
+  ) AS ano_oferta_censo,
+  (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+    AS ano_demanda_caged
 FROM eixos e
 LEFT JOIN censo_oferta o USING (eixo_id)
 LEFT JOIN demanda_eixo d USING (eixo_id)
