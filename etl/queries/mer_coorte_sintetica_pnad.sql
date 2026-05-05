@@ -23,8 +23,12 @@
 --   V2009 idade
 --   V1028 peso pessoal pós-estratificado
 --   V3002 frequenta escola (1=Sim)
---   V3009A nível atual de ensino (5='Superior - graduação', 6='Especialização',
---          7='Mestrado', 8='Doutorado')
+--   V3009A nível atual de ensino — codes oficiais PNAD Contínua:
+--          1=Maternal/Pré, 2=Alfabetização, 3=Regular fundamental,
+--          4=EJA fundamental, 5=Regular médio, 6=EJA médio,
+--          7=Educação profissional média (técnico), 8=Pré-vestibular,
+--          9=Superior graduação, 10=Especialização, 11=Mestrado, 12=Doutorado.
+--          Filtro 9-12 captura "cursando ensino superior" (graduação ou pós).
 --   VD3004 nível mais elevado alcançado (5='Médio completo', 6='Superior incompleto',
 --          7='Superior completo')
 --   VD4002 condição de ocupação (1=Ocupado, 2=Desocupado)
@@ -76,12 +80,12 @@ categorizado AS (
     -- 6 caminhos disjuntos (mutuamente exclusivos, soma <= 100%)
     CASE
       -- Cursando superior + trabalha
-      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8')
+      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12')
            AND p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'formal_estuda'
-      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8')
+      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12')
            AND p.VD4002 = '1' THEN 'informal_estuda'
       -- Cursando superior sem trabalhar
-      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8') THEN 'so_estuda'
+      WHEN p.V3002 = '1' AND p.V3009A IN ('9', '10', '11', '12') THEN 'so_estuda'
       -- Trabalha sem cursar superior
       WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'so_formal'
       WHEN p.VD4002 = '1' THEN 'so_informal'
