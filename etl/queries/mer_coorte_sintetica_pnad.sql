@@ -22,7 +22,10 @@
 --   V2007 sexo (1=H, 2=M)
 --   V2009 idade
 --   V1028 peso pessoal pós-estratificado
---   V3002 frequenta escola (1=Sim)
+--   V3002 frequenta escola atualmente — codes na BD: '1'=NÃO frequenta,
+--          '2'=frequenta. ATENÇÃO: codificação invertida vs convenção
+--          comum (1=Sim/2=Não). Confirmado via diagnose: jovens com
+--          V3009A='10' (cursando graduação) sempre têm V3002='2'.
 --   V3009A nível atual de ensino — codes encontrados na BD via diagnose
 --          (etl/diagnose.py query pnad_v3009a_18_20_2024_2025):
 --          7=Médio regular, 8=Médio EJA, 10=Superior graduação,
@@ -81,17 +84,17 @@ categorizado AS (
     -- 6 caminhos disjuntos (mutuamente exclusivos, soma <= 100%)
     CASE
       -- Cursando superior + trabalha
-      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13')
+      WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13')
            AND p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'formal_estuda'
-      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13')
+      WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13')
            AND p.VD4002 = '1' THEN 'informal_estuda'
       -- Cursando superior sem trabalhar
-      WHEN p.V3002 = '1' AND p.V3009A IN ('10', '11', '12', '13') THEN 'so_estuda'
+      WHEN p.V3002 = '2' AND p.V3009A IN ('10', '11', '12', '13') THEN 'so_estuda'
       -- Trabalha sem cursar superior
       WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '4') THEN 'so_formal'
       WHEN p.VD4002 = '1' THEN 'so_informal'
       -- Não trabalha, não cursa superior, não frequenta nada
-      WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '1' THEN 'neet'
+      WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '2' THEN 'neet'
       ELSE 'outro'
     END AS caminho
   FROM pnad p
