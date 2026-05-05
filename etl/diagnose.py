@@ -196,6 +196,25 @@ DISCOVERY_QUERIES = {
           AND V1028 IS NOT NULL
         GROUP BY V2009 ORDER BY V2009
     """,
+    # Top 30 CBO 3xxxx BR por saldo CAGED + descrição. Permite revisar
+    # caso a caso quais excluir como "não-EPT" (professores leigos,
+    # auxiliares escolares, atletas, etc).
+    "caged_cbo3_top30_br": """
+        WITH base AS (
+          SELECT cbo_2002, SUM(saldo_movimentacao) AS saldo_12m,
+                 COUNTIF(saldo_movimentacao > 0) AS n_admissoes
+          FROM `basedosdados.br_me_caged.microdados_movimentacao`
+          WHERE ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
+            AND cbo_2002 IS NOT NULL AND cbo_2002 LIKE '3%'
+          GROUP BY cbo_2002
+        )
+        SELECT b.cbo_2002, c.descricao, b.saldo_12m, b.n_admissoes
+        FROM base b
+        LEFT JOIN `basedosdados.br_bd_diretorios_brasil.cbo_2002` c
+          ON b.cbo_2002 = c.cbo_2002
+        ORDER BY ABS(b.saldo_12m) DESC
+        LIMIT 30
+    """,
     # Cross V3009A x VD3004 sem filtro de base. Verifica se V3009A='10'
     # aparece com VD3004 que NÃO seja '5','6','7' (e.g. EM incompleto)
     # — caso afirmativo, sugere que V3009A captura "ever attended" e
