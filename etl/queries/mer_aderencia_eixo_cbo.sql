@@ -54,6 +54,16 @@ oferta_total AS (
 ),
 
 caged_base AS (
+  -- Filtro principal: CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx
+  -- (Técnicos da educação — exclusão acordada com mer_demanda_cbo_top).
+  -- Expansão asimétrica em eixos onde a demanda real cai em CBO operacional
+  -- (egresso EPT vira operador, não técnico):
+  --   Eixo 9 (Produção Alimentícia): CBO 84xxxx
+  --     Trabalhadores da indústria alimentícia/laticínios/abatedouros.
+  --     MG tem 35k+ admissões só no top 8 (JBS, Itambé, Cooperativa Central).
+  --   Eixo 2 (Educacional/Social): CBO 5162xx
+  --     Cuidadores de idosos e crianças (egresso de Téc Cuidador).
+  --   Eixo 8 (Militar): NÃO incluído — CAGED não cobre FFAA (estatutário).
   SELECT
     cbo_2002,
     saldo_movimentacao
@@ -63,12 +73,15 @@ caged_base AS (
       SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`
     )
     AND cbo_2002 IS NOT NULL
-    AND cbo_2002 LIKE '3%'
-    AND cbo_2002 NOT LIKE '33%'  -- exclui Técnicos da educação
+    AND (
+      (cbo_2002 LIKE '3%' AND cbo_2002 NOT LIKE '33%')  -- Técnicos NM, exceto educação
+      OR cbo_2002 LIKE '84%'                              -- Eixo 9 Prod Alimentícia
+      OR cbo_2002 LIKE '5162%'                            -- Eixo 2 Cuidadores
+    )
 ),
 
 caged_eixo AS (
-  -- Mapping CBO 3xxxx → eixo INEP. Cada CBO em UM único eixo.
+  -- Mapping CBO → eixo INEP. Cada CBO em UM único eixo.
   -- Documentado em etl/reference/eixo_cnct_to_cbo3.md.
   SELECT
     CASE
@@ -76,6 +89,10 @@ caged_eixo AS (
       WHEN cbo_2002 = '351605' THEN 13
       -- Eixo 5 Turismo (CBO específico, prioridade alta)
       WHEN cbo_2002 = '354820' THEN 5
+      -- Eixo 9 Produção Alimentícia (CBO 84xxxx — operadores indústria alim.)
+      WHEN cbo_2002 LIKE '84%' THEN 9
+      -- Eixo 2 Educacional/Social (CBO 5162xx — cuidadores)
+      WHEN cbo_2002 LIKE '5162%' THEN 2
       -- Eixo 1 Ambiente e Saúde
       WHEN cbo_2002 LIKE '321%' OR cbo_2002 LIKE '322%' OR cbo_2002 LIKE '323%'
            OR cbo_2002 LIKE '324%' OR cbo_2002 LIKE '325%' OR cbo_2002 LIKE '326%'
@@ -96,7 +113,7 @@ caged_eixo AS (
       WHEN cbo_2002 LIKE '351%' OR cbo_2002 LIKE '352%' OR cbo_2002 LIKE '353%'
            OR cbo_2002 LIKE '354%' OR cbo_2002 LIKE '391%'
         THEN 4
-      ELSE NULL  -- CBO 3xxxx sem eixo CNCT correspondente
+      ELSE NULL  -- CBO sem eixo CNCT correspondente
     END AS eixo_id,
     saldo_movimentacao
   FROM caged_base
