@@ -885,8 +885,10 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     ano_followup = int(anos_ordenados[-1])
     ano_base = int(anos_ordenados[-2])
 
+    CAMINHOS = ["so_formal", "so_informal", "formal_estuda", "informal_estuda", "so_estuda", "neet"]
+
     def _agg_coorte(sub: pd.DataFrame) -> dict[str, Any] | None:
-        """Agrega percentuais ponderados por caminho na sub-amostra."""
+        """Agrega percentuais ponderados por caminho (6 categorias disjuntas)."""
         if sub.empty:
             return None
         total_pop = sub["pop_ponderada"].sum()
@@ -897,10 +899,17 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
                 "n_amostral": total_n,
             }
         result: dict[str, float | None] = {}
-        for cam in ["formal", "informal", "superior", "neet"]:
+        for cam in CAMINHOS:
             mask = sub["caminho"] == cam
             pop_cam = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
             result[f"{cam}_pct"] = round(pop_cam / total_pop * 100, 2)
+        # Agregados úteis pra renderer e leitura
+        result["trabalha_estuda_pct"] = round(result["formal_estuda_pct"] + result["informal_estuda_pct"], 2)
+        result["estuda_total_pct"] = round(result["trabalha_estuda_pct"] + result["so_estuda_pct"], 2)
+        result["trabalha_total_pct"] = round(
+            result["so_formal_pct"] + result["so_informal_pct"]
+            + result["formal_estuda_pct"] + result["informal_estuda_pct"], 2
+        )
         return {
             "amostra_insuficiente": False,
             "n_amostral": total_n,
@@ -932,7 +941,7 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         and not coorte_base.get("amostra_insuficiente")
         and not coorte_followup.get("amostra_insuficiente")
     ):
-        for cam in ["formal", "informal", "superior", "neet"]:
+        for cam in CAMINHOS + ["trabalha_estuda", "estuda_total", "trabalha_total"]:
             k = f"{cam}_pct"
             b = coorte_base.get(k)
             f = coorte_followup.get(k)

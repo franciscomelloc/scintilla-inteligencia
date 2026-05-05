@@ -6,11 +6,17 @@
 -- individual. A "coorte sintética" cruza duas ondas independentes da
 -- amostra com o mesmo perfil populacional.
 --
--- Saída: 4 caminhos disjuntos calculados em cada onda:
--- - Trabalho formal (ocupado com carteira / VD4007=1 ou militar/estatutário)
--- - Trabalho informal (ocupado sem carteira)
--- - Em ensino superior (frequenta escola / V3002=1, nível superior V3009A)
--- - NEET (não ocupado e não frequenta escola)
+-- Saída: 6 caminhos disjuntos calculados em cada onda (categorização que
+-- separa "trabalha + estuda superior" de "só estuda" — necessário porque
+-- ~70% dos universitários 18-24 brasileiros são economicamente ativos):
+-- - so_formal: ocupado com carteira/militar/estatutário, não cursa superior
+-- - so_informal: ocupado sem carteira, não cursa superior
+-- - formal_estuda: ocupado com carteira E cursando superior
+-- - informal_estuda: ocupado sem carteira E cursando superior
+-- - so_estuda: cursando superior sem trabalhar
+-- - neet: não ocupado e não frequenta escola
+-- (residual "outro" capturado mas tipicamente <2%: cursando EJA-médio, fora do
+--  filtro VD3004>=5 mas que escapou; ou ocupado sem definição clara de carteira.)
 --
 -- Variáveis PNAD usadas:
 --   V2007 sexo (1=H, 2=M)
@@ -67,11 +73,19 @@ categorizado AS (
     p.sexo,
     p.idade,
     p.peso,
-    -- 4 caminhos disjuntos
+    -- 6 caminhos disjuntos (mutuamente exclusivos, soma <= 100%)
     CASE
-      WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'formal'
-      WHEN p.VD4002 = '1' THEN 'informal'
-      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8') THEN 'superior'
+      -- Cursando superior + trabalha
+      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8')
+           AND p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'formal_estuda'
+      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8')
+           AND p.VD4002 = '1' THEN 'informal_estuda'
+      -- Cursando superior sem trabalhar
+      WHEN p.V3002 = '1' AND p.V3009A IN ('5', '6', '7', '8') THEN 'so_estuda'
+      -- Trabalha sem cursar superior
+      WHEN p.VD4002 = '1' AND p.VD4007 IN ('1', '7', '8', '9') THEN 'so_formal'
+      WHEN p.VD4002 = '1' THEN 'so_informal'
+      -- Não trabalha, não cursa superior, não frequenta nada
       WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '1' THEN 'neet'
       ELSE 'outro'
     END AS caminho
