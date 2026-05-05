@@ -167,6 +167,35 @@ DISCOVERY_QUERIES = {
           AND V1028 IS NOT NULL
           AND V3002 = '2' AND V3009A IN ('10','11','12','13')
     """,
+    # Tenta variáveis V3003A, V3002A pra encontrar curso ATUAL quando
+    # V3002='1'. Diagnose anterior mostrou V3009A SEMPRE null com V3002=1.
+    "pnad_v3003a_18_20_v3002_1": """
+        SELECT V3003A, COUNT(*) AS n, SUM(V1028) AS pop
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V3002 = '1' AND V1028 IS NOT NULL
+        GROUP BY V3003A ORDER BY n DESC LIMIT 30
+    """,
+    # Inspeciona schema completo: lista todas colunas na tabela
+    "pnad_columns_with_v300_v301": """
+        SELECT column_name
+        FROM `basedosdados.br_ibge_pnadc.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name = 'microdados'
+          AND (column_name LIKE 'V300%' OR column_name LIKE 'V301%' OR column_name LIKE 'VD30%')
+        ORDER BY column_name
+    """,
+    # Confirma população absoluta cursando vs concluído vs nunca:
+    # Brasil 18-20 deve ter ~9M pessoas. Taxa líquida superior 18-24=25%.
+    # Se >35% aparece como "cursando", semântica está errada.
+    "pnad_v3002_1_taxa_freq": """
+        SELECT V2009, COUNT(*) AS n, SUM(V1028) AS pop_pond,
+          SUM(IF(V3002='1', V1028, 0)) AS pop_freq,
+          SUM(IF(V3002='2', V1028, 0)) AS pop_nfreq
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND V1028 IS NOT NULL
+        GROUP BY V2009 ORDER BY V2009
+    """,
     # Cross V3009A x VD3004 sem filtro de base. Verifica se V3009A='10'
     # aparece com VD3004 que NÃO seja '5','6','7' (e.g. EM incompleto)
     # — caso afirmativo, sugere que V3009A captura "ever attended" e
