@@ -199,7 +199,7 @@ def qua_razao_aluno_professor_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         },
         "polaridade_inversa": True,
         "vintage": str(int(latest["ano"])),
-        "caveat": "Razão menor é melhor. Numerador é matrícula, denominador é docente único.",
+        "caveat": "Razão menor é melhor. Agregação a nível escola (Censo Escolar via tabela escola). Docentes que atuam em múltiplas escolas são contados em cada uma.",
     }
 
 
@@ -553,44 +553,54 @@ def pne_m12f(df: pd.DataFrame, uf: str) -> dict[str, Any]:
 
 
 def cob_perfil_alunos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
-    """Perfil dos matriculados EPT — faixa etária, sexo, modalidade."""
+    """Perfil sociodemográfico das escolas que ofertam EPT — sexo, raça/cor, faixa etária."""
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar EPT.")
-    row = df.iloc[0]
-    def _i(key: str) -> int:
-        v = row.get(key)
-        if v is None or pd.isna(v):
-            return 0
-        return int(v)
-    total = _i("total")
-    integrada = _i("qtd_integrada")
-    concomitante = _i("qtd_concomitante")
-    subsequente = _i("qtd_subsequente")
-    eja_tec = _i("qtd_eja_tecnico")
-    total_modalidade = integrada + concomitante + subsequente + eja_tec
-    pct = lambda v, t: round(100.0 * v / t, 1) if t else 0.0
-    return {
-        "total_estado": {
-            "valor": float(total),
-            "total_matriculas_ept": total,
-            "faixa_etaria": {
-                "15_17_pct": pct(_i("faixa_15_17"), total),
-                "18_24_pct": pct(_i("faixa_18_24"), total),
-                "25_mais_pct": pct(_i("faixa_25_mais"), total),
-            },
+
+    def _build(sub: pd.DataFrame) -> dict[str, Any]:
+        if sub.empty:
+            return {"valor": None}
+        cols = [
+            "qtd_fem", "qtd_masc", "qtd_sexo_nd",
+            "qtd_branca", "qtd_preta", "qtd_parda", "qtd_amarela", "qtd_indigena",
+            "qtd_idade_15_17", "qtd_idade_18_mais",
+            "total_matriculas_ept", "total_matriculas_escolas_ept",
+            "qtd_escolas_ept",
+        ]
+        agg = {c: int(sub[c].fillna(0).sum()) if c in sub.columns else 0 for c in cols}
+        sexo_total = agg["qtd_fem"] + agg["qtd_masc"] + agg["qtd_sexo_nd"]
+        raca_total = (agg["qtd_branca"] + agg["qtd_preta"] + agg["qtd_parda"]
+                      + agg["qtd_amarela"] + agg["qtd_indigena"])
+        idade_total = agg["qtd_idade_15_17"] + agg["qtd_idade_18_mais"]
+        pct = lambda v, t: round(100.0 * v / t, 1) if t else 0.0
+        return {
+            "valor": float(agg["total_matriculas_ept"]),
+            "total_matriculas_ept": agg["total_matriculas_ept"],
+            "qtd_escolas_ept": agg["qtd_escolas_ept"],
             "sexo": {
-                "masculino_pct": pct(_i("masc"), total),
-                "feminino_pct": pct(_i("fem"), total),
+                "feminino_pct": pct(agg["qtd_fem"], sexo_total),
+                "masculino_pct": pct(agg["qtd_masc"], sexo_total),
+                "nao_declarado_pct": pct(agg["qtd_sexo_nd"], sexo_total),
             },
-            "modalidade": {
-                "integrada_pct": pct(integrada, total_modalidade),
-                "concomitante_pct": pct(concomitante, total_modalidade),
-                "subsequente_pct": pct(subsequente, total_modalidade),
-                "eja_tecnico_pct": pct(eja_tec, total_modalidade),
+            "raca_cor": {
+                "branca_pct": pct(agg["qtd_branca"], raca_total),
+                "preta_pct": pct(agg["qtd_preta"], raca_total),
+                "parda_pct": pct(agg["qtd_parda"], raca_total),
+                "amarela_pct": pct(agg["qtd_amarela"], raca_total),
+                "indigena_pct": pct(agg["qtd_indigena"], raca_total),
             },
-        },
-        "vintage": str(_i("ano")),
-        "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola.",
+            "faixa_etaria": {
+                "15_17_pct": pct(agg["qtd_idade_15_17"], idade_total),
+                "18_mais_pct": pct(agg["qtd_idade_18_mais"], idade_total),
+            },
+        }
+
+    ano = int(df["ano"].max())
+    return {
+        "total_estado": _build(df),
+        "rede_estadual": _build(df[df["rede"] == "2"]),
+        "vintage": str(ano),
+        "caveat": "Perfil agregado das escolas que ofertam EPT (Censo Escolar via tabela escola). Inclui matrículas não-EPT da mesma escola; mais fiel para escolas dedicadas (Senai, IFs, escolas técnicas).",
     }
 
 
