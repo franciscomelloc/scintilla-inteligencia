@@ -196,6 +196,24 @@ DISCOVERY_QUERIES = {
           AND V1028 IS NOT NULL
         GROUP BY V2009 ORDER BY V2009
     """,
+    # Inspeciona se BD tem diretório oficial id_curso_educ_profissional →
+    # eixo tecnológico. Se sim, evita popular CSV manual.
+    "censo_curso_educ_profissional_columns": """
+        SELECT table_name, column_name
+        FROM `basedosdados.br_inep_censo_escolar.INFORMATION_SCHEMA.COLUMNS`
+        WHERE LOWER(column_name) LIKE '%eixo%'
+           OR LOWER(column_name) LIKE '%curso_educ%'
+           OR LOWER(table_name) LIKE '%curso%'
+        ORDER BY table_name, column_name
+    """,
+    # Verifica se há tabela diretório curso → eixo na BD
+    "bd_diretorios_cnct": """
+        SELECT table_name
+        FROM `basedosdados.br_bd_diretorios_brasil.INFORMATION_SCHEMA.TABLES`
+        WHERE LOWER(table_name) LIKE '%cnct%'
+           OR LOWER(table_name) LIKE '%curso_tec%'
+           OR LOWER(table_name) LIKE '%eixo%'
+    """,
     # Top 30 CBO 3xxxx BR por saldo CAGED + descrição. Permite revisar
     # caso a caso quais excluir como "não-EPT" (professores leigos,
     # auxiliares escolares, atletas, etc).
