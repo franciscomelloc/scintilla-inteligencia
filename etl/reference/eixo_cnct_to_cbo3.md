@@ -73,6 +73,59 @@ Após aprovação humana deste mapping:
 2. Espelhar no Python (`etl/processors.py`) caso o agg precisa
 3. Popular `etl/reference/cnct_curso_eixo.csv` com mapping curso INEP → eixo
 
+## Resolução (descoberta 2026-05-05)
+
+**Não precisamos popular CSV manual.** Confirmado via parsing direto do
+Caderno de Conceitos e Orientações INEP 2022 (páginas 93-99): o código
+`id_curso_educ_profissional` **codifica o eixo no próprio número** —
+`eixo_id = id_curso // 1000`.
+
+Estrutura dos códigos INEP (validada com 196 cursos do Censo 2020):
+
+| eixo_id | Eixo Tecnológico (INEP) | Range de código |
+|---|---|---|
+| 1 | Ambiente e Saúde | 1001-1033, 1999 |
+| 2 | Desenvolvimento Educacional e Social | 2029-2040, 2999 |
+| 3 | Controle e Processos Industriais | 3036-3064, 3999 |
+| 4 | Gestão e Negócios | 4050-4066, 4999 |
+| 5 | Turismo, Hospitalidade e Lazer | 5066-5072, 5999 |
+| 6 | Informação e Comunicação | 6073-6082, 6999 |
+| 7 | Infraestrutura | 7081-7098, 7999 |
+| 8 | Militar | 8099-8133, 8999 |
+| 9 | Produção Alimentícia | 9120-9127, 9999 |
+| 10 | Produção Cultural e Design | 10144-10160, 10999 |
+| 11 | Produção Industrial | 11154-11178, 11999 |
+| 12 | Recursos Naturais | 12171-12188, 12999 |
+| 13 | Segurança | 13181-13183, 13999 |
+
+**Implementação SQL:**
+```sql
+DIV(id_curso_educ_profissional, 1000) AS eixo_id
+```
+
+ATENÇÃO: o eixo `2 = Desenvolvimento Educacional e Social` na numeração
+INEP corresponde ao eixo `3 = Desenvolvimento Educacional e Social` no
+Catálogo Nacional MEC (ordem alfabética). Estamos usando a numeração
+INEP no banco. O mapping eixo→CBO acima foi atualizado pra refletir.
+
+## Mapping eixo INEP → CBO 3xxxx (atualizado)
+
+| INEP eixo_id | Eixo | CBO 3xxxx atribuídas | Status |
+|---|---|---|---|
+| 1 | Ambiente e Saúde | `321-326` | ✓ inclui |
+| 2 | Desenvolvimento Educ. e Social | — | excluído (CBO 33 já filtrado) |
+| 3 | Controle e Processos Industriais | `311, 313` | ✓ inclui |
+| 4 | Gestão e Negócios | `351, 354, 391` (excl. 351605, 354820) | ✓ inclui |
+| 5 | Turismo, Hospit. e Lazer | `371, 354820` | ✓ inclui |
+| 6 | Informação e Comunicação | `317` | ✓ inclui |
+| 7 | Infraestrutura | `312, 318` | ✓ inclui |
+| 8 | Militar | — | excluído (CBO 0xxx) |
+| 9 | Produção Alimentícia | — | excluído (CBO 7-8) |
+| 10 | Produção Cultural e Design | `374, 376` | ✓ inclui |
+| 11 | Produção Industrial | `314, 300` | ✓ inclui |
+| 12 | Recursos Naturais | `301` | ✓ inclui |
+| 13 | Segurança | `351605` | ✓ inclui |
+
 ## Gargalo confirmado (diagnose 2026-05-05)
 
 **BD não tem mapping curso INEP → eixo.** Diagnose confirmou:
