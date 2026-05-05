@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -20,6 +21,11 @@ logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).parent.parent
 QUERIES_DIR = ROOT / "etl" / "queries"
+
+# Reescreve filtros de UF para agregação nacional. Captura "sigla_uf = '{UF}'"
+# com prefixo de alias opcional (e.sigla_uf, i.sigla_uf, d.sigla_uf, s.sigla_uf)
+# e substitui por TRUE — preserva a estrutura WHERE/AND da query.
+_UF_FILTER_RE = re.compile(r"(?:\w+\.)?sigla_uf\s*=\s*'\{UF\}'")
 
 
 class BQRunner:
@@ -48,8 +54,16 @@ class BQRunner:
 
     @classmethod
     def run(cls, indicator_code: str, uf: str) -> "pd.DataFrame":
-        """Executa SQL do indicador para um UF, retorna DataFrame."""
-        sql = cls.load_query(indicator_code).replace("{UF}", uf)
+        """Executa SQL do indicador para um UF, retorna DataFrame.
+
+        uf == 'BR' dispara modo nacional: o filtro `sigla_uf = '{UF}'` é
+        reescrito para `TRUE`, agregando todas as 27 UFs.
+        """
+        raw = cls.load_query(indicator_code)
+        if uf == "BR":
+            sql = _UF_FILTER_RE.sub("TRUE", raw)
+        else:
+            sql = raw.replace("{UF}", uf)
         client = cls.get_client()
         logger.debug(f"[{indicator_code}/{uf}] executando query")
         # create_bqstorage_client=False evita exigir bigquery.readsessions.create

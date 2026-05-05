@@ -40,6 +40,10 @@ UFS = [
     "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]
 
+# Pseudo-UF nacional. Tratada fora de UFS porque não participa do
+# benchmark cross-state (não faz sentido ranquear BR contra os 27 UFs).
+BR_CODE = "BR"
+
 UF_NAMES: dict[str, str] = {
     "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas",
     "BA": "Bahia", "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo",
@@ -48,6 +52,7 @@ UF_NAMES: dict[str, str] = {
     "PE": "Pernambuco", "PI": "Piauí", "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte",
     "RS": "Rio Grande do Sul", "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina",
     "SP": "São Paulo", "SE": "Sergipe", "TO": "Tocantins",
+    BR_CODE: "Brasil",
 }
 
 
@@ -200,14 +205,30 @@ def build_benchmark_summary() -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="ETL Scintilla Inteligência")
-    parser.add_argument("--uf", help="UF específica (default: todos os 27)")
+    parser.add_argument(
+        "--uf",
+        help="UF específica (default: todos os 27 + BR). Use 'BR' para apenas o agregado nacional.",
+    )
     parser.add_argument("--no-benchmark", action="store_true", help="Skip benchmark cross-state")
+    parser.add_argument(
+        "--no-br",
+        action="store_true",
+        help="Não gera BR.json (agregado nacional). Default: gera junto dos 27.",
+    )
     args = parser.parse_args()
 
     DIAGNOSTIC_DIR.mkdir(parents=True, exist_ok=True)
 
-    target_ufs = [args.uf] if args.uf else UFS
-    logger.info(f"Construindo {len(target_ufs)} UF(s): {target_ufs}")
+    if args.uf == BR_CODE:
+        target_ufs: list[str] = []
+        build_br = True
+    elif args.uf:
+        target_ufs = [args.uf]
+        build_br = False
+    else:
+        target_ufs = list(UFS)
+        build_br = not args.no_br
+    logger.info(f"Construindo {len(target_ufs)} UF(s): {target_ufs}{' + BR' if build_br else ''}")
 
     all_data: dict[str, dict[str, Any]] = {}
     for uf in target_ufs:
@@ -215,10 +236,16 @@ def main() -> int:
         data = build_uf(uf)
         all_data[uf] = data
 
-    # Benchmark cross-state (só se gerou todos)
+    # Benchmark cross-state (só se gerou todos os 27 — BR não entra)
     if len(target_ufs) == 27 and not args.no_benchmark:
         logger.info("Calculando benchmarks cross-state")
         fill_benchmarks(all_data)
+
+    # BR vai fora do fill_benchmarks: vs_top_quartile/vs_media_nacional/posicao
+    # ficam null no agregado nacional (não há ranking de BR contra ele mesmo).
+    if build_br:
+        logger.info(f"=== [{BR_CODE}] iniciando (agregado nacional) ===")
+        all_data[BR_CODE] = build_uf(BR_CODE)
 
     # Persiste cada UF
     for uf, data in all_data.items():
@@ -226,7 +253,7 @@ def main() -> int:
         out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
         logger.info(f"[{uf}] OK → {out_path.relative_to(ROOT)}")
 
-    # Benchmark + metadata
+    # Benchmark + metadata (só na rodada completa dos 27)
     if len(target_ufs) == 27:
         bench = build_benchmark_summary()
         (OUTPUT_DIR / "benchmark.json").write_text(
