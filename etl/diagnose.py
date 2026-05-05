@@ -225,6 +225,13 @@ DISCOVERY_QUERIES = {
            OR LOWER(table_name) LIKE '%curso_tec%'
            OR LOWER(table_name) LIKE '%eixo%'
     """,
+    # Re-check anos disponíveis Censo Escolar — BD pode ter sido atualizada.
+    "censo_matricula_anos_full_2025": """
+        SELECT ano, COUNT(*) AS n_matriculas,
+               SUM(IF(id_curso_educ_profissional IS NOT NULL, 1, 0)) AS n_ept
+        FROM `basedosdados.br_inep_censo_escolar.matricula`
+        GROUP BY ano ORDER BY ano DESC LIMIT 15
+    """,
     # CBO 84xxxx (trabalhadores indústria alimentícia/bebidas) MG —
     # potencial mapping pra Eixo 9 Produção Alimentícia. Top por
     # admissões pra ver volumes reais.
