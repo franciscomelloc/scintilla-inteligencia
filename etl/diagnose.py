@@ -133,6 +133,14 @@ DISCOVERY_QUERIES = {
         GROUP BY VD4002, VD4007, V4009
         ORDER BY n DESC LIMIT 50
     """,
+    "pnad_v4019_v4012_v4029_18_20": """
+        SELECT V4019, V4012, V4029, V4032, COUNT(*) AS n
+        FROM `basedosdados.br_ibge_pnadc.microdados`
+        WHERE ano = 2025 AND trimestre = 1 AND V2009 BETWEEN 18 AND 20
+          AND VD4002 = '1'
+        GROUP BY V4019, V4012, V4029, V4032
+        ORDER BY n DESC LIMIT 30
+    """,
 }
 
 
