@@ -27,13 +27,37 @@ ROOT = Path(__file__).parent.parent
 DIAGNOSTIC_DIR = ROOT / "output" / "diagnostico"
 
 UFS = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-    "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-    "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
 ]
 
 
-class SanityFailure(Exception):
+class SanityError(Exception):
     pass
 
 
@@ -91,16 +115,22 @@ def check_ranking_distinct(all_data: dict[str, dict]) -> list[str]:
                 continue
             # Agrupa por posição; cada grupo deve ter valor único
             from collections import defaultdict
+
             por_pos: dict[int, list[tuple[float, str]]] = defaultdict(list)
             for v, p, uf in pares:
                 por_pos[p].append((v, uf))
             for p, grupo in por_pos.items():
                 vals = {round(v, 6) for v, _ in grupo}
                 if len(vals) > 1:
-                    fails.append(f"{code}/{recorte}: pos={p} duplicada com valores diferentes {grupo}")
+                    fails.append(
+                        f"{code}/{recorte}: pos={p} duplicada com valores diferentes {grupo}"
+                    )
             positions_set = sorted(por_pos.keys())
             if positions_set and (max(positions_set) > 27 or min(positions_set) < 1):
-                fails.append(f"{code}/{recorte}: posicao fora de [1,27]: min={min(positions_set)} max={max(positions_set)}")
+                fails.append(
+                    f"{code}/{recorte}: posicao fora de [1,27]: "
+                    f"min={min(positions_set)} max={max(positions_set)}"
+                )
     return fails
 
 
@@ -130,9 +160,14 @@ def check_ranking_aplicavel_purged(all_data: dict[str, dict]) -> list[str]:
             for uf, data in all_data.items():
                 cut = _safe_dict(_safe_dict(data.get("indicators", {}).get(code)).get(recorte))
                 if cut.get("posicao") is not None:
-                    fails.append(f"{code}/{recorte}/{uf}: posicao populada apesar de ranking_aplicavel=False")
+                    fails.append(
+                        f"{code}/{recorte}/{uf}: posicao populada apesar de ranking_aplicavel=False"
+                    )
                 if cut.get("vs_top_quartile") is not None:
-                    fails.append(f"{code}/{recorte}/{uf}: vs_top_quartile populado apesar de ranking_aplicavel=False")
+                    fails.append(
+                        f"{code}/{recorte}/{uf}: vs_top_quartile populado "
+                        f"apesar de ranking_aplicavel=False"
+                    )
     return fails
 
 
@@ -158,9 +193,10 @@ def check_polaridade_consistency(all_data: dict[str, dict]) -> list[str]:
             esperado_pos1 = ordenado[0]
             real_pos1 = next((p for p in pares if p[1] == 1), None)
             if real_pos1 and abs(real_pos1[0] - esperado_pos1[0]) > 0.001:
+                direcao = "menor" if polar_inv else "maior"
                 fails.append(
                     f"{code}/{recorte}: pos=1 é {real_pos1[2]} (valor {real_pos1[0]}) "
-                    f"mas {'menor' if polar_inv else 'maior'} valor é {esperado_pos1[2]} ({esperado_pos1[0]})"
+                    f"mas {direcao} valor é {esperado_pos1[2]} ({esperado_pos1[0]})"
                 )
     return fails
 
@@ -179,7 +215,11 @@ def check_distribuicao_dependencia_soma(all_data: dict[str, dict]) -> list[str]:
     """% federal+estadual+municipal+privada deve somar 100±0.5."""
     fails: list[str] = []
     for uf, data in all_data.items():
-        cut = _safe_dict(_safe_dict(data.get("indicators", {}).get("cob_distribuicao_dependencia")).get("total_estado"))
+        cut = _safe_dict(
+            _safe_dict(data.get("indicators", {}).get("cob_distribuicao_dependencia")).get(
+                "total_estado"
+            )
+        )
         pct_keys = ["federal", "estadual", "municipal", "privada"]
         vals = [cut.get(k) for k in pct_keys]
         if all(_is_num(v) for v in vals):
@@ -205,7 +245,9 @@ def check_neet_amostra_minima(all_data: dict[str, dict], threshold: int = 50) ->
     """NEET tem n_amostra implícito via pop ponderada. Verifica que valor está em [0, 100]."""
     fails: list[str] = []
     for uf, data in all_data.items():
-        cut = _safe_dict(_safe_dict(data.get("indicators", {}).get("mer_neet_rate")).get("total_estado"))
+        cut = _safe_dict(
+            _safe_dict(data.get("indicators", {}).get("mer_neet_rate")).get("total_estado")
+        )
         v = cut.get("valor")
         if _is_num(v) and (v < 0 or v > 100):
             fails.append(f"mer_neet_rate/{uf}: valor {v} fora de [0,100]")
@@ -237,10 +279,16 @@ def check_crescimento_5y_range(all_data: dict[str, dict]) -> list[str]:
     fails: list[str] = []
     for uf, data in all_data.items():
         for recorte in ("total_estado", "rede_estadual"):
-            cut = _safe_dict(_safe_dict(data.get("indicators", {}).get("din_crescimento_matriculas_5y")).get(recorte))
+            cut = _safe_dict(
+                _safe_dict(data.get("indicators", {}).get("din_crescimento_matriculas_5y")).get(
+                    recorte
+                )
+            )
             v = cut.get("crescimento_5y_pct")
             if _is_num(v) and (v < -100 or v > 500):
-                fails.append(f"din_crescimento_matriculas_5y/{recorte}/{uf}: {v}% fora de [-100, 500]")
+                fails.append(
+                    f"din_crescimento_matriculas_5y/{recorte}/{uf}: {v}% fora de [-100, 500]"
+                )
     return fails
 
 
@@ -248,14 +296,20 @@ def check_perfil_alunos_pcts(all_data: dict[str, dict]) -> list[str]:
     """faixa_etaria 15_17+18_24+25_mais ≈ 100; sexo masc+fem ≈ 100; modalidade soma ≈ 100."""
     fails: list[str] = []
     for uf, data in all_data.items():
-        cut = _safe_dict(_safe_dict(data.get("indicators", {}).get("cob_perfil_alunos")).get("total_estado"))
+        cut = _safe_dict(
+            _safe_dict(data.get("indicators", {}).get("cob_perfil_alunos")).get("total_estado")
+        )
         fe = _safe_dict(cut.get("faixa_etaria"))
         sx = _safe_dict(cut.get("sexo"))
         md = _safe_dict(cut.get("modalidade"))
         for label, d, keys in (
             ("faixa_etaria", fe, ["15_17_pct", "18_24_pct", "25_mais_pct"]),
             ("sexo", sx, ["masculino_pct", "feminino_pct"]),
-            ("modalidade", md, ["integrada_pct", "concomitante_pct", "subsequente_pct", "eja_tecnico_pct"]),
+            (
+                "modalidade",
+                md,
+                ["integrada_pct", "concomitante_pct", "subsequente_pct", "eja_tecnico_pct"],
+            ),
         ):
             vals = [d.get(k) for k in keys]
             if all(_is_num(v) for v in vals):
@@ -298,7 +352,7 @@ def main() -> int:
                 for f in fails[:10]:
                     logger.error(f"  - {f}")
                 if len(fails) > 10:
-                    logger.error(f"  ... +{len(fails)-10} mais")
+                    logger.error(f"  ... +{len(fails) - 10} mais")
                 total_failures.extend((name, f) for f in fails)
             else:
                 logger.info(f"[OK] {name}")
@@ -307,7 +361,8 @@ def main() -> int:
             total_failures.append((name, f"exception: {e}"))
 
     if total_failures:
-        logger.error(f"\nTotal: {len(total_failures)} violações em {len({n for n,_ in total_failures})} checks")
+        n_checks = len({n for n, _ in total_failures})
+        logger.error(f"\nTotal: {len(total_failures)} violações em {n_checks} checks")
         return 1
     logger.info(f"\n✓ {len(CHECKS)} checks passaram, painel está consistente")
     return 0

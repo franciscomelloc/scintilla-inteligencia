@@ -36,6 +36,7 @@ def _validate_ident(*values: str) -> None:
         if not _IDENT.fullmatch(v):
             raise ValueError(f"Identifier inválido: {v!r}")
 
+
 TABLES_TO_INSPECT = [
     ("basedosdados", "br_inep_censo_escolar", "matricula"),
     ("basedosdados", "br_inep_censo_escolar", "escola"),
@@ -141,7 +142,19 @@ def main() -> int:
                 tables = [row.table_name for row in client.query(tbl_query).result()]
                 report[f"tables_in_{schema}"] = tables
                 for t in tables:
-                    if any(k in t.lower() for k in ["sistec", "pec", "nilo", "qualif", "fic", "subsequ", "pronatec", "setec"]):
+                    if any(
+                        k in t.lower()
+                        for k in [
+                            "sistec",
+                            "pec",
+                            "nilo",
+                            "qualif",
+                            "fic",
+                            "subsequ",
+                            "pronatec",
+                            "setec",
+                        ]
+                    ):
                         sistec_hits.append(f"{schema}.{t}")
             except Exception as e:
                 report[f"tables_in_{schema}"] = {"error": str(e)}

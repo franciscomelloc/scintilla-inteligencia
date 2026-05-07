@@ -27,9 +27,33 @@ OUTPUT_DIR = ROOT / "output"
 DIAGNOSTIC_DIR = OUTPUT_DIR / "diagnostico"
 
 UFS = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-    "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-    "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
 ]
 
 
@@ -111,7 +135,7 @@ def main() -> int:
     # Purga indicadores que saíram do catálogo (ex: removidos por bug)
     valid_codes = set(get_indicator_codes())
     purged = 0
-    for uf, data in all_data.items():
+    for data in all_data.values():
         inds = data.get("indicators", {})
         stale = [k for k in inds if k not in valid_codes]
         for k in stale:
@@ -122,15 +146,15 @@ def main() -> int:
 
     # Suprime crescimento_5y_pct e cagr_5y_pct para redes com base < 1000 (regra do
     # processor — JSONs antigos podem ter ficado com valores inflados antes do fix)
-    BASE_MIN = 1000
-    for uf, data in all_data.items():
+    base_min = 1000
+    for data in all_data.values():
         ind = _safe_dict(data.get("indicators", {}).get("din_crescimento_matriculas_5y"))
         for recorte in ("total_estado", "rede_estadual"):
             cut = ind.get(recorte) if isinstance(ind, dict) else None
             if not isinstance(cut, dict):
                 continue
             base = cut.get("matriculas_base")
-            if isinstance(base, (int, float)) and base < BASE_MIN:
+            if isinstance(base, (int, float)) and base < base_min:
                 cut["crescimento_5y_pct"] = None
                 cut["cagr_5y_pct"] = None
                 cut["base_insuficiente"] = True
@@ -142,14 +166,17 @@ def main() -> int:
     for code in get_indicator_codes():
         meta = INDICATOR_CATALOG[code]
         for recorte in meta.get("recortes", []):
-            for uf, data in all_data.items():
+            for data in all_data.values():
                 ind = _safe_dict(data.get("indicators", {}).get(code))
                 cut = _safe_dict(ind.get(recorte))
                 if not cut:
                     continue
                 # Force override em indicadores onde 'valor' deve ser recalculado
                 # toda passada (fix de polaridade ou suppression por threshold)
-                force_override = code in {"qua_taxas_rendimento_ept", "din_crescimento_matriculas_5y"}
+                force_override = code in {
+                    "qua_taxas_rendimento_ept",
+                    "din_crescimento_matriculas_5y",
+                }
                 if force_override or "valor" not in cut or cut.get("valor") is None:
                     derived = derive_valor(code, recorte, cut)
                     if force_override:
@@ -167,12 +194,17 @@ def main() -> int:
         polar_inv = meta.get("polaridade_inversa", False)
         if not meta.get("ranking_aplicavel", True):
             # Limpa qualquer ranking pré-existente
-            for uf, data in all_data.items():
+            for data in all_data.values():
                 ind = _safe_dict(data.get("indicators", {}).get(code))
                 for recorte in meta.get("recortes", []):
                     cut = ind.get(recorte) if isinstance(ind, dict) else None
                     if isinstance(cut, dict):
-                        for k in ("vs_top_quartile", "vs_media_nacional", "vs_meta_pne_2034", "posicao"):
+                        for k in (
+                            "vs_top_quartile",
+                            "vs_media_nacional",
+                            "vs_meta_pne_2034",
+                            "posicao",
+                        ):
                             cut.pop(k, None)
                         cut["meta_pne_aplicavel"] = False
                         cut["ranking_aplicavel"] = False
@@ -195,8 +227,12 @@ def main() -> int:
                 if not isinstance(cut, dict):
                     continue
                 v = values_by_uf[uf]
-                cut["vs_top_quartile"] = round(v - tq, 2) if (v is not None and tq is not None) else None
-                cut["vs_media_nacional"] = round(v - mn, 2) if (v is not None and mn is not None) else None
+                cut["vs_top_quartile"] = (
+                    round(v - tq, 2) if (v is not None and tq is not None) else None
+                )
+                cut["vs_media_nacional"] = (
+                    round(v - mn, 2) if (v is not None and mn is not None) else None
+                )
                 cut["vs_meta_pne_2034"] = vs_meta_pne(v, code)
                 cut["meta_pne_aplicavel"] = cut["vs_meta_pne_2034"] is not None
                 cut["posicao"] = position_rank(v, values_by_uf, inverse=polar_inv)
@@ -204,7 +240,9 @@ def main() -> int:
     # Persiste
     for uf, data in all_data.items():
         path = DIAGNOSTIC_DIR / f"{uf}.json"
-        path.write_text(json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+        path.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8"
+        )
     logger.info(f"Persistidos {len(all_data)} estados.")
     return 0
 

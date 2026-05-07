@@ -35,9 +35,33 @@ DIAGNOSTIC_DIR = OUTPUT_DIR / "diagnostico"
 SCHEMAS_DIR = ROOT / "etl" / "schemas"
 
 UFS = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-    "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-    "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
 ]
 
 # Pseudo-UF nacional. Tratada fora de UFS porque não participa do
@@ -45,13 +69,33 @@ UFS = [
 BR_CODE = "BR"
 
 UF_NAMES: dict[str, str] = {
-    "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas",
-    "BA": "Bahia", "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo",
-    "GO": "Goiás", "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul",
-    "MG": "Minas Gerais", "PA": "Pará", "PB": "Paraíba", "PR": "Paraná",
-    "PE": "Pernambuco", "PI": "Piauí", "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte",
-    "RS": "Rio Grande do Sul", "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina",
-    "SP": "São Paulo", "SE": "Sergipe", "TO": "Tocantins",
+    "AC": "Acre",
+    "AL": "Alagoas",
+    "AP": "Amapá",
+    "AM": "Amazonas",
+    "BA": "Bahia",
+    "CE": "Ceará",
+    "DF": "Distrito Federal",
+    "ES": "Espírito Santo",
+    "GO": "Goiás",
+    "MA": "Maranhão",
+    "MT": "Mato Grosso",
+    "MS": "Mato Grosso do Sul",
+    "MG": "Minas Gerais",
+    "PA": "Pará",
+    "PB": "Paraíba",
+    "PR": "Paraná",
+    "PE": "Pernambuco",
+    "PI": "Piauí",
+    "RJ": "Rio de Janeiro",
+    "RN": "Rio Grande do Norte",
+    "RS": "Rio Grande do Sul",
+    "RO": "Rondônia",
+    "RR": "Roraima",
+    "SC": "Santa Catarina",
+    "SP": "São Paulo",
+    "SE": "Sergipe",
+    "TO": "Tocantins",
     BR_CODE: "Brasil",
 }
 
@@ -92,8 +136,12 @@ def build_uf(uf: str) -> dict[str, Any]:
 def _summary_vintage(indicators: dict[str, Any]) -> dict[str, str]:
     """Sumariza vintages das fontes principais a partir dos indicadores."""
     summary = {
-        "censo_escolar": indicators.get("cob_municipios_com_ept", {}).get("vintage", "indisponível"),
-        "rais": indicators.get("mer_premio_salarial_escolaridade", {}).get("vintage", "indisponível"),
+        "censo_escolar": indicators.get("cob_municipios_com_ept", {}).get(
+            "vintage", "indisponível"
+        ),
+        "rais": indicators.get("mer_premio_salarial_escolaridade", {}).get(
+            "vintage", "indisponível"
+        ),
         "caged": indicators.get("mer_saldo_caged_tecnicos", {}).get("vintage", "indisponível"),
         "pnad": indicators.get("mer_neet_rate", {}).get("vintage", "indisponível"),
         "ideb": indicators.get("qua_ideb_escolas_ept", {}).get("vintage", "indisponível"),
@@ -138,8 +186,12 @@ def fill_benchmarks(all_data: dict[str, dict[str, Any]]) -> None:
                 if not isinstance(cut, dict):
                     continue
                 v = values_by_uf[uf]
-                cut["vs_top_quartile"] = round(v - tq, 2) if (v is not None and tq is not None) else None
-                cut["vs_media_nacional"] = round(v - mn, 2) if (v is not None and mn is not None) else None
+                cut["vs_top_quartile"] = (
+                    round(v - tq, 2) if (v is not None and tq is not None) else None
+                )
+                cut["vs_media_nacional"] = (
+                    round(v - mn, 2) if (v is not None and mn is not None) else None
+                )
                 cut["vs_meta_pne_2034"] = vs_meta_pne(v, code)
                 cut["meta_pne_aplicavel"] = cut["vs_meta_pne_2034"] is not None
                 cut["posicao"] = position_rank(v, values_by_uf, inverse=polar_inv)
@@ -250,7 +302,9 @@ def main() -> int:
     # Persiste cada UF
     for uf, data in all_data.items():
         out_path = DIAGNOSTIC_DIR / f"{uf}.json"
-        out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+        out_path.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8"
+        )
         logger.info(f"[{uf}] OK → {out_path.relative_to(ROOT)}")
 
     # Benchmark + metadata (só na rodada completa dos 27)
