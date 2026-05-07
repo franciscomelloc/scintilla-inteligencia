@@ -58,7 +58,7 @@ WITH pnad AS (
     V4012,
     V4029
   FROM `basedosdados.br_ibge_pnadc.microdados`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND trimestre = 1
     AND V1028 IS NOT NULL
     AND V2009 BETWEEN 18 AND 20

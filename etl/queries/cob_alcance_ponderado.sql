@@ -12,11 +12,11 @@ WITH escola_agg AS (
         + COALESCE(quantidade_matricula_medio_tecnico, 0)
         + COALESCE(quantidade_matricula_eja_medio_tecnico, 0)) AS qtd_ept
   FROM `basedosdados.br_inep_censo_escolar.escola`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano = (
       SELECT MAX(ano)
       FROM `basedosdados.br_inep_censo_escolar.escola`
-      WHERE sigla_uf = '{UF}'
+      WHERE sigla_uf = @uf
     )
   GROUP BY ano, id_municipio
 ),

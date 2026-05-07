@@ -10,7 +10,7 @@ WITH escolas_com_ept AS (
     ano
   FROM `basedosdados.br_inep_censo_escolar.escola`
   WHERE ano BETWEEN 2020 AND 2024
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND (COALESCE(quantidade_matricula_medio_tecnico, 0)
          + COALESCE(quantidade_matricula_eja_medio_tecnico, 0)) > 0
 ),
@@ -18,7 +18,7 @@ WITH escolas_com_ept AS (
 total_mun_uf AS (
   SELECT COUNT(DISTINCT id_municipio) AS total
   FROM `basedosdados.br_bd_diretorios_brasil.municipio`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
 )
 
 SELECT

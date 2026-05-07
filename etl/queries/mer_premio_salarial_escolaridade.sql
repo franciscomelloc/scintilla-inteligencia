@@ -18,7 +18,7 @@ WITH vinculos AS (
     END AS nivel
   FROM `basedosdados.br_me_rais.microdados_vinculos`
   WHERE ano BETWEEN 2019 AND 2023
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND valor_remuneracao_media > 0
     AND vinculo_ativo_3112 = '1'
 )

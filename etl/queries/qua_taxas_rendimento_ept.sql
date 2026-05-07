@@ -15,7 +15,7 @@ WITH escolas_ept AS (
       + COALESCE(e.quantidade_matricula_eja_medio_tecnico, 0) AS qtd_ept
   FROM `basedosdados.br_inep_censo_escolar.escola` e
   WHERE e.ano BETWEEN 2020 AND 2024
-    AND e.sigla_uf = '{UF}'
+    AND e.sigla_uf = @uf
     AND (COALESCE(e.quantidade_matricula_medio_tecnico, 0)
          + COALESCE(e.quantidade_matricula_eja_medio_tecnico, 0)) > 0
 ),

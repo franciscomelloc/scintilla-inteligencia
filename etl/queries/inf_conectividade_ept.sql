@@ -15,7 +15,7 @@ WITH escolas_classificadas AS (
     END AS tier
   FROM `basedosdados.br_inep_censo_escolar.escola`
   WHERE ano BETWEEN 2020 AND 2024
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND COALESCE(quantidade_matricula_medio_tecnico, 0) > 0
 )
 

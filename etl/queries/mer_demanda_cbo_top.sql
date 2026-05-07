@@ -36,7 +36,7 @@ WITH base AS (
     saldo_movimentacao,
     salario_mensal
   FROM `basedosdados.br_me_caged.microdados_movimentacao`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND cbo_2002 IS NOT NULL
     AND cbo_2002 LIKE '3%'
     AND cbo_2002 NOT LIKE '33%'

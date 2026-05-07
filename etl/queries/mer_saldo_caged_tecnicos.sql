@@ -11,7 +11,7 @@ WITH agg AS (
     SUM(saldo_movimentacao) AS saldo
   FROM `basedosdados.br_me_caged.microdados_movimentacao`
   WHERE ano BETWEEN 2020 AND 2026
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND cbo_2002 LIKE '3%'
   GROUP BY ano, cbo_2002
 )

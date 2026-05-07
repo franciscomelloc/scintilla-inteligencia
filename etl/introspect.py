@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,18 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 ROOT = Path(__file__).parent.parent
 OUTPUT_DIR = ROOT / "output"
+
+# Identifiers BQ não são parametrizáveis via ScalarQueryParameter.
+# Allowlist regex aplicado antes de qualquer interpolação em INFORMATION_SCHEMA.
+# Aceita letra inicial + letras/dígitos/_/-, máximo 128 chars (limite BQ).
+_IDENT = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,127}$")
+
+
+def _validate_ident(*values: str) -> None:
+    """Valida cada identificador contra allowlist. Lança ValueError no primeiro inválido."""
+    for v in values:
+        if not _IDENT.fullmatch(v):
+            raise ValueError(f"Identifier inválido: {v!r}")
 
 TABLES_TO_INSPECT = [
     ("basedosdados", "br_inep_censo_escolar", "matricula"),
@@ -39,15 +52,25 @@ TABLES_TO_INSPECT = [
 
 
 def fetch_columns(client, project: str, dataset: str, table: str) -> list[dict[str, Any]]:
-    """Consulta INFORMATION_SCHEMA.COLUMNS pra uma tabela específica."""
+    """Consulta INFORMATION_SCHEMA.COLUMNS pra uma tabela específica.
+
+    project/dataset são identificadores (não parametrizáveis em BQ); validados
+    contra allowlist regex. table_name é literal de string e vai parametrizado.
+    """
+    _validate_ident(project, dataset, table)
+    from google.cloud import bigquery
+
     query = f"""
     SELECT column_name, data_type, is_partitioning_column, ordinal_position
     FROM `{project}.{dataset}.INFORMATION_SCHEMA.COLUMNS`
-    WHERE table_name = '{table}'
+    WHERE table_name = @table_name
     ORDER BY ordinal_position
     """
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("table_name", "STRING", table)]
+    )
     try:
-        rows = list(client.query(query).result())
+        rows = list(client.query(query, job_config=job_config).result())
         return [
             {
                 "name": row.column_name,
@@ -109,6 +132,7 @@ def main() -> int:
         sistec_hits = []
         for schema in schemas:
             try:
+                _validate_ident(schema)
                 tbl_query = f"""
                 SELECT table_name
                 FROM `basedosdados.{schema}.INFORMATION_SCHEMA.TABLES`
