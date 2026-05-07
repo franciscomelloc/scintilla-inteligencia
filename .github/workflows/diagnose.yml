@@ -12,9 +12,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@caf0cab7a618c569241d31dcd442f54681755d39 # v3.2.4
       - run: uv sync
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@7b53cdc2a387814ed14eec026287aac689ae8c9b # v2.1.9
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - env:

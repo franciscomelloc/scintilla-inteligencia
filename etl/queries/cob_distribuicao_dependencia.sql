@@ -12,7 +12,7 @@ WITH matriculas_ept AS (
         + COALESCE(quantidade_matricula_eja_medio_tecnico, 0)) AS qtd
   FROM `basedosdados.br_inep_censo_escolar.escola`
   WHERE ano BETWEEN 2020 AND 2024
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
   GROUP BY ano, rede
 ),
 

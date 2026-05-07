@@ -34,11 +34,11 @@ WITH escolas_ept AS (
       + quantidade_matricula_eja_medio_tecnico AS qtd_ept_escola,
     quantidade_matricula_educacao_basica AS qtd_total_escola
   FROM `basedosdados.br_inep_censo_escolar.escola`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano = (
       SELECT MAX(ano)
       FROM `basedosdados.br_inep_censo_escolar.escola`
-      WHERE sigla_uf = '{UF}'
+      WHERE sigla_uf = @uf
     )
     AND etapa_ensino_profissional_tecnica = 1
     AND COALESCE(quantidade_matricula_educacao_basica, 0) > 0

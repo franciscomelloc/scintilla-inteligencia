@@ -6,7 +6,7 @@
 WITH munis_com_ept AS (
   SELECT DISTINCT id_municipio
   FROM `basedosdados.br_inep_censo_escolar.escola`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND COALESCE(quantidade_matricula_profissional_tecnica, 0)
         + COALESCE(quantidade_matricula_medio_tecnico, 0) > 0
 ),
@@ -14,7 +14,7 @@ WITH munis_com_ept AS (
 saeb_uf AS (
   SELECT MAX(ano) AS ano_recente
   FROM `basedosdados.br_inep_saeb.municipio`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
 )
 
 SELECT
@@ -26,7 +26,7 @@ SELECT
   COUNT(*) AS n_municipios
 FROM `basedosdados.br_inep_saeb.municipio` s
 LEFT JOIN munis_com_ept m ON m.id_municipio = s.id_municipio
-WHERE s.sigla_uf = '{UF}'
+WHERE s.sigla_uf = @uf
   AND s.ano = (SELECT ano_recente FROM saeb_uf)
   AND s.media IS NOT NULL
   AND s.serie = 12  -- EM 3º ano

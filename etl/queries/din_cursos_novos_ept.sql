@@ -13,7 +13,7 @@ WITH pares_por_ano AS (
     id_curso_educacao_profissional AS id_curso
   FROM `basedosdados.br_inep_censo_escolar.turma`
   WHERE ano BETWEEN 2020 AND 2024
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND id_curso_educacao_profissional IS NOT NULL
 ),
 

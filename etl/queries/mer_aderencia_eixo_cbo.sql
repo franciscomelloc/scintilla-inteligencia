@@ -43,11 +43,11 @@ WITH censo_oferta AS (
     DIV(SAFE_CAST(id_curso_educacao_profissional AS INT64), 1000) AS eixo_id,
     SUM(quantidade_matriculas) AS n_matriculas
   FROM `basedosdados.br_inep_censo_escolar.turma`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano = (
       SELECT MAX(ano)
       FROM `basedosdados.br_inep_censo_escolar.turma`
-      WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
+      WHERE sigla_uf = @uf AND id_curso_educacao_profissional IS NOT NULL
     )
     AND id_curso_educacao_profissional IS NOT NULL
     AND quantidade_matriculas IS NOT NULL
@@ -73,7 +73,7 @@ caged_base AS (
     cbo_2002,
     saldo_movimentacao
   FROM `basedosdados.br_me_caged.microdados_movimentacao`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano = (
       SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`
     )
@@ -177,7 +177,7 @@ SELECT
     ELSE NULL END AS demanda_pct,
   (SELECT MAX(ano)
      FROM `basedosdados.br_inep_censo_escolar.turma`
-     WHERE sigla_uf = '{UF}' AND id_curso_educacao_profissional IS NOT NULL
+     WHERE sigla_uf = @uf AND id_curso_educacao_profissional IS NOT NULL
   ) AS ano_oferta_censo,
   (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
     AS ano_demanda_caged

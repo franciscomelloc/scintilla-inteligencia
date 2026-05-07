@@ -12,7 +12,7 @@ WITH agg AS (
     SUM(COALESCE(quantidade_matricula_medio, 0)
         + COALESCE(quantidade_matricula_profissional_tecnica_concomitante, 0)) AS den
   FROM `basedosdados.br_inep_censo_escolar.escola`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano BETWEEN 2020 AND 2024
   GROUP BY ano, rede
 ),

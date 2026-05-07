@@ -28,7 +28,7 @@ WITH pnad AS (
   FROM `basedosdados.br_ibge_pnadc.microdados`
   WHERE ano BETWEEN 2020 AND 2025
     AND V2009 BETWEEN 15 AND 29
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND V1028 IS NOT NULL
 )
 

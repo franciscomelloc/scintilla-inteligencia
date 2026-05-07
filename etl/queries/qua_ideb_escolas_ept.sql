@@ -9,7 +9,7 @@ WITH escolas_com_ept AS (
     e.ano
   FROM `basedosdados.br_inep_censo_escolar.escola` e
   WHERE e.ano IN (2017, 2019, 2021, 2023)
-    AND e.sigla_uf = '{UF}'
+    AND e.sigla_uf = @uf
     AND COALESCE(e.quantidade_matricula_medio_tecnico, 0) > 0
 )
 
@@ -22,6 +22,6 @@ INNER JOIN escolas_com_ept ept
   ON i.id_escola = ept.id_escola AND i.ano = ept.ano
 WHERE i.ano IN (2017, 2019, 2021, 2023)
   AND i.ensino = 'medio'
-  AND i.sigla_uf = '{UF}'
+  AND i.sigla_uf = @uf
 GROUP BY i.ano
 ORDER BY i.ano;

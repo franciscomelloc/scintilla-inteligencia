@@ -15,7 +15,7 @@ WITH matriculas AS (
     SUM(quantidade_matriculas) AS qtd
   FROM `basedosdados.br_inep_censo_escolar.turma`
   WHERE ano IN (2019, 2024)
-    AND sigla_uf = '{UF}'
+    AND sigla_uf = @uf
     AND id_curso_educacao_profissional IS NOT NULL
     AND quantidade_matriculas IS NOT NULL
   GROUP BY ano, rede, etapa_ensino

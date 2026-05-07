@@ -11,7 +11,7 @@ WITH escola_em AS (
     CASE WHEN COALESCE(quantidade_matricula_profissional_tecnica, 0)
             + COALESCE(quantidade_matricula_medio_tecnico, 0) > 0 THEN 1 ELSE 0 END AS tem_ept
   FROM `basedosdados.br_inep_censo_escolar.escola`
-  WHERE sigla_uf = '{UF}'
+  WHERE sigla_uf = @uf
     AND ano BETWEEN 2020 AND 2024
     AND rede = '2'  -- censo escolar usa código numérico
 )
