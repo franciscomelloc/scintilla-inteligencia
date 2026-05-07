@@ -20,7 +20,7 @@ jobs:
       - env:
           GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
         run: uv run python -m etl.diagnose
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: diagnose-report
           path: output/diagnose_report.json

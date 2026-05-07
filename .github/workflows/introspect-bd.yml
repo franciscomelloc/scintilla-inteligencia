@@ -32,7 +32,7 @@ jobs:
         run: uv run python etl/introspect.py
 
       - name: Upload schema report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bd-schema-report
           path: output/bd_schema_report.json
