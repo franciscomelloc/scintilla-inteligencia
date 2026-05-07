@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Python via uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@caf0cab7a618c569241d31dcd442f54681755d39 # v3.2.4
         with:
           python-version: "3.12"
 
@@ -26,6 +26,7 @@ jobs:
       - name: Ruff
         run: uv run ruff check .
 
+      # mypy warn-only ainda — habilitar strict é trabalho separado (rule: 1 PR, 1 escopo)
       - name: MyPy
         run: uv run mypy etl/ || true  # warn-only no início
 
