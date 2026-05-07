@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: Upload output artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: diagnostico-output
           path: output/
