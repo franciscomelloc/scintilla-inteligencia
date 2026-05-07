@@ -889,18 +889,19 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     independentemente de oferta — evita falsos "Excesso de Oferta":
     - 2 Desenvolvimento Educacional e Social (cai em CBO 33xxxx, já filtrado)
     - 8 Militar (CBO 0xxxx, fora do escopo)
-    - 9 Produção Alimentícia (majoritariamente CBO 7-8 operacional)
     """
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar/CAGED para aderência.")
 
     THR = 5.0  # corte de classificação em pontos percentuais
     # Eixos cuja demanda não cabe em CBO mensurável no CAGED:
+    # - 2 Educ/Social: cai em CBO 33xxxx (Téc educação) que está filtrado
+    #   por coerência com mer_demanda_cbo_top.
     # - 8 Militar: CAGED não cobre FFAA (estatutário). Sem solução.
-    # Eixos 2 e 9 antes estavam aqui mas foram resolvidos com expansão
-    # do filtro CBO no SQL (Eixo 2 → 5162 cuidadores; Eixo 9 → 84xxxx
-    # operadores indústria alimentícia).
-    EIXOS_SEM_DEMANDA_MENSURAVEL = {8}
+    # Eixo 9 (Prod Alimentícia) NÃO entra aqui — tem CBO 325205 (Téc
+    # Alimentos) e 325005 (Enólogo) como demanda mensurável. Captura
+    # pequena (272 admissões/ano em MG, 2,4k em BR) mas correta.
+    EIXOS_SEM_DEMANDA_MENSURAVEL = {2, 8}
 
     eixos = []
     over_supply = []
@@ -981,17 +982,20 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         "vintage": str(_detect_year(df, "ano_oferta_censo") or "ND"),
         "caveat": (
             "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar — "
-            "agregado da tabela turma com quantidade_matriculas, último ano disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao "
-            "eixo. Admissões em vez de saldo: saldo subdimensiona setores de alta "
-            "rotatividade. Filtro principal CBO 3xxxx (Técnicos NM), com expansão "
-            "asimétrica nos eixos onde a demanda real cai em CBO operacional: "
-            "Eixo 9 Produção Alimentícia inclui CBO 84xxxx (trabalhadores indústria "
-            "alimentícia/laticínios/abate) porque o egresso de Téc Alimentos vira "
-            "operador, não técnico formal. Eixo 2 Educacional/Social inclui CBO "
-            "5162xx (cuidadores de idosos/crianças). Eixo 8 Militar fica Sem Dado "
-            "pois CAGED não cobre FFAA (vínculo estatutário). Eixo INEP derivado "
-            "de DIV(id_curso, 1000). Mapping CBO→eixo em "
-            "etl/reference/eixo_cnct_to_cbo3.md. Excluído CBO 33xxxx (Téc. educação)."
+            "agregado da tabela turma com quantidade_matriculas, último ano "
+            "disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao eixo. "
+            "Admissões em vez de saldo: saldo subdimensiona setores de alta "
+            "rotatividade. Recorte CBO 3xxxx (Técnicos Nível Médio), exceto "
+            "33xxxx (Téc. da educação). CBOs 325205 (Téc Alimentos) e 325005 "
+            "(Enólogo) atribuídas ao eixo 9 Produção Alimentícia em vez do "
+            "catch-all 32x → Saúde. Eixo 2 Educacional/Social fica Sem Dado "
+            "(demanda majoritária em CBO 33xxxx, filtrada por coerência). "
+            "Eixo 8 Militar fica Sem Dado (CAGED não cobre FFAA estatutário). "
+            "Demanda operacional (CBO 5xxxx-9xxxx) é majoritariamente atendida "
+            "por FIC do Sistema S (SENAI/SENAR/SENAC), fora do escopo da rede "
+            "EPT estadual — não cruzada aqui. Eixo INEP derivado de "
+            "DIV(id_curso, 1000). Mapping CBO→eixo em "
+            "etl/reference/eixo_cnct_to_cbo3.md."
         ),
         "ranking_aplicavel": False,
     }

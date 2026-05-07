@@ -32,7 +32,7 @@ Nível Médio") onde os egressos do eixo são contratados.
 | 5 | **Informação e Comunicação** | `317` | Téc TI completo (suporte, redes, dev, banco de dados) |
 | 6 | **Infraestrutura** | `312`, `318` | 312 = obras civis, agrimensura, geomática; 318 = transportes/logística operacional |
 | 7 | **Militar** | — (excluído) | Forças armadas usam CBO 0xxxx, não 3 |
-| 8 | **Produção Alimentícia** | — (excluído) | Téc Alimentos/Panificação majoritariamente em CBO 7xxxx-8xxxx (operacionais), não 3 — diluiria a análise |
+| 8 | **Produção Alimentícia** | `325205`, `325005` (CBOs específicas) | Téc Alimentos (325205) é egresso direto de CNCT 9120 Téc Alimentos. Enólogo (325005) é egresso de CNCT 9127 Téc Vitivinicultura. Captura pequena (272 admissões MG / 2,4k BR) mas correta — restante da indústria alimentícia (operadores) é CBO 8xxxx, fora do escopo CBO 3 técnico-formal |
 | 9 | **Produção Cultural e Design** | `374`, `376` | 374 = audiovisual, mídia; 376 = artes plásticas, design, cenografia |
 | 10 | **Produção Industrial** | `314`, `300` | 314 = manutenção mecânica, mecânica industrial; 300 = polivalentes (eletromecânica) |
 | 11 | **Recursos Naturais** | `301` | Téc agropecuária polivalente. 32x agropecuária está mais em saúde — gray area; alternativa: deixar em Saúde por consistência |
@@ -48,6 +48,8 @@ Nível Médio") onde os egressos do eixo são contratados.
 | `391xxx` (Controle Produção/Qualidade) | → **Gestão** (não Indústria) | Função gerencial, não operacional |
 | `300305` (Téc Eletromecânica) | → **Produção Industrial** | Curso explícito do eixo |
 | `321` (Téc Agropecuária) | → **Ambiente e Saúde** | BD agrupa em 32x; manter |
+| `325205` (Téc Alimentos) | → **Produção Alimentícia** (não Saúde) | Subgrupo 325 cai em Saúde no catch-all, mas 325205 é egresso direto de CNCT 9120 Téc Alimentos. Exceção explícita no SQL precede o LIKE '325%' |
+| `325005` (Enólogo) | → **Produção Alimentícia** (não Saúde) | Egresso direto de CNCT 9127 Téc Vitivinicultura. Mesma lógica do 325205 |
 
 ## CBOs cobertos vs descartados
 
@@ -112,7 +114,7 @@ INEP no banco. O mapping eixo→CBO acima foi atualizado pra refletir.
 
 | INEP eixo_id | Eixo | CBO 3xxxx atribuídas | Status |
 |---|---|---|---|
-| 1 | Ambiente e Saúde | `321-326` | ✓ inclui |
+| 1 | Ambiente e Saúde | `321-326` (excl. `325205`, `325005`) | ✓ inclui |
 | 2 | Desenvolvimento Educ. e Social | — | excluído (CBO 33 já filtrado) |
 | 3 | Controle e Processos Industriais | `311, 313` | ✓ inclui |
 | 4 | Gestão e Negócios | `351, 354, 391` (excl. 351605, 354820) | ✓ inclui |
@@ -120,11 +122,33 @@ INEP no banco. O mapping eixo→CBO acima foi atualizado pra refletir.
 | 6 | Informação e Comunicação | `317` | ✓ inclui |
 | 7 | Infraestrutura | `312, 318` | ✓ inclui |
 | 8 | Militar | — | excluído (CBO 0xxx) |
-| 9 | Produção Alimentícia | — | excluído (CBO 7-8) |
+| 9 | Produção Alimentícia | `325205` (Téc Alimentos), `325005` (Enólogo) | ✓ inclui — captura pequena mas mensurável |
 | 10 | Produção Cultural e Design | `374, 376` | ✓ inclui |
 | 11 | Produção Industrial | `314, 300` | ✓ inclui |
 | 12 | Recursos Naturais | `301` | ✓ inclui |
 | 13 | Segurança | `351605` | ✓ inclui |
+
+### Histórico — recorte só CBO técnico-formal (decisão 2026-05-07)
+
+Versão anterior do SQL incluía CBO 84xxxx (operadores indústria
+alimentícia, eixo 9) e CBO 5162xx (cuidadores, eixo 2) como expansão
+do filtro. Decisão revertida em 2026-05-07: **recorte estritamente
+CBO 3xxxx técnico-formal** pra coerência metodológica entre eixos.
+
+Razão: cruzar EPT estadual com CBO operacional (5xxxx-9xxxx) confunde
+demanda EPT com demanda por trabalho qualificado em geral. A demanda
+operacional do setor alimentício e cuidados é majoritariamente atendida
+por FIC do Sistema S (SENAI/SENAR/SENAC), fora do escopo da rede EPT
+estadual. Manter expansão só pra eixos 9 e 2 enviesava comparação entre
+eixos (eixos 7, 11 industriais ficavam restritos a CBO técnico, eixo 9
+captava operacional).
+
+Como consequência:
+- Eixo 9 vai de "demanda 25,9% MG (com 84xxxx)" pra "demanda 0,23% MG
+  (só 325205+325005)". Gap muda de −25,2pp ("Insuficiente") pra +0,4pp
+  ("match"). O gargalo do setor alimentício existe mas é gargalo de FIC,
+  não de EPT estadual.
+- Eixo 2 volta a `sem_dado` (CBO 33 técnicos da educação está filtrado).
 
 ## Gargalo confirmado (diagnose 2026-05-05)
 

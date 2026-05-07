@@ -18,8 +18,10 @@
 --   gap_pp: oferta_pct - demanda_pct (positivo = over-supply)
 --
 -- Mapping eixo → CBO documentado em etl/reference/eixo_cnct_to_cbo3.md.
--- Eixos sem demanda CBO 3xxxx mensurável (2 Educ Social, 8 Militar,
--- 9 Prod Alimentícia) ficam com demanda_n=0 e flag sem_demanda=true.
+-- Eixos sem demanda CBO 3xxxx mensurável (2 Educ Social, 8 Militar)
+-- ficam com demanda_n=0 e flag sem_demanda=true. Eixo 9 (Prod
+-- Alimentícia) tem CBO 325205 (Téc Alimentos) + 325005 (Enólogo)
+-- como CBOs técnicas formais — captura pequena mas mensurável.
 --
 -- Mapping algorítmico INEP: eixo_id = DIV(id_curso_educ_profissional, 1000).
 -- Verificado contra Caderno de Conceitos INEP 2022 (pp. 93-99).
@@ -59,16 +61,15 @@ oferta_total AS (
 ),
 
 caged_base AS (
-  -- Filtro principal: CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx
+  -- Filtro: CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx
   -- (Técnicos da educação — exclusão acordada com mer_demanda_cbo_top).
-  -- Expansão asimétrica em eixos onde a demanda real cai em CBO operacional
-  -- (egresso EPT vira operador, não técnico):
-  --   Eixo 9 (Produção Alimentícia): CBO 84xxxx
-  --     Trabalhadores da indústria alimentícia/laticínios/abatedouros.
-  --     MG tem 35k+ admissões só no top 8 (JBS, Itambé, Cooperativa Central).
-  --   Eixo 2 (Educacional/Social): CBO 5162xx
-  --     Cuidadores de idosos e crianças (egresso de Téc Cuidador).
-  --   Eixo 8 (Militar): NÃO incluído — CAGED não cobre FFAA (estatutário).
+  -- Recorte estritamente técnico-formal — coerência metodológica entre
+  -- eixos. Demanda operacional (CBO 5xxxx-9xxxx) é majoritariamente
+  -- atendida por FIC do Sistema S (SENAI/SENAR/SENAC), fora do escopo
+  -- da rede EPT estadual. Cruzar EPT com CBO operacional confunde
+  -- demanda EPT com demanda por trabalho qualificado em geral.
+  --   Eixo 8 Militar: CAGED não cobre FFAA (estatutário) — sem solução.
+  --   Eixo 2 Educ/Social: CBO 33xxxx filtrado — sem dado mensurável.
   SELECT
     cbo_2002,
     saldo_movimentacao
@@ -78,11 +79,8 @@ caged_base AS (
       SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`
     )
     AND cbo_2002 IS NOT NULL
-    AND (
-      (cbo_2002 LIKE '3%' AND cbo_2002 NOT LIKE '33%')  -- Técnicos NM, exceto educação
-      OR cbo_2002 LIKE '84%'                              -- Eixo 9 Prod Alimentícia
-      OR cbo_2002 LIKE '5162%'                            -- Eixo 2 Cuidadores
-    )
+    AND cbo_2002 LIKE '3%'
+    AND cbo_2002 NOT LIKE '33%'
 ),
 
 caged_eixo AS (
@@ -94,10 +92,11 @@ caged_eixo AS (
       WHEN cbo_2002 = '351605' THEN 13
       -- Eixo 5 Turismo (CBO específico, prioridade alta)
       WHEN cbo_2002 = '354820' THEN 5
-      -- Eixo 9 Produção Alimentícia (CBO 84xxxx — operadores indústria alim.)
-      WHEN cbo_2002 LIKE '84%' THEN 9
-      -- Eixo 2 Educacional/Social (CBO 5162xx — cuidadores)
-      WHEN cbo_2002 LIKE '5162%' THEN 2
+      -- Eixo 9 Produção Alimentícia — CBOs técnicas formais
+      --   325205 = Téc Alimentos (egresso CNCT 9120 Téc Alimentos)
+      --   325005 = Enólogo (egresso CNCT 9127 Téc Vitivinicultura)
+      -- Precede o catch-all '325%' → eixo 1 (Saúde) abaixo.
+      WHEN cbo_2002 IN ('325205', '325005') THEN 9
       -- Eixo 1 Ambiente e Saúde
       WHEN cbo_2002 LIKE '321%' OR cbo_2002 LIKE '322%' OR cbo_2002 LIKE '323%'
            OR cbo_2002 LIKE '324%' OR cbo_2002 LIKE '325%' OR cbo_2002 LIKE '326%'
