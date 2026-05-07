@@ -31,15 +31,22 @@ def test_uf_json_exists(uf):
     reason="output/diagnostico/ ainda não foi populado pelo primeiro refresh real",
 )
 @pytest.mark.parametrize("uf", UFS)
-def test_uf_has_14_indicators(uf):
-    path = DIAGNOSTIC_DIR / f"{uf}.json"
-    if not path.exists():
+def test_uf_indicators_consistent_across_ufs(uf):
+    """Todos UFs devem ter o mesmo conjunto de indicadores que SP (referência).
+    Pega regressões em que algum UF perde indicador no refresh, sem ser frágil
+    quando o catálogo é expandido antes do próximo refresh."""
+    sp_path = DIAGNOSTIC_DIR / "SP.json"
+    if not sp_path.exists():
+        pytest.skip("SP.json (referência) não existe ainda")
+    uf_path = DIAGNOSTIC_DIR / f"{uf}.json"
+    if not uf_path.exists():
         pytest.skip(f"{uf}.json não existe ainda")
-    data = json.loads(path.read_text(encoding="utf-8"))
-    assert "indicators" in data
-    assert len(data["indicators"]) == 14, (
-        f"{uf} tem {len(data['indicators'])} indicadores, esperado 14"
-    )
+    sp_data = json.loads(sp_path.read_text(encoding="utf-8"))
+    uf_data = json.loads(uf_path.read_text(encoding="utf-8"))
+    sp_codes = set(sp_data.get("indicators", {}).keys())
+    uf_codes = set(uf_data.get("indicators", {}).keys())
+    missing = sp_codes - uf_codes
+    assert not missing, f"{uf} tem indicadores faltando vs SP: {sorted(missing)}"
 
 
 @pytest.mark.skipif(

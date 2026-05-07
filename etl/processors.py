@@ -79,11 +79,15 @@ def cob_municipios_com_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     spark_estadual = _valor_5y(df, "pct_rede_estadual")
     return {
         "total_estado": {
-            "valor": float(latest["pct_total_estado"]) if pd.notna(latest["pct_total_estado"]) else None,
+            "valor": float(latest["pct_total_estado"])
+            if pd.notna(latest["pct_total_estado"])
+            else None,
             **spark_total,
         },
         "rede_estadual": {
-            "valor": float(latest["pct_rede_estadual"]) if pd.notna(latest["pct_rede_estadual"]) else None,
+            "valor": float(latest["pct_rede_estadual"])
+            if pd.notna(latest["pct_rede_estadual"])
+            else None,
             **spark_estadual,
         },
         "total_municipios": int(latest["total_municipios"]),
@@ -109,7 +113,10 @@ def cob_eixos_cobertos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "total_matriculas": total,
         },
         "vintage": str(latest_year),
-        "caveat": "Mapeamento curso→eixo (CNCT v4) pendente. Reportando contagem bruta de cursos distintos por enquanto.",
+        "caveat": (
+            "Mapeamento curso→eixo (CNCT v4) pendente. Reportando contagem "
+            "bruta de cursos distintos por enquanto."
+        ),
     }
 
 
@@ -126,7 +133,10 @@ def cob_distribuicao_modalidade(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "etapas_distintas": int(sub["etapa_ensino"].nunique()),
         },
         "vintage": str(latest_year),
-        "caveat": "Classificação etapa_ensino → modalidade (integrada/concomitante/subsequente) pendente.",
+        "caveat": (
+            "Classificação etapa_ensino → modalidade "
+            "(integrada/concomitante/subsequente) pendente."
+        ),
     }
 
 
@@ -160,7 +170,11 @@ def qua_taxas_rendimento_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         },
         "polaridade_inversa": True,
         "vintage": str(int(latest["ano"])),
-        "caveat": "Taxa de abandono EM ponderada por matrículas EPT (proxy). taxa_aprovacao_em do BD está em escala atípica (~0-20) e foi exibida no card mas não usada para ranking.",
+        "caveat": (
+            "Taxa de abandono EM ponderada por matrículas EPT (proxy). "
+            "taxa_aprovacao_em do BD está em escala atípica (~0-20) e foi "
+            "exibida no card mas não usada para ranking."
+        ),
     }
 
 
@@ -171,11 +185,15 @@ def qua_ideb_escolas_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     latest = df.sort_values("ano").iloc[-1]
     return {
         "total_estado": {
-            "valor": float(latest["ideb_total_estado"]) if pd.notna(latest["ideb_total_estado"]) else None,
+            "valor": float(latest["ideb_total_estado"])
+            if pd.notna(latest["ideb_total_estado"])
+            else None,
             **_valor_5y(df, "ideb_total_estado"),
         },
         "rede_estadual": {
-            "valor": float(latest["ideb_rede_estadual"]) if pd.notna(latest["ideb_rede_estadual"]) else None,
+            "valor": float(latest["ideb_rede_estadual"])
+            if pd.notna(latest["ideb_rede_estadual"])
+            else None,
             **_valor_5y(df, "ideb_rede_estadual"),
         },
         "vintage": str(int(latest["ano"])),
@@ -190,16 +208,24 @@ def qua_razao_aluno_professor_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     latest = df.sort_values("ano").iloc[-1]
     return {
         "total_estado": {
-            "valor": float(latest["razao_total_estado"]) if pd.notna(latest["razao_total_estado"]) else None,
+            "valor": float(latest["razao_total_estado"])
+            if pd.notna(latest["razao_total_estado"])
+            else None,
             **_valor_5y(df, "razao_total_estado"),
         },
         "rede_estadual": {
-            "valor": float(latest["razao_rede_estadual"]) if pd.notna(latest["razao_rede_estadual"]) else None,
+            "valor": float(latest["razao_rede_estadual"])
+            if pd.notna(latest["razao_rede_estadual"])
+            else None,
             **_valor_5y(df, "razao_rede_estadual"),
         },
         "polaridade_inversa": True,
         "vintage": str(int(latest["ano"])),
-        "caveat": "Razão menor é melhor. Agregação a nível escola (Censo Escolar via tabela escola). Docentes que atuam em múltiplas escolas são contados em cada uma.",
+        "caveat": (
+            "Razão menor é melhor. Agregação a nível escola (Censo Escolar "
+            "via tabela escola). Docentes que atuam em múltiplas escolas "
+            "são contados em cada uma."
+        ),
     }
 
 
@@ -247,10 +273,12 @@ def mer_saldo_caged_tecnicos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     if raw_top3 is not None:
         try:
             for item in raw_top3:
-                top3.append({
-                    "cbo": str(item["cbo"]),
-                    "saldo": int(item["saldo"]),
-                })
+                top3.append(
+                    {
+                        "cbo": str(item["cbo"]),
+                        "saldo": int(item["saldo"]),
+                    }
+                )
         except (TypeError, KeyError):
             pass
     return {
@@ -291,7 +319,10 @@ def mer_premio_salarial_escolaridade(df: pd.DataFrame, uf: str) -> dict[str, Any
             "vintage_rais": str(int(latest["ano"])),
         },
         "vintage": str(int(latest["ano"])),
-        "caveat": "RAIS não distingue EM regular de EM técnico em microdados públicos. Prêmio EPT específico exige cruzamento Censo×RAIS por CPF.",
+        "caveat": (
+            "RAIS não distingue EM regular de EM técnico em microdados "
+            "públicos. Prêmio EPT específico exige cruzamento Censo×RAIS por CPF."
+        ),
     }
 
 
@@ -335,38 +366,45 @@ def din_crescimento_matriculas_5y(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     qtd_end_est = int(df[(df["ano"] == end_year) & (df["rede"] == "2")]["qtd"].sum() or 0)
     growth_total = round((qtd_end / qtd_base - 1) * 100, 2) if qtd_base else None
     growth_est = round((qtd_end_est / qtd_base_est - 1) * 100, 2) if qtd_base_est else None
-    cagr_total = round(((qtd_end / qtd_base) ** (1/5) - 1) * 100, 2) if qtd_base else None
-    cagr_est = round(((qtd_end_est / qtd_base_est) ** (1/5) - 1) * 100, 2) if qtd_base_est else None
+    cagr_total = round(((qtd_end / qtd_base) ** (1 / 5) - 1) * 100, 2) if qtd_base else None
+    cagr_est = (
+        round(((qtd_end_est / qtd_base_est) ** (1 / 5) - 1) * 100, 2) if qtd_base_est else None
+    )
     # Threshold: redes com base < 1000 matrículas têm crescimento % muito sensível a
     # ruído (RN rede estadual cresceu 1060% partindo de 712). Suprime tanto valor
     # exibido quanto o que entra no ranking.
-    BASE_MIN = 1000
-    valor_total = growth_total if qtd_base >= BASE_MIN else None
-    valor_est = growth_est if qtd_base_est >= BASE_MIN else None
+    base_min = 1000
+    valor_total = growth_total if qtd_base >= base_min else None
+    valor_est = growth_est if qtd_base_est >= base_min else None
     return {
         "total_estado": {
             "valor": valor_total,
             "crescimento_5y_pct": valor_total,
-            "cagr_5y_pct": cagr_total if qtd_base >= BASE_MIN else None,
+            "cagr_5y_pct": cagr_total if qtd_base >= base_min else None,
             "matriculas_base": qtd_base,
             "matriculas_atual": qtd_end,
-            "base_insuficiente": qtd_base < BASE_MIN,
+            "base_insuficiente": qtd_base < base_min,
         },
         "rede_estadual": {
             "valor": valor_est,
             "crescimento_5y_pct": valor_est,
-            "cagr_5y_pct": cagr_est if qtd_base_est >= BASE_MIN else None,
+            "cagr_5y_pct": cagr_est if qtd_base_est >= base_min else None,
             "matriculas_base": qtd_base_est,
             "matriculas_atual": qtd_end_est,
-            "base_insuficiente": qtd_base_est < BASE_MIN,
+            "base_insuficiente": qtd_base_est < base_min,
         },
         "vintage": str(end_year),
-        "caveat": f"Janela {base_year}→{end_year} (Censo Escolar via tabela turma). Redes com base <{BASE_MIN} matrículas têm crescimento suprimido (alta variância). Decomposição por modalidade pendente.",
+        "caveat": (
+            f"Janela {base_year}→{end_year} (Censo Escolar via tabela turma). "
+            f"Redes com base <{base_min} matrículas têm crescimento suprimido "
+            "(alta variância). Decomposição por modalidade pendente."
+        ),
     }
 
 
 def din_cursos_novos_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
-    """SQL retorna 1 linha com cursos_novos_total/estadual e cursos_descontinuados_total/estadual."""
+    """SQL retorna 1 linha com cursos_novos_total/estadual e
+    cursos_descontinuados_total/estadual."""
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar.")
     row = df.iloc[0]
@@ -437,7 +475,10 @@ def pne_m12a(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "anos_5y": anos,
         },
         "vintage": str(int(latest["ano"])),
-        "caveat": "Numerador: matrículas em EM-técnico (integrada) + Profissional Técnica concomitante. Denominador: matrículas EM total.",
+        "caveat": (
+            "Numerador: matrículas em EM-técnico (integrada) + Profissional "
+            "Técnica concomitante. Denominador: matrículas EM total."
+        ),
     }
 
 
@@ -478,7 +519,10 @@ def pne_m12b(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "anos_5y": [int(a) for a in df["ano"].tolist()],
         },
         "vintage": str(end_year),
-        "caveat": "Curso subsequente = curso técnico após conclusão do EM. Meta 2036: +60% sobre a base 2020.",
+        "caveat": (
+            "Curso subsequente = curso técnico após conclusão do EM. "
+            "Meta 2036: +60% sobre a base 2020."
+        ),
     }
 
 
@@ -494,7 +538,9 @@ def pne_m12c(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     eja_ef = int(latest.get("eja_ef_total") or 0)
     pct_em = round(100.0 * art_em / eja_em, 2) if eja_em else 0.0
     pct_ef = round(100.0 * art_ef / eja_ef, 2) if eja_ef else 0.0
-    pct_total = round(100.0 * (art_em + art_ef) / (eja_em + eja_ef), 2) if (eja_em + eja_ef) else 0.0
+    pct_total = (
+        round(100.0 * (art_em + art_ef) / (eja_em + eja_ef), 2) if (eja_em + eja_ef) else 0.0
+    )
     meta_2031 = 25.0
     meta_2036 = 50.0
     # Gap absoluto: matrículas que faltam pra meta 2031
@@ -513,7 +559,10 @@ def pne_m12c(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "gap_absoluto_2031": gap_2031,
         },
         "vintage": str(int(latest["ano"])),
-        "caveat": "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental FIC. Meta progressiva: 25% em 2031 e 50% em 2036.",
+        "caveat": (
+            "EJA articulada à profissional = EJA-EM técnico + EJA-Fundamental "
+            "FIC. Meta progressiva: 25% em 2031 e 50% em 2036."
+        ),
     }
 
 
@@ -561,18 +610,32 @@ def cob_perfil_alunos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         if sub.empty:
             return {"valor": None}
         cols = [
-            "qtd_fem", "qtd_masc", "qtd_sexo_nd",
-            "qtd_branca", "qtd_preta", "qtd_parda", "qtd_amarela", "qtd_indigena",
-            "qtd_idade_15_17", "qtd_idade_18_mais",
-            "total_matriculas_ept", "total_matriculas_escolas_ept",
+            "qtd_fem",
+            "qtd_masc",
+            "qtd_sexo_nd",
+            "qtd_branca",
+            "qtd_preta",
+            "qtd_parda",
+            "qtd_amarela",
+            "qtd_indigena",
+            "qtd_idade_15_17",
+            "qtd_idade_18_mais",
+            "total_matriculas_ept",
+            "total_matriculas_escolas_ept",
             "qtd_escolas_ept",
         ]
         agg = {c: int(sub[c].fillna(0).sum()) if c in sub.columns else 0 for c in cols}
         sexo_total = agg["qtd_fem"] + agg["qtd_masc"] + agg["qtd_sexo_nd"]
-        raca_total = (agg["qtd_branca"] + agg["qtd_preta"] + agg["qtd_parda"]
-                      + agg["qtd_amarela"] + agg["qtd_indigena"])
+        raca_total = (
+            agg["qtd_branca"]
+            + agg["qtd_preta"]
+            + agg["qtd_parda"]
+            + agg["qtd_amarela"]
+            + agg["qtd_indigena"]
+        )
         idade_total = agg["qtd_idade_15_17"] + agg["qtd_idade_18_mais"]
-        pct = lambda v, t: round(100.0 * v / t, 1) if t else 0.0
+        def pct(v, t):
+            return round(100.0 * v / t, 1) if t else 0.0
         return {
             "valor": float(agg["total_matriculas_ept"]),
             "total_matriculas_ept": agg["total_matriculas_ept"],
@@ -600,7 +663,11 @@ def cob_perfil_alunos(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         "total_estado": _build(df),
         "rede_estadual": _build(df[df["rede"] == "2"]),
         "vintage": str(ano),
-        "caveat": "Perfil agregado das escolas que ofertam EPT (Censo Escolar via tabela escola). Inclui matrículas não-EPT da mesma escola; mais fiel para escolas dedicadas (Senai, IFs, escolas técnicas).",
+        "caveat": (
+            "Perfil agregado das escolas que ofertam EPT (Censo Escolar via "
+            "tabela escola). Inclui matrículas não-EPT da mesma escola; mais "
+            "fiel para escolas dedicadas (Senai, IFs, escolas técnicas)."
+        ),
     }
 
 
@@ -619,10 +686,12 @@ def cob_alcance_ponderado(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             for item in raw_top5:
                 if item is None:
                     continue
-                top5.append({
-                    "municipio": str(item.get("municipio") or "—"),
-                    "pop_em_proxy": int(item.get("pop_em_proxy") or 0),
-                })
+                top5.append(
+                    {
+                        "municipio": str(item.get("municipio") or "—"),
+                        "pop_em_proxy": int(item.get("pop_em_proxy") or 0),
+                    }
+                )
         except (TypeError, KeyError, AttributeError):
             pass
     return {
@@ -633,7 +702,10 @@ def cob_alcance_ponderado(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "top5_sem_oferta": top5,
         },
         "vintage": str(int(row["ano"])),
-        "caveat": "Cobertura ponderada por matrículas EM (proxy de demanda escolar). Top 5 são municípios SEM EPT com maior matrícula EM.",
+        "caveat": (
+            "Cobertura ponderada por matrículas EM (proxy de demanda "
+            "escolar). Top 5 são municípios SEM EPT com maior matrícula EM."
+        ),
     }
 
 
@@ -641,11 +713,13 @@ def qua_saeb_proficiencia_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """Proficiência média SAEB EM em municípios COM EPT vs SEM EPT (proxy)."""
     if df.empty:
         return _empty_indicator("Sem dados SAEB.")
+
     def get(disc: list[str], muni_com_ept: int) -> float | None:
         sub = df[(df["disciplina"].isin(disc)) & (df["muni_com_ept"] == muni_com_ept)]
         if sub.empty:
             return None
         return _safe_float(sub.iloc[0]["proficiencia_media"])
+
     mat_com = get(["MT", "matematica", "Matemática", "MATEMATICA"], 1)
     mat_sem = get(["MT", "matematica", "Matemática", "MATEMATICA"], 0)
     port_com = get(["LP", "lingua_portuguesa", "portugues", "PORTUGUES"], 1)
@@ -670,7 +744,11 @@ def qua_saeb_proficiencia_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             },
         },
         "vintage": str(ano),
-        "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT. 'valor' = média dos prêmios MT+LP.",
+        "caveat": (
+            "SAEB amostral. Comparação por município: alunos em municípios "
+            "com pelo menos uma escola EPT vs alunos em municípios sem "
+            "nenhuma escola EPT. 'valor' = média dos prêmios MT+LP."
+        ),
     }
 
 
@@ -690,10 +768,15 @@ def qua_abandono_em_ept(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "valor": round(com_val, 2) if com_val is not None else None,
             "com_ept_pct": round(com_val, 2) if com_val is not None else None,
             "sem_ept_pct": round(sem_val, 2) if sem_val is not None else None,
-            "diferenca_pp": round(sem_val - com_val, 2) if (com_val is not None and sem_val is not None) else None,
+            "diferenca_pp": round(sem_val - com_val, 2)
+            if (com_val is not None and sem_val is not None)
+            else None,
         },
         "vintage": str(latest_year),
-        "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual.",
+        "caveat": (
+            "Taxa publicada pelo INEP, ponderada pelas matrículas EM da "
+            "escola. Comparação intra-rede estadual."
+        ),
     }
 
 
@@ -718,7 +801,12 @@ def qua_ingresso_es_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             "n_amostra_sem_ept": n_reg,
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). EPT = V3007='1' (concluiu técnico EM). Avançou ao ES = VD3005 >= 13 (nível concluído inclui Superior incompleto/completo/pós). 'valor' = diferença pp (com EPT - sem EPT).",
+        "caveat": (
+            "PNAD Contínua, janela 5 anos (2021-2025). EPT = V3007='1' "
+            "(concluiu técnico EM). Avançou ao ES = VD3005 >= 13 (nível "
+            "concluído inclui Superior incompleto/completo/pós). "
+            "'valor' = diferença pp (com EPT - sem EPT)."
+        ),
     }
 
 
@@ -726,16 +814,19 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """Mediana de renda mensal por nível de formação (jovens 18-29, 4 níveis não-sobrepostos)."""
     if df.empty:
         return _empty_indicator("Sem dados PNAD Contínua.")
+
     def get_mediana(bucket: str) -> tuple[float | None, int]:
         sub = df[df["bucket"] == bucket]
         if sub.empty:
             return None, 0
         return _safe_float(sub.iloc[0]["mediana_renda"]), int(sub.iloc[0]["n_amostra"])
+
     sem_em, n_sem = get_mediana("sem_em")
     em_reg, n_reg = get_mediana("em_reg")
     tem_ept, n_ept = get_mediana("tem_ept")
     sup_sem_ept, n_sup = get_mediana("superior_sem_ept")
-    pct = lambda a, b: round((a / b - 1) * 100, 1) if (a and b) else None
+    def pct(a, b):
+        return round((a / b - 1) * 100, 1) if (a and b) else None
     premio_ept = pct(tem_ept, em_reg)
     return {
         "total_estado": {
@@ -759,7 +850,12 @@ def mer_renda_jovens_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             },
         },
         "vintage": "2021-2025",
-        "caveat": "PNAD Contínua, janela 5 anos (2021-2025). Buckets não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por EPT, mesmo quem avançou para o Superior. 'valor' = prêmio % EPT vs EM regular. Mediana sem ponderação amostral.",
+        "caveat": (
+            "PNAD Contínua, janela 5 anos (2021-2025). Buckets "
+            "não-sobrepostos: 'Com EPT' inclui toda a coorte que passou por "
+            "EPT, mesmo quem avançou para o Superior. 'valor' = prêmio % "
+            "EPT vs EM regular. Mediana sem ponderação amostral."
+        ),
     }
 
 
@@ -790,8 +886,12 @@ def mer_demanda_cbo_top(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     top_10_saldo = sorted(rows, key=lambda r: r["saldo_12m"] or 0, reverse=True)[:10]
 
     # Top salário entre os com saldo positivo + n_admissoes >= 50 (estabilidade)
-    candidatos_sal = [r for r in rows if (r.get("saldo_12m") or 0) > 0 and (r.get("n_admissoes") or 0) >= 50]
-    top_3_salario = sorted(candidatos_sal, key=lambda r: r["salario_mediano"] or 0, reverse=True)[:3]
+    candidatos_sal = [
+        r for r in rows if (r.get("saldo_12m") or 0) > 0 and (r.get("n_admissoes") or 0) >= 50
+    ]
+    top_3_salario = sorted(candidatos_sal, key=lambda r: r["salario_mediano"] or 0, reverse=True)[
+        :3
+    ]
 
     def _strip(r: dict[str, Any]) -> dict[str, Any]:
         return {
@@ -840,20 +940,24 @@ def mer_demanda_mesorregiao(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     for _, r in df.iterrows():
         saldo = int(r["saldo_12m"]) if pd.notna(r["saldo_12m"]) else 0
         share = (saldo / saldo_total * 100) if saldo_total else None
-        rows.append({
-            "id_mesorregiao": r["id_mesorregiao"],
-            "nome": r["nome_mesorregiao"],
-            "sigla_uf": r.get("sigla_uf_meso"),
-            "saldo_12m": saldo,
-            "share_pct": round(share, 2) if share is not None else None,
-            "n_admissoes": int(r["n_admissoes"]) if pd.notna(r["n_admissoes"]) else 0,
-            "salario_mediano": _safe_float(r.get("salario_mediano")),
-            "salario_p25": _safe_float(r.get("salario_p25")),
-            "salario_p75": _safe_float(r.get("salario_p75")),
-        })
+        rows.append(
+            {
+                "id_mesorregiao": r["id_mesorregiao"],
+                "nome": r["nome_mesorregiao"],
+                "sigla_uf": r.get("sigla_uf_meso"),
+                "saldo_12m": saldo,
+                "share_pct": round(share, 2) if share is not None else None,
+                "n_admissoes": int(r["n_admissoes"]) if pd.notna(r["n_admissoes"]) else 0,
+                "salario_mediano": _safe_float(r.get("salario_mediano")),
+                "salario_p25": _safe_float(r.get("salario_p25")),
+                "salario_p75": _safe_float(r.get("salario_p75")),
+            }
+        )
 
     saldos_validos = [r["saldo_12m"] for r in rows if r["saldo_12m"] is not None]
-    ufs_distintos = df["sigla_uf_meso"].dropna().unique().tolist() if "sigla_uf_meso" in df.columns else []
+    ufs_distintos = (
+        df["sigla_uf_meso"].dropna().unique().tolist() if "sigla_uf_meso" in df.columns else []
+    )
 
     return {
         "total_estado": {
@@ -893,7 +997,7 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     if df.empty:
         return _empty_indicator("Sem dados Censo Escolar/CAGED para aderência.")
 
-    THR = 5.0  # corte de classificação em pontos percentuais
+    thr = 5.0  # corte de classificação em pontos percentuais
     # Eixos cuja demanda não cabe em CBO mensurável no CAGED:
     # - 2 Educ/Social: cai em CBO 33xxxx (Téc educação) que está filtrado
     #   por coerência com mer_demanda_cbo_top.
@@ -901,7 +1005,7 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     # Eixo 9 (Prod Alimentícia) NÃO entra aqui — tem CBO 325205 (Téc
     # Alimentos) e 325005 (Enólogo) como demanda mensurável. Captura
     # pequena (272 admissões/ano em MG, 2,4k em BR) mas correta.
-    EIXOS_SEM_DEMANDA_MENSURAVEL = {2, 8}
+    eixos_sem_demanda_mensuravel = {2, 8}
 
     eixos = []
     over_supply = []
@@ -924,16 +1028,16 @@ def mer_aderencia_eixo_cbo(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         # Eixos sem demanda mensurável em CBO 3xxxx ficam flag sem_dado
         # mesmo se oferta_n > 0 — não dá pra classificar gap quando a
         # base não captura a demanda. Evita falso "Excesso de Oferta".
-        forcar_sem_dado = eixo_id in EIXOS_SEM_DEMANDA_MENSURAVEL
+        forcar_sem_dado = eixo_id in eixos_sem_demanda_mensuravel
         sem_dado = forcar_sem_dado or (oferta_n == 0 and demanda_n_adm == 0)
         gap_pp: float | None = None
         status = None
 
         if not sem_dado and oferta_pct is not None and demanda_pct is not None:
             gap_pp = round(oferta_pct - demanda_pct, 2)
-            if gap_pp > THR:
+            if gap_pp > thr:
                 status = "over_supply"
-            elif gap_pp < -THR:
+            elif gap_pp < -thr:
                 status = "under_supply"
             else:
                 status = "match"
@@ -1023,13 +1127,23 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         return _empty_indicator("Sem dados PNAD trimestral para coorte sintética.")
 
     if df["ano"].nunique() < 2:
-        return _empty_indicator("PNAD trimestral só com 1 ano disponível — coorte sintética exige 2 ondas.")
+        return _empty_indicator(
+            "PNAD trimestral só com 1 ano disponível — coorte sintética exige 2 ondas."
+        )
 
     anos_ordenados = sorted(df["ano"].dropna().unique().tolist())
     ano_followup = int(anos_ordenados[-1])
     ano_base = int(anos_ordenados[-2])
 
-    CAMINHOS = ["so_formal", "so_informal", "formal_estuda", "informal_estuda", "so_estuda", "neet", "outro_estuda"]
+    caminhos = [
+        "so_formal",
+        "so_informal",
+        "formal_estuda",
+        "informal_estuda",
+        "so_estuda",
+        "neet",
+        "outro_estuda",
+    ]
 
     def _agg_coorte(sub: pd.DataFrame) -> dict[str, Any] | None:
         """Agrega percentuais ponderados por caminho (6 categorias disjuntas)."""
@@ -1043,16 +1157,23 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
                 "n_amostral": total_n,
             }
         result: dict[str, float | None] = {}
-        for cam in CAMINHOS:
+        for cam in caminhos:
             mask = sub["caminho"] == cam
             pop_cam = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
             result[f"{cam}_pct"] = round(pop_cam / total_pop * 100, 2)
         # Agregados úteis pra renderer e leitura
-        result["trabalha_estuda_pct"] = round(result["formal_estuda_pct"] + result["informal_estuda_pct"], 2)
-        result["estuda_total_pct"] = round(result["trabalha_estuda_pct"] + result["so_estuda_pct"], 2)
+        result["trabalha_estuda_pct"] = round(
+            result["formal_estuda_pct"] + result["informal_estuda_pct"], 2
+        )
+        result["estuda_total_pct"] = round(
+            result["trabalha_estuda_pct"] + result["so_estuda_pct"], 2
+        )
         result["trabalha_total_pct"] = round(
-            result["so_formal_pct"] + result["so_informal_pct"]
-            + result["formal_estuda_pct"] + result["informal_estuda_pct"], 2
+            result["so_formal_pct"]
+            + result["so_informal_pct"]
+            + result["formal_estuda_pct"]
+            + result["informal_estuda_pct"],
+            2,
         )
         return {
             "amostra_insuficiente": False,
@@ -1085,7 +1206,7 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         and not coorte_base.get("amostra_insuficiente")
         and not coorte_followup.get("amostra_insuficiente")
     ):
-        for cam in CAMINHOS + ["trabalha_estuda", "estuda_total", "trabalha_total"]:
+        for cam in caminhos + ["trabalha_estuda", "estuda_total", "trabalha_total"]:
             k = f"{cam}_pct"
             b = coorte_base.get(k)
             f = coorte_followup.get(k)

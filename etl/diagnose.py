@@ -407,7 +407,8 @@ DISCOVERY_QUERIES = {
             AND c.ano = (SELECT MAX(ano) FROM `basedosdados.br_me_caged.microdados_movimentacao`)
         ),
         municipio AS (
-          SELECT id_municipio, nome_mesorregiao FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+          SELECT id_municipio, nome_mesorregiao
+          FROM `basedosdados.br_bd_diretorios_brasil.municipio`
         ),
         agg AS (
           SELECT
@@ -415,7 +416,11 @@ DISCOVERY_QUERIES = {
             b.eixo,
             SUM(b.saldo_movimentacao) AS saldo_12m,
             COUNTIF(b.saldo_movimentacao > 0) AS n_admissoes,
-            APPROX_QUANTILES(IF(b.saldo_movimentacao > 0 AND b.salario_mensal > 0, b.salario_mensal, NULL), 100 IGNORE NULLS)[OFFSET(50)] AS sal_mediano
+            APPROX_QUANTILES(
+              IF(b.saldo_movimentacao > 0 AND b.salario_mensal > 0,
+                 b.salario_mensal, NULL),
+              100 IGNORE NULLS
+            )[OFFSET(50)] AS sal_mediano
           FROM base b
           JOIN municipio m USING (id_municipio)
           WHERE b.eixo IS NOT NULL

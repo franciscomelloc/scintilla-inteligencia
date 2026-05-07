@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class IndicatorBase(BaseModel):
     """Base de todos os indicadores — vintage + caveat sempre presentes."""
+
     model_config = ConfigDict(extra="allow")
 
     vintage: str
@@ -25,6 +26,7 @@ class IndicatorBase(BaseModel):
 
 class CutBase(BaseModel):
     """Base de cada recorte (total_estado / rede_estadual)."""
+
     model_config = ConfigDict(extra="allow")
 
     valor: float | None = None
@@ -39,6 +41,7 @@ class CutBase(BaseModel):
 
 class UFDiagnostic(BaseModel):
     """Saída completa de um estado."""
+
     uf: str = Field(..., min_length=2, max_length=2)
     uf_nome: str
     vintage: dict[str, str]
@@ -55,7 +58,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
     # nunca exibido no painel; denominador (15-29) e numerador (inclui EJA 25+)
     # tinham faixas etárias incoerentes. Substituído pelos cards já no ar:
     # cob_alcance_ponderado e cob_municipios_com_ept.
-
     # Domínio Cobertura
     "cob_distribuicao_dependencia": {
         "domain": "cobertura",
@@ -94,7 +96,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.turma"],
         "pne_meta": "integrada_concomitante_50pct_2036",  # PNE M1
     },
-
     # Domínio Qualidade & Resultado
     "qua_taxas_rendimento_ept": {
         "domain": "qualidade",
@@ -124,7 +125,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.matricula", "br_inep_censo_escolar.docente"],
         "pne_meta": None,
     },
-
     # Domínio Infraestrutura
     "inf_conectividade_ept": {
         "domain": "infraestrutura",
@@ -135,7 +135,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.escola", "br_inep_censo_escolar.matricula"],
         "pne_meta": "conectividade_50pct_2y_100pct_10y",  # PNE M4
     },
-
     # Domínio Mercado de Trabalho (sem recorte por rede)
     "mer_saldo_caged_tecnicos": {
         "domain": "mercado",
@@ -166,7 +165,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_ibge_pnadc.microdados"],
         "pne_meta": None,  # forte candidato — confirmar texto integral PNE
     },
-
     # Domínio Dinamismo
     "din_crescimento_matriculas_5y": {
         "domain": "dinamismo",
@@ -187,7 +185,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "pne_meta": None,
         "ranking_aplicavel": False,  # contagem absoluta, sensível a tamanho da rede
     },
-
     # ============================================================
     # PNE 2026-2036 · Meta 12 (4 sub-metas calculáveis publicamente)
     # ============================================================
@@ -222,7 +219,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
     # pne_m12f REMOVIDO — V3007 da PNAD trimestral não é "concluiu EPT"
     # (descoberto em 2026-05-01). Métrica volta quando suplemento anual de
     # educação for ingerido com variável correta.
-
     # ============================================================
     # Cobertura — cards reformados (2026-Q2)
     # ============================================================
@@ -245,7 +241,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "source": ["br_inep_censo_escolar.escola", "br_bd_diretorios_brasil.municipio"],
         "pne_meta": None,
     },
-
     # ============================================================
     # Qualidade & Resultado — cards reformados (2026-Q2)
     # ============================================================
@@ -268,7 +263,6 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "pne_meta": None,
     },
     # qua_ingresso_es_pnad REMOVIDO — mesmo bug V3007 (não é EPT na PNAD trimestral)
-
     # ============================================================
     # Mercado 10x — cards novos (2026-Q2)
     # Inserção de jovens no mercado de trabalho com rigor metodológico:
@@ -329,15 +323,9 @@ def get_indicator_codes() -> list[str]:
 
 def get_indicators_by_domain(domain: str) -> list[str]:
     """Retorna códigos de indicadores de um domínio específico."""
-    return [
-        code for code, meta in INDICATOR_CATALOG.items()
-        if meta["domain"] == domain
-    ]
+    return [code for code, meta in INDICATOR_CATALOG.items() if meta["domain"] == domain]
 
 
 def get_indicators_with_pne_meta() -> list[str]:
     """Retorna códigos de indicadores que têm meta PNE associada."""
-    return [
-        code for code, meta in INDICATOR_CATALOG.items()
-        if meta.get("pne_meta") is not None
-    ]
+    return [code for code, meta in INDICATOR_CATALOG.items() if meta.get("pne_meta") is not None]

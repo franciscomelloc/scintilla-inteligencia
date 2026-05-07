@@ -58,7 +58,7 @@ class BQRunner:
         return path.read_text(encoding="utf-8")
 
     @classmethod
-    def run(cls, indicator_code: str, uf: str) -> "pd.DataFrame":
+    def run(cls, indicator_code: str, uf: str) -> pd.DataFrame:
         """Executa SQL do indicador para um UF, retorna DataFrame.
 
         uf == 'BR' dispara modo nacional: o filtro `sigla_uf = @uf` é
