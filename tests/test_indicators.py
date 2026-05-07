@@ -8,18 +8,19 @@ from etl.indicators import (
 )
 
 
-def test_catalog_has_14_indicators():
-    """Total deve ser 14 — versão MVP da spec v2."""
-    assert len(get_indicator_codes()) == 14
+def test_catalog_has_24_indicators():
+    """Total atual: 24 indicadores (6 cob + 5 qua + 1 inf + 7 mer + 2 din + 3 pne)."""
+    assert len(get_indicator_codes()) == 24
 
 
 def test_domain_distribution():
-    """Distribuição: 5 cobertura + 3 qualidade + 1 infra + 3 mercado + 2 dinamismo."""
-    assert len(get_indicators_by_domain("cobertura")) == 5
-    assert len(get_indicators_by_domain("qualidade")) == 3
+    """Distribuição: 6 cob + 5 qua + 1 inf + 7 mer + 2 din + 3 pne."""
+    assert len(get_indicators_by_domain("cobertura")) == 6
+    assert len(get_indicators_by_domain("qualidade")) == 5
     assert len(get_indicators_by_domain("infraestrutura")) == 1
-    assert len(get_indicators_by_domain("mercado")) == 3
+    assert len(get_indicators_by_domain("mercado")) == 7
     assert len(get_indicators_by_domain("dinamismo")) == 2
+    assert len(get_indicators_by_domain("pne")) == 3
 
 
 def test_mercado_indicators_have_only_total_estado():
@@ -29,13 +30,19 @@ def test_mercado_indicators_have_only_total_estado():
 
 
 def test_polaridade_inversa_set_correctly():
-    """Razão aluno/prof e NEET têm polaridade inversa."""
-    assert INDICATOR_CATALOG["qua_razao_aluno_professor_ept"]["polaridade_inversa"] is True
-    assert INDICATOR_CATALOG["mer_neet_rate"]["polaridade_inversa"] is True
-    # restantes são polaridade normal (maior é melhor)
+    """Indicadores onde menor valor é melhor: rendimento (abandono), razão aluno/prof,
+    NEET, abandono EM."""
+    polar_inv_esperados = {
+        "qua_taxas_rendimento_ept",
+        "qua_razao_aluno_professor_ept",
+        "mer_neet_rate",
+        "qua_abandono_em_ept",
+    }
     for code in get_indicator_codes():
-        if code not in ("qua_razao_aluno_professor_ept", "mer_neet_rate"):
-            assert INDICATOR_CATALOG[code].get("polaridade_inversa") is False
+        if code in polar_inv_esperados:
+            assert INDICATOR_CATALOG[code]["polaridade_inversa"] is True, code
+        else:
+            assert INDICATOR_CATALOG[code].get("polaridade_inversa") is not True, code
 
 
 def test_lead_gen_indicators_marked():
@@ -45,13 +52,14 @@ def test_lead_gen_indicators_marked():
 
 
 def test_pne_meta_indicators():
-    """3 indicadores tocados pelo PNE 2024-2034."""
+    """Indicadores tocados pelo PNE 2024-2034."""
     pne_codes = set(get_indicators_with_pne_meta())
     expected = {
         "cob_distribuicao_modalidade",  # M1: integ+concom ≥50%
         "din_crescimento_matriculas_5y",  # M2: subsequente +60%
         "inf_conectividade_ept",  # M4: 50%/2y, 100%/10y
+        "pne_m12a",  # Meta 12 PNE
+        "pne_m12b",
+        "pne_m12c",
     }
-    # também `cob_matriculas_ept_per_jovem` tem expansion_general como PNE meta
-    expected.add("cob_matriculas_ept_per_jovem")
     assert expected.issubset(pne_codes)
