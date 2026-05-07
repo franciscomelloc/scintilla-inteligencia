@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: source
 
       - name: Checkout site repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: franciscomelloc/scintilla-site-v2
           token: ${{ secrets.SITE_REPO_TOKEN }}
