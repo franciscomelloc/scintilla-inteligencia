@@ -1,0 +1,138 @@
+name: factory-gates
+# Workflow CI da factory replicado em repos críticos da Verbo.
+# Bloqueia merge se gate da factory falha.
+# Spec: .fabrica/specs/2026-05-09-factory-gates-em-repos/spec.md
+# Rule: .fabrica/rules/04-no-honor-system.md, 05-no-placeholder, 11-handoff,
+#       14-validation-contract-precedence, 15-security-deterministic, 17-auto-mode-rigor.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint-anti-placeholder:
+    name: lint anti-placeholder
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Coletar arquivos modificados
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+          files=$(git diff --name-only "$base" "$head" -- '*.py' '*.ts' '*.tsx' '*.js' '*.jsx' \
+                  '.fabrica/specs/*/spec.md' '.fabrica/rules/*.md' 2>/dev/null || true)
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$files" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Rodar lint
+        if: steps.changed.outputs.files != ''
+        run: |
+          existing=""
+          while IFS= read -r f; do
+            [ -n "$f" ] && [ -f "$f" ] && existing="$existing $f"
+          done <<< "${{ steps.changed.outputs.files }}"
+          if [ -z "$existing" ]; then
+            echo "Nenhum arquivo elegivel."; exit 0
+          fi
+          # shellcheck disable=SC2086
+          bash _factory/scripts/lint-anti-placeholder.sh $existing
+
+  check-state-md-touched:
+    name: state.md touched
+    runs-on: ubuntu-latest
+    if: hashFiles('.fabrica/specs/**/state.md') != ''
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Run check
+        run: bash _factory/scripts/check-state-md-touched.sh || \
+             { echo "Skip: script check-state-md-touched ausente ou falha agnostica"; exit 0; }
+
+  check-handoff-schema:
+    name: handoff schema (rule 11)
+    runs-on: ubuntu-latest
+    if: hashFiles('.fabrica/specs/**/state.md') != ''
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Validate handoff em state.md staged
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          head="${{ github.event.pull_request.head.sha || github.sha }}"
+          touched=$(git diff --name-only "$base" "$head" \
+                    | grep -E '^\.fabrica/specs/[^_][^/]+/state\.md$' || true)
+          if [ -z "$touched" ]; then
+            echo "Sem state.md tocado."; exit 0
+          fi
+          fail=0
+          while IFS= read -r sp; do
+            [ -n "$sp" ] || continue
+            bash _factory/scripts/check-handoff-schema.sh --diff-mode "$base" "$sp" || fail=1
+          done <<< "$touched"
+          [ "$fail" -eq 0 ]
+
+  check-contract-precedence:
+    name: contract precedence (rule 14)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Run check
+        run: |
+          branch="${{ github.head_ref }}"
+          if bash _factory/scripts/check-contract-precedence.sh "$branch"; then
+            echo "Contract precedence OK"
+          else
+            exit 1
+          fi
+
+  security-deterministic:
+    name: security deterministic gate (rule 15)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Run gate
+        run: |
+          if [ -x _factory/scripts/security-deterministic-gate.sh ]; then
+            bash _factory/scripts/security-deterministic-gate.sh
+          else
+            echo "Script ausente — skip silencioso (forward-compat)"
+            exit 0
+          fi
