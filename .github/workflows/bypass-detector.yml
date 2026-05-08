@@ -1,0 +1,61 @@
+name: bypass-detector
+# Detecta sinais de bypass das camadas mecânicas da factory.
+# Roda em push pra main + cron diário 09:00 BRT (12:00 UTC).
+#
+# Spec: .fabrica/specs/2026-05-09-bypass-detection/spec.md
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 12 * * *'   # 09:00 BRT diário
+  workflow_dispatch:
+
+jobs:
+  detect:
+    name: detect bypass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: franciscomelloc/verbo-b2g
+          path: _factory
+          ref: main
+      - name: Detect bypass
+        id: detect
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          out=$(bash _factory/scripts/detect-bypass.sh --repo "${GITHUB_REPOSITORY}" --since "$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)")
+          status=$?
+          echo "$out" > /tmp/detect.json
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          cat /tmp/detect.json
+          exit 0
+      - name: Open issue if bypass
+        if: steps.detect.outputs.status == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          out=$(cat /tmp/detect.json)
+          gh issue create \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Bypass detectado em ${GITHUB_REPOSITORY##*/} ($(date -u +%Y-%m-%d))" \
+            --body "Detector encontrou sinal de bypass nas últimas 24h.
+
+\`\`\`json
+$out
+\`\`\`
+
+Se intencional, fecha esta issue com justificativa em comment. Spec: \`verbo-b2g/.fabrica/specs/2026-05-09-bypass-detection/spec.md\`" \
+            || true
+      - name: Post no bus se bypass
+        if: steps.detect.outputs.status == '1'
+        run: |
+          # Bus auto-post: o detector já é mecânico; mensagem fica visível
+          # apenas no GitHub issue (ambiente CI sem acesso ao bus local).
+          # Bus auto-post local fica no post-merge hook quando o issue é
+          # mergeado/fechado pelo Francisco.
+          echo "Bypass detectado — issue criada"
