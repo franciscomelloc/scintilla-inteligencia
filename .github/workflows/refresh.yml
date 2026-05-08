@@ -44,9 +44,10 @@ jobs:
       - name: Run ETL build
         env:
           GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+          UF_INPUT: ${{ inputs.uf }}
         run: |
-          if [ -n "${{ inputs.uf }}" ]; then
-            uv run python -m etl.build --uf "${{ inputs.uf }}"
+          if [ -n "$UF_INPUT" ]; then
+            uv run python -m etl.build --uf "$UF_INPUT"
           else
             uv run python -m etl.build
           fi
