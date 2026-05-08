@@ -8,7 +8,7 @@
     "pnad": "2025",
     "ideb": "2023"
   },
-  "last_built": "2026-04-30T22:06:52.876448+00:00",
+  "last_built": "2026-05-07T23:53:27.702504+00:00",
   "indicators": {
     "cob_distribuicao_dependencia": {
       "total_estado": {
@@ -66,32 +66,33 @@
     "cob_eixos_cobertos": {
       "total_estado": {
         "valor": null,
-        "cursos_distintos": 66,
-        "total_matriculas": 28086,
+        "cursos_distintos": 69,
+        "total_matriculas": 44127,
         "vs_top_quartile": null,
         "vs_media_nacional": null,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": null
       },
-      "vintage": "2020",
+      "vintage": "2024",
       "caveat": "Mapeamento curso→eixo (CNCT v4) pendente. Reportando contagem bruta de cursos distintos por enquanto."
     },
     "cob_distribuicao_modalidade": {
       "total_estado": {
-        "total_matriculas_ept": 28086,
-        "etapas_distintas": 6,
+        "total_matriculas_ept": 44127,
+        "etapas_distintas": 8,
         "vs_top_quartile": null,
         "vs_media_nacional": null,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": null
       },
-      "vintage": "2020",
+      "vintage": "2024",
       "caveat": "Classificação etapa_ensino → modalidade (integrada/concomitante/subsequente) pendente."
     },
     "qua_taxas_rendimento_ept": {
       "total_estado": {
+        "valor": 26.83,
         "aprovacao": 5.04,
         "reprovacao": 10.0,
         "abandono": 26.83,
@@ -99,10 +100,10 @@
         "vs_media_nacional": 8.97,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 19,
-        "valor": 26.83
+        "posicao": 19
       },
       "rede_estadual": {
+        "valor": null,
         "aprovacao": null,
         "reprovacao": null,
         "abandono": null,
@@ -110,11 +111,11 @@
         "vs_media_nacional": null,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": null,
-        "valor": null
+        "posicao": null
       },
+      "polaridade_inversa": true,
       "vintage": "2024",
-      "caveat": "Taxas EM agregadas das escolas que ofertam EPT (proxy). Conclusão de coorte real exige cruzamento nominativo."
+      "caveat": "Taxa de abandono EM ponderada por matrículas EPT (proxy). taxa_aprovacao_em do BD está em escala atípica (~0-20) e foi exibida no card mas não usada para ranking."
     },
     "qua_ideb_escolas_ept": {
       "total_estado": {
@@ -146,52 +147,36 @@
     },
     "qua_razao_aluno_professor_ept": {
       "total_estado": {
-        "valor": 14.72,
+        "valor": 10.53,
         "valor_5y": [
-          13.25,
-          12.4,
-          13.58,
-          14.47,
-          14.72
+          10.53
         ],
         "anos_5y": [
-          2016,
-          2017,
-          2018,
-          2019,
-          2020
+          2024
         ],
-        "vs_top_quartile": -1.02,
-        "vs_media_nacional": -0.95,
+        "vs_top_quartile": -5.6,
+        "vs_media_nacional": -3.2,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 15
+        "posicao": 8
       },
       "rede_estadual": {
-        "valor": 11.01,
+        "valor": 7.84,
         "valor_5y": [
-          7.65,
-          8.2,
-          9.52,
-          11.77,
-          11.01
+          7.84
         ],
         "anos_5y": [
-          2016,
-          2017,
-          2018,
-          2019,
-          2020
+          2024
         ],
-        "vs_top_quartile": -6.08,
-        "vs_media_nacional": -3.55,
+        "vs_top_quartile": -5.86,
+        "vs_media_nacional": -3.29,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 13
+        "posicao": 14
       },
       "polaridade_inversa": true,
-      "vintage": "2020",
-      "caveat": "Razão menor é melhor. Numerador é matrícula, denominador é docente único."
+      "vintage": "2024",
+      "caveat": "Razão menor é melhor. Agregação a nível escola (Censo Escolar via tabela escola). Docentes que atuam em múltiplas escolas são contados em cada uma."
     },
     "inf_conectividade_ept": {
       "total_estado": {
@@ -237,6 +222,7 @@
     },
     "mer_saldo_caged_tecnicos": {
       "total_estado": {
+        "valor": 1313.0,
         "saldo_12m": 1313,
         "top_3_subfamilias_cbo": [
           {
@@ -265,25 +251,23 @@
           2023,
           2024,
           2025
-        ],
-        "meta_pne_aplicavel": false,
-        "valor": 1313.0,
-        "ranking_aplicavel": false
+        ]
       },
       "vintage": "2025-Q1",
       "caveat": "Apenas vínculos formais. CBO 3xxxx exclui ocupações afins em 5xxxx/7xxxx."
     },
     "mer_premio_salarial_escolaridade": {
       "total_estado": {
+        "valor": 100.6,
         "medianas_brl_real": {
-          "sem_ensino_medio": 1781.91,
-          "ensino_medio_completo": 1943.8,
+          "sem_ensino_medio": 1782.45,
+          "ensino_medio_completo": 1943.92,
           "superior_completo": 3900.0
         },
         "premios_pct": {
           "em_vs_sem_em": 9.1,
           "superior_vs_em": 100.6,
-          "superior_vs_sem_em": 118.9
+          "superior_vs_sem_em": 118.8
         },
         "premio_ept_especifico_publicamente_mensuravel": false,
         "vintage_rais": "2023",
@@ -291,8 +275,7 @@
         "vs_media_nacional": -15.27,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
-        "posicao": 18,
-        "valor": 100.6
+        "posicao": 18
       },
       "vintage": "2023",
       "caveat": "RAIS não distingue EM regular de EM técnico em microdados públicos. Prêmio EPT específico exige cruzamento Censo×RAIS por CPF."
@@ -339,50 +322,46 @@
     },
     "din_crescimento_matriculas_5y": {
       "total_estado": {
-        "crescimento_5y_pct": -12.67,
-        "cagr_5y_pct": -2.67,
-        "matriculas_base": 32162,
-        "matriculas_atual": 28086,
-        "vs_top_quartile": -26.0,
-        "vs_media_nacional": -19.23,
-        "vs_meta_pne_2034": -72.67,
+        "valor": 33.12,
+        "crescimento_5y_pct": 33.12,
+        "cagr_5y_pct": 5.89,
+        "matriculas_base": 33149,
+        "matriculas_atual": 44127,
+        "base_insuficiente": false,
+        "vs_top_quartile": -2.99,
+        "vs_media_nacional": -1.0,
+        "vs_meta_pne_2034": -26.880000000000003,
         "meta_pne_aplicavel": true,
-        "posicao": 20,
-        "valor": -12.67,
-        "base_insuficiente": false
+        "posicao": 10
       },
       "rede_estadual": {
-        "crescimento_5y_pct": 27.21,
-        "cagr_5y_pct": 4.93,
-        "matriculas_base": 7597,
-        "matriculas_atual": 9664,
-        "vs_top_quartile": -90.27,
-        "vs_media_nacional": -56.92,
-        "vs_meta_pne_2034": -32.79,
-        "meta_pne_aplicavel": true,
-        "posicao": 15,
-        "valor": 27.21,
-        "base_insuficiente": false
+        "valor": null,
+        "crescimento_5y_pct": null,
+        "cagr_5y_pct": null,
+        "matriculas_base": 0,
+        "matriculas_atual": 0,
+        "base_insuficiente": true,
+        "vs_top_quartile": null,
+        "vs_media_nacional": null,
+        "vs_meta_pne_2034": null,
+        "meta_pne_aplicavel": false,
+        "posicao": null
       },
-      "vintage": "2020",
-      "caveat": "Janela 2015→2020 (Censo matricula table). Decomposição por modalidade pendente."
+      "vintage": "2024",
+      "caveat": "Janela 2019→2024 (Censo Escolar via tabela turma). Redes com base <1000 matrículas têm crescimento suprimido (alta variância). Decomposição por modalidade pendente."
     },
     "din_cursos_novos_ept": {
       "total_estado": {
-        "cursos_novos_2y": 38,
-        "cursos_descontinuados_2y": 123,
-        "saldo_liquido_2y": -85,
-        "meta_pne_aplicavel": false,
-        "valor": -85.0,
-        "ranking_aplicavel": false
+        "valor": 35.0,
+        "cursos_novos_2y": 145,
+        "cursos_descontinuados_2y": 110,
+        "saldo_liquido_2y": 35
       },
       "rede_estadual": {
-        "cursos_novos_2y": 9,
-        "cursos_descontinuados_2y": 105,
-        "saldo_liquido_2y": -96,
-        "meta_pne_aplicavel": false,
-        "valor": -96.0,
-        "ranking_aplicavel": false
+        "valor": 0.0,
+        "cursos_novos_2y": 0,
+        "cursos_descontinuados_2y": 0,
+        "saldo_liquido_2y": 0
       },
       "vintage": "2024",
       "caveat": "Par escola+curso novo em 2024 que não existia 2020-2023."
@@ -466,9 +445,7 @@
           2022,
           2023,
           2024
-        ],
-        "meta_pne_aplicavel": false,
-        "ranking_aplicavel": false
+        ]
       },
       "rede_estadual": {
         "valor": 14546,
@@ -485,9 +462,7 @@
           2022,
           2023,
           2024
-        ],
-        "meta_pne_aplicavel": false,
-        "ranking_aplicavel": false
+        ]
       },
       "vintage": "2024",
       "caveat": "Curso subsequente = curso técnico após conclusão do EM. Meta 2036: +60% sobre a base 2020."
@@ -515,28 +490,49 @@
     },
     "cob_perfil_alunos": {
       "total_estado": {
-        "total_matriculas_ept": 28086,
-        "faixa_etaria": {
-          "15_17_pct": 18.6,
-          "18_24_pct": 36.1,
-          "25_mais_pct": 45.2
-        },
+        "valor": 44127.0,
+        "total_matriculas_ept": 44127,
+        "qtd_escolas_ept": 116,
         "sexo": {
-          "masculino_pct": 44.5,
-          "feminino_pct": 55.5
+          "feminino_pct": 50.3,
+          "masculino_pct": 35.2,
+          "nao_declarado_pct": 14.5
         },
-        "modalidade": {
-          "integrada_pct": 16.8,
-          "concomitante_pct": 22.6,
-          "subsequente_pct": 60.0,
-          "eja_tecnico_pct": 0.6
+        "raca_cor": {
+          "branca_pct": 10.7,
+          "preta_pct": 1.3,
+          "parda_pct": 84.2,
+          "amarela_pct": 0.2,
+          "indigena_pct": 3.6
         },
-        "meta_pne_aplicavel": false,
-        "valor": 28086.0,
-        "ranking_aplicavel": false
+        "faixa_etaria": {
+          "15_17_pct": 27.1,
+          "18_mais_pct": 72.9
+        }
       },
-      "vintage": "2020",
-      "caveat": "Perfil sociodemográfico extraído de matricula table; modalidade extraída dos agregados de escola."
+      "rede_estadual": {
+        "valor": 22568.0,
+        "total_matriculas_ept": 22568,
+        "qtd_escolas_ept": 68,
+        "sexo": {
+          "feminino_pct": 49.7,
+          "masculino_pct": 33.0,
+          "nao_declarado_pct": 17.2
+        },
+        "raca_cor": {
+          "branca_pct": 9.9,
+          "preta_pct": 1.3,
+          "parda_pct": 86.1,
+          "amarela_pct": 0.2,
+          "indigena_pct": 2.4
+        },
+        "faixa_etaria": {
+          "15_17_pct": 19.6,
+          "18_mais_pct": 80.4
+        }
+      },
+      "vintage": "2024",
+      "caveat": "Perfil agregado das escolas que ofertam EPT (Censo Escolar via tabela escola). Inclui matrículas não-EPT da mesma escola; mais fiel para escolas dedicadas (Senai, IFs, escolas técnicas)."
     },
     "cob_alcance_ponderado": {
       "total_estado": {
@@ -555,6 +551,7 @@
     },
     "qua_saeb_proficiencia_ept": {
       "total_estado": {
+        "valor": null,
         "matematica": {
           "com_ept": 243.8,
           "sem_ept": null,
@@ -572,10 +569,11 @@
         "posicao": null
       },
       "vintage": "2023",
-      "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT."
+      "caveat": "SAEB amostral. Comparação por município: alunos em municípios com pelo menos uma escola EPT vs alunos em municípios sem nenhuma escola EPT. 'valor' = média dos prêmios MT+LP."
     },
     "qua_abandono_em_ept": {
       "total_estado": {
+        "valor": null,
         "com_ept_pct": null,
         "sem_ept_pct": 4.03,
         "diferenca_pp": null,
@@ -587,6 +585,510 @@
       },
       "vintage": "2024",
       "caveat": "Taxa publicada pelo INEP, ponderada pelas matrículas EM da escola. Comparação intra-rede estadual."
+    },
+    "mer_demanda_cbo_top": {
+      "total_estado": {
+        "ano_referencia": 2025,
+        "top_saldo": [
+          {
+            "cbo": "322205",
+            "descricao": "Técnico De Enfermagem",
+            "saldo_12m": 181,
+            "n_admissoes": 1588,
+            "salario_mediano": 1749.0,
+            "salario_p25": 1650.0,
+            "salario_p75": 1815.0
+          },
+          {
+            "cbo": "391215",
+            "descricao": "Operador De Inspeção De Qualidade",
+            "saldo_12m": 119,
+            "n_admissoes": 1145,
+            "salario_mediano": 2200.0,
+            "salario_p25": 1915.74,
+            "salario_p75": 2200.0
+          },
+          {
+            "cbo": "354125",
+            "descricao": "Assistente De Vendas",
+            "saldo_12m": 84,
+            "n_admissoes": 1241,
+            "salario_mediano": 1525.0,
+            "salario_p25": 1518.0,
+            "salario_p75": 1636.32
+          },
+          {
+            "cbo": "351505",
+            "descricao": "Técnico Em Secretariado",
+            "saldo_12m": 60,
+            "n_admissoes": 246,
+            "salario_mediano": 1830.15,
+            "salario_p25": 1830.15,
+            "salario_p75": 1830.15
+          },
+          {
+            "cbo": "317110",
+            "descricao": "Desenvolvedor De Sistemas De Tecnologia Da Informação (Técnico)",
+            "saldo_12m": 57,
+            "n_admissoes": 254,
+            "salario_mediano": 4000.0,
+            "salario_p25": 2151.13,
+            "salario_p75": 5500.0
+          },
+          {
+            "cbo": "324205",
+            "descricao": "Técnico Em Patologia Clínica",
+            "saldo_12m": 52,
+            "n_admissoes": 285,
+            "salario_mediano": 1700.0,
+            "salario_p25": 1600.0,
+            "salario_p75": 1790.44
+          },
+          {
+            "cbo": "354145",
+            "descricao": "Vendedor Pracista",
+            "saldo_12m": 51,
+            "n_admissoes": 301,
+            "salario_mediano": 1518.0,
+            "salario_p25": 1518.0,
+            "salario_p75": 1525.0
+          },
+          {
+            "cbo": "351605",
+            "descricao": "Técnico Em Segurança Do Trabalho",
+            "saldo_12m": 49,
+            "n_admissoes": 755,
+            "salario_mediano": 3390.0,
+            "salario_p25": 2700.0,
+            "salario_p75": 4090.87
+          },
+          {
+            "cbo": "312320",
+            "descricao": "Topógrafo",
+            "saldo_12m": 46,
+            "n_admissoes": 107,
+            "salario_mediano": 2043.8,
+            "salario_p25": 1900.0,
+            "salario_p75": 3200.0
+          },
+          {
+            "cbo": "374420",
+            "descricao": "Montador De Filmes",
+            "saldo_12m": 44,
+            "n_admissoes": 122,
+            "salario_mediano": 1580.0,
+            "salario_p25": 1580.0,
+            "salario_p75": 1580.0
+          }
+        ],
+        "top_salario": [
+          {
+            "cbo": "317110",
+            "descricao": "Desenvolvedor De Sistemas De Tecnologia Da Informação (Técnico)",
+            "saldo_12m": 57,
+            "n_admissoes": 254,
+            "salario_mediano": 4000.0,
+            "salario_p25": 2151.13,
+            "salario_p75": 5500.0
+          },
+          {
+            "cbo": "351605",
+            "descricao": "Técnico Em Segurança Do Trabalho",
+            "saldo_12m": 49,
+            "n_admissoes": 755,
+            "salario_mediano": 3390.0,
+            "salario_p25": 2700.0,
+            "salario_p75": 4090.87
+          },
+          {
+            "cbo": "391215",
+            "descricao": "Operador De Inspeção De Qualidade",
+            "saldo_12m": 119,
+            "n_admissoes": 1145,
+            "salario_mediano": 2200.0,
+            "salario_p25": 1915.74,
+            "salario_p75": 2200.0
+          }
+        ],
+        "n_total_cbos_listados": 15
+      },
+      "vintage": "2025",
+      "caveat": "CAGED 2025 — saldo de movimentação em CBO 3xxxx (Técnicos de Nível Médio). Salário mediano apenas em admissões com salário > 0. Descrição CBO via diretório oficial; quando ausente, mostra código.",
+      "ranking_aplicavel": false
+    },
+    "mer_demanda_mesorregiao": {
+      "total_estado": {
+        "ano_referencia": 2025,
+        "mesorregioes": [
+          {
+            "id_mesorregiao": "1303",
+            "nome": "Centro Amazonense",
+            "sigla_uf": "AM",
+            "saldo_12m": 819,
+            "share_pct": 96.24,
+            "n_admissoes": 15893,
+            "salario_mediano": 1942.79,
+            "salario_p25": 1585.05,
+            "salario_p75": 2843.06
+          },
+          {
+            "id_mesorregiao": "1304",
+            "nome": "Sul Amazonense",
+            "sigla_uf": "AM",
+            "saldo_12m": 32,
+            "share_pct": 3.76,
+            "n_admissoes": 146,
+            "salario_mediano": 1518.0,
+            "salario_p25": 1518.0,
+            "salario_p75": 1923.08
+          }
+        ],
+        "n_mesorregioes": 2,
+        "saldo_total": 851,
+        "saldo_max": 819,
+        "saldo_min": 32,
+        "modo_nacional": false
+      },
+      "vintage": "2025",
+      "caveat": "CAGED 2025 — saldo CBO 3xxxx por mesorregião (IBGE). Mesorregiões com |saldo| < 30 suprimidas. Salário mediano só com n ≥ 50 admissões.",
+      "ranking_aplicavel": false
+    },
+    "mer_coorte_sintetica_pnad": {
+      "total_estado": {
+        "ano_base": 2024,
+        "ano_followup": 2025,
+        "trimestre": 1,
+        "coorte_base": {
+          "amostra_insuficiente": false,
+          "n_amostral": 511,
+          "so_formal_pct": 5.26,
+          "so_informal_pct": 22.73,
+          "formal_estuda_pct": 1.36,
+          "informal_estuda_pct": 1.74,
+          "so_estuda_pct": 11.04,
+          "neet_pct": 34.64,
+          "outro_estuda_pct": 23.24,
+          "trabalha_estuda_pct": 3.1,
+          "estuda_total_pct": 14.14,
+          "trabalha_total_pct": 31.09
+        },
+        "coorte_followup": {
+          "amostra_insuficiente": false,
+          "n_amostral": 456,
+          "so_formal_pct": 12.68,
+          "so_informal_pct": 25.42,
+          "formal_estuda_pct": 4.32,
+          "informal_estuda_pct": 3.24,
+          "so_estuda_pct": 14.01,
+          "neet_pct": 34.92,
+          "outro_estuda_pct": 5.4,
+          "trabalha_estuda_pct": 7.56,
+          "estuda_total_pct": 21.57,
+          "trabalha_total_pct": 45.66
+        },
+        "deltas_pp": {
+          "so_formal": 7.42,
+          "so_informal": 2.69,
+          "formal_estuda": 2.96,
+          "informal_estuda": 1.5,
+          "so_estuda": 2.97,
+          "neet": 0.28,
+          "outro_estuda": -17.84,
+          "trabalha_estuda": 4.46,
+          "estuda_total": 7.43,
+          "trabalha_total": 14.57
+        },
+        "por_sexo": {
+          "homens": {
+            "base": {
+              "amostra_insuficiente": false,
+              "n_amostral": 268,
+              "so_formal_pct": 7.11,
+              "so_informal_pct": 29.26,
+              "formal_estuda_pct": 1.44,
+              "informal_estuda_pct": 0.31,
+              "so_estuda_pct": 10.56,
+              "neet_pct": 28.14,
+              "outro_estuda_pct": 23.18,
+              "trabalha_estuda_pct": 1.75,
+              "estuda_total_pct": 12.31,
+              "trabalha_total_pct": 38.12
+            },
+            "followup": {
+              "amostra_insuficiente": false,
+              "n_amostral": 242,
+              "so_formal_pct": 21.62,
+              "so_informal_pct": 30.58,
+              "formal_estuda_pct": 3.34,
+              "informal_estuda_pct": 3.27,
+              "so_estuda_pct": 8.27,
+              "neet_pct": 26.86,
+              "outro_estuda_pct": 6.06,
+              "trabalha_estuda_pct": 6.61,
+              "estuda_total_pct": 14.88,
+              "trabalha_total_pct": 58.81
+            }
+          },
+          "mulheres": {
+            "base": {
+              "amostra_insuficiente": false,
+              "n_amostral": 243,
+              "so_formal_pct": 3.28,
+              "so_informal_pct": 15.78,
+              "formal_estuda_pct": 1.27,
+              "informal_estuda_pct": 3.27,
+              "so_estuda_pct": 11.54,
+              "neet_pct": 41.56,
+              "outro_estuda_pct": 23.31,
+              "trabalha_estuda_pct": 4.54,
+              "estuda_total_pct": 16.08,
+              "trabalha_total_pct": 23.6
+            },
+            "followup": {
+              "amostra_insuficiente": false,
+              "n_amostral": 214,
+              "so_formal_pct": 3.82,
+              "so_informal_pct": 20.3,
+              "formal_estuda_pct": 5.29,
+              "informal_estuda_pct": 3.21,
+              "so_estuda_pct": 19.71,
+              "neet_pct": 42.92,
+              "outro_estuda_pct": 4.74,
+              "trabalha_estuda_pct": 8.5,
+              "estuda_total_pct": 28.21,
+              "trabalha_total_pct": 32.62
+            }
+          }
+        }
+      },
+      "vintage": "2025",
+      "caveat": "PNAD Contínua Q1/2024 → Q1/2025. Coorte sintética: comparação de duas ondas independentes da amostra rotativa, não tracking individual. Cohort 18-20 completa (não filtrada por escolaridade). 'Cursa superior' = V3002='1' (frequenta) AND V3003A IN ('8','9','10','11') (graduação ou pós). Pesos V1028 oficiais. Categorias suprimidas com n_amostral < 50 (corte IBGE).",
+      "ranking_aplicavel": false
+    },
+    "mer_aderencia_eixo_cbo": {
+      "total_estado": {
+        "ano_oferta_censo": 2024,
+        "ano_demanda_caged": 2025,
+        "total_matriculas_ept": 44127,
+        "total_saldo_caged": 896,
+        "total_admissoes_caged": 14572,
+        "eixos": [
+          {
+            "eixo_id": 1,
+            "eixo_nome": "Ambiente e Saúde",
+            "oferta_n": 14957,
+            "oferta_pct": 33.9,
+            "demanda_saldo": 368,
+            "demanda_n_admissoes": 2709,
+            "demanda_pct": 18.59,
+            "gap_pp": 15.31,
+            "status": "over_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 2,
+            "eixo_nome": "Desenvolvimento Educacional e Social",
+            "oferta_n": 1317,
+            "oferta_pct": 2.98,
+            "demanda_saldo": 0,
+            "demanda_n_admissoes": 0,
+            "demanda_pct": 0.0,
+            "gap_pp": null,
+            "status": null,
+            "sem_dado": true
+          },
+          {
+            "eixo_id": 3,
+            "eixo_nome": "Controle e Processos Industriais",
+            "oferta_n": 4995,
+            "oferta_pct": 11.32,
+            "demanda_saldo": -174,
+            "demanda_n_admissoes": 1628,
+            "demanda_pct": 11.17,
+            "gap_pp": 0.15,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 4,
+            "eixo_nome": "Gestão e Negócios",
+            "oferta_n": 11949,
+            "oferta_pct": 27.08,
+            "demanda_saldo": 250,
+            "demanda_n_admissoes": 6942,
+            "demanda_pct": 47.64,
+            "gap_pp": -20.56,
+            "status": "under_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 5,
+            "eixo_nome": "Turismo, Hospitalidade e Lazer",
+            "oferta_n": 812,
+            "oferta_pct": 1.84,
+            "demanda_saldo": 10,
+            "demanda_n_admissoes": 30,
+            "demanda_pct": 0.21,
+            "gap_pp": 1.63,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 6,
+            "eixo_nome": "Informação e Comunicação",
+            "oferta_n": 4339,
+            "oferta_pct": 9.83,
+            "demanda_saldo": 104,
+            "demanda_n_admissoes": 628,
+            "demanda_pct": 4.31,
+            "gap_pp": 5.52,
+            "status": "over_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 7,
+            "eixo_nome": "Infraestrutura",
+            "oferta_n": 543,
+            "oferta_pct": 1.23,
+            "demanda_saldo": 108,
+            "demanda_n_admissoes": 614,
+            "demanda_pct": 4.21,
+            "gap_pp": -2.98,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 8,
+            "eixo_nome": "Militar",
+            "oferta_n": 0,
+            "oferta_pct": 0.0,
+            "demanda_saldo": 0,
+            "demanda_n_admissoes": 0,
+            "demanda_pct": 0.0,
+            "gap_pp": null,
+            "status": null,
+            "sem_dado": true
+          },
+          {
+            "eixo_id": 9,
+            "eixo_nome": "Produção Alimentícia",
+            "oferta_n": 66,
+            "oferta_pct": 0.15,
+            "demanda_saldo": 14,
+            "demanda_n_admissoes": 40,
+            "demanda_pct": 0.27,
+            "gap_pp": -0.12,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 10,
+            "eixo_nome": "Produção Cultural e Design",
+            "oferta_n": 475,
+            "oferta_pct": 1.08,
+            "demanda_saldo": 46,
+            "demanda_n_admissoes": 205,
+            "demanda_pct": 1.41,
+            "gap_pp": -0.33,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 11,
+            "eixo_nome": "Produção Industrial",
+            "oferta_n": 623,
+            "oferta_pct": 1.41,
+            "demanda_saldo": 94,
+            "demanda_n_admissoes": 906,
+            "demanda_pct": 6.22,
+            "gap_pp": -4.81,
+            "status": "match",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 12,
+            "eixo_nome": "Recursos Naturais",
+            "oferta_n": 3012,
+            "oferta_pct": 6.83,
+            "demanda_saldo": 27,
+            "demanda_n_admissoes": 115,
+            "demanda_pct": 0.79,
+            "gap_pp": 6.04,
+            "status": "over_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 13,
+            "eixo_nome": "Segurança",
+            "oferta_n": 1039,
+            "oferta_pct": 2.35,
+            "demanda_saldo": 49,
+            "demanda_n_admissoes": 755,
+            "demanda_pct": 5.18,
+            "gap_pp": -2.83,
+            "status": "match",
+            "sem_dado": false
+          }
+        ],
+        "top_under_supply": [
+          {
+            "eixo_id": 4,
+            "eixo_nome": "Gestão e Negócios",
+            "oferta_n": 11949,
+            "oferta_pct": 27.08,
+            "demanda_saldo": 250,
+            "demanda_n_admissoes": 6942,
+            "demanda_pct": 47.64,
+            "gap_pp": -20.56,
+            "status": "under_supply",
+            "sem_dado": false
+          }
+        ],
+        "top_over_supply": [
+          {
+            "eixo_id": 1,
+            "eixo_nome": "Ambiente e Saúde",
+            "oferta_n": 14957,
+            "oferta_pct": 33.9,
+            "demanda_saldo": 368,
+            "demanda_n_admissoes": 2709,
+            "demanda_pct": 18.59,
+            "gap_pp": 15.31,
+            "status": "over_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 12,
+            "eixo_nome": "Recursos Naturais",
+            "oferta_n": 3012,
+            "oferta_pct": 6.83,
+            "demanda_saldo": 27,
+            "demanda_n_admissoes": 115,
+            "demanda_pct": 0.79,
+            "gap_pp": 6.04,
+            "status": "over_supply",
+            "sem_dado": false
+          },
+          {
+            "eixo_id": 6,
+            "eixo_nome": "Informação e Comunicação",
+            "oferta_n": 4339,
+            "oferta_pct": 9.83,
+            "demanda_saldo": 104,
+            "demanda_n_admissoes": 628,
+            "demanda_pct": 4.31,
+            "gap_pp": 5.52,
+            "status": "over_supply",
+            "sem_dado": false
+          }
+        ],
+        "n_match": 7,
+        "n_over_supply": 3,
+        "n_under_supply": 1
+      },
+      "vintage": "2024",
+      "caveat": "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar — agregado da tabela turma com quantidade_matriculas, último ano disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao eixo. Admissões em vez de saldo: saldo subdimensiona setores de alta rotatividade. Recorte CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx (Téc. da educação). CBOs 325205 (Téc Alimentos) e 325005 (Enólogo) atribuídas ao eixo 9 Produção Alimentícia em vez do catch-all 32x → Saúde. Eixo 2 Educacional/Social fica Sem Dado (demanda majoritária em CBO 33xxxx, filtrada por coerência). Eixo 8 Militar fica Sem Dado (CAGED não cobre FFAA estatutário). Demanda operacional (CBO 5xxxx-9xxxx) é majoritariamente atendida por FIC do Sistema S (SENAI/SENAR/SENAC), fora do escopo da rede EPT estadual — não cruzada aqui. Eixo INEP derivado de DIV(id_curso, 1000). Mapping CBO→eixo em etl/reference/eixo_cnct_to_cbo3.md.",
+      "ranking_aplicavel": false
     }
   }
 }

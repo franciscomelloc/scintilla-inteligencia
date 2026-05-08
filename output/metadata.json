@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-05T15:29:30.423012+00:00",
+  "generated_at": "2026-05-08T00:03:15.327864+00:00",
   "generator": "scintilla-inteligencia ETL",
   "catalog": {
-    "total_indicators": 20,
+    "total_indicators": 24,
     "domains": {
       "cobertura": 5,
       "qualidade": 3,
@@ -21,7 +21,7 @@
       "polaridade_inversa": false,
       "lag_months": 12,
       "source": [
-        "br_inep_censo_escolar.matricula"
+        "br_inep_censo_escolar.turma"
       ],
       "pne_meta": null
     },
@@ -50,7 +50,7 @@
       "polaridade_inversa": false,
       "lag_months": 12,
       "source": [
-        "br_inep_censo_escolar.matricula"
+        "br_inep_censo_escolar.turma"
       ],
       "pne_meta": null
     },
@@ -64,7 +64,7 @@
       "polaridade_inversa": false,
       "lag_months": 12,
       "source": [
-        "br_inep_censo_escolar.matricula"
+        "br_inep_censo_escolar.turma"
       ],
       "pne_meta": "integrada_concomitante_50pct_2036"
     },
@@ -177,7 +177,7 @@
       "polaridade_inversa": false,
       "lag_months": 12,
       "source": [
-        "br_inep_censo_escolar.matricula"
+        "br_inep_censo_escolar.turma"
       ],
       "pne_meta": "subsequente_60pct"
     },
@@ -191,7 +191,7 @@
       "polaridade_inversa": false,
       "lag_months": 12,
       "source": [
-        "br_inep_censo_escolar.matricula"
+        "br_inep_censo_escolar.turma"
       ],
       "pne_meta": null
     },
@@ -289,6 +289,61 @@
       "source": [
         "br_inep_indicadores_educacionais.escola",
         "br_inep_censo_escolar.escola"
+      ],
+      "pne_meta": null
+    },
+    "mer_demanda_cbo_top": {
+      "name": "Top 10 ocupações técnicas por saldo CAGED (12m)",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 3,
+      "source": [
+        "br_me_caged.microdados_movimentacao",
+        "br_bd_diretorios_brasil.cbo_2002"
+      ],
+      "pne_meta": null
+    },
+    "mer_demanda_mesorregiao": {
+      "name": "Saldo CBO 3xxxx por mesorregião IBGE (12m)",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 3,
+      "source": [
+        "br_me_caged.microdados_movimentacao",
+        "br_bd_diretorios_brasil.municipio"
+      ],
+      "pne_meta": null
+    },
+    "mer_coorte_sintetica_pnad": {
+      "name": "Coorte sintética 18-19 → 19-20 — 4 caminhos pós-EM (PNAD)",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
+      ],
+      "pne_meta": null
+    },
+    "mer_aderencia_eixo_cbo": {
+      "name": "Aderência oferta EPT × demanda CBO por eixo CNCT",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 3,
+      "source": [
+        "br_inep_censo_escolar.matricula",
+        "br_me_caged.microdados_movimentacao"
       ],
       "pne_meta": null
     }
