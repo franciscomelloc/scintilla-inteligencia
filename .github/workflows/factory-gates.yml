@@ -109,9 +109,10 @@ jobs:
           path: _factory
           ref: main
       - name: Run check
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          branch="${{ github.head_ref }}"
-          if bash _factory/scripts/check-contract-precedence.sh "$branch"; then
+          if bash _factory/scripts/check-contract-precedence.sh "$HEAD_REF"; then
             echo "Contract precedence OK"
           else
             exit 1
