@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-08T00:03:15.327864+00:00",
+  "generated_at": "2026-05-11T17:49:46.998942+00:00",
   "generator": "scintilla-inteligencia ETL",
   "catalog": {
-    "total_indicators": 24,
+    "total_indicators": 25,
     "domains": {
       "cobertura": 5,
       "qualidade": 3,
@@ -344,6 +344,19 @@
       "source": [
         "br_inep_censo_escolar.matricula",
         "br_me_caged.microdados_movimentacao"
+      ],
+      "pne_meta": null
+    },
+    "mer_desfecho_29_pnad": {
+      "name": "Desfecho aos 29 anos por raça×sexo — fim da janela jovem (PNAD)",
+      "domain": "mercado",
+      "recortes": [
+        "total_estado"
+      ],
+      "polaridade_inversa": false,
+      "lag_months": 6,
+      "source": [
+        "br_ibge_pnadc.microdados"
       ],
       "pne_meta": null
     }

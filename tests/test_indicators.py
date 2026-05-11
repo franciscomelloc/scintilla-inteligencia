@@ -8,17 +8,17 @@ from etl.indicators import (
 )
 
 
-def test_catalog_has_24_indicators():
-    """Total atual: 24 indicadores (6 cob + 5 qua + 1 inf + 7 mer + 2 din + 3 pne)."""
-    assert len(get_indicator_codes()) == 24
+def test_catalog_has_25_indicators():
+    """Total atual: 25 indicadores (6 cob + 5 qua + 1 inf + 8 mer + 2 din + 3 pne)."""
+    assert len(get_indicator_codes()) == 25
 
 
 def test_domain_distribution():
-    """Distribuição: 6 cob + 5 qua + 1 inf + 7 mer + 2 din + 3 pne."""
+    """Distribuição: 6 cob + 5 qua + 1 inf + 8 mer + 2 din + 3 pne."""
     assert len(get_indicators_by_domain("cobertura")) == 6
     assert len(get_indicators_by_domain("qualidade")) == 5
     assert len(get_indicators_by_domain("infraestrutura")) == 1
-    assert len(get_indicators_by_domain("mercado")) == 7
+    assert len(get_indicators_by_domain("mercado")) == 8
     assert len(get_indicators_by_domain("dinamismo")) == 2
     assert len(get_indicators_by_domain("pne")) == 3
 

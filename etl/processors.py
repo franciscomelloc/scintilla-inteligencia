@@ -1114,26 +1114,25 @@ def _detect_year(df: pd.DataFrame, col: str) -> int | None:
 
 def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     """SQL retorna linhas (ano, idade, sexo, caminho, pop_ponderada, n_amostral)
-    para 2 ondas: ano_followup-1 (jovens 18-19) e ano_followup (jovens 19-20).
+    para 4 idades-âncora (17, 21, 25, 29) observadas no ano mais recente.
 
-    Coorte sintética: PNAD trimestral é amostra rotativa; comparamos a turma
-    18-19 com EM completo no Q1 ano X com a turma 19-20 em Q1 ano X+1. Não
-    é tracking individual — é comparação de coortes etárias com mesmo perfil
-    educacional.
+    Quatro idades-âncora da janela jovem do Estatuto da Juventude (15-29):
+    17 (entrada), 21 (jovem em desenvolvimento), 25 (consolidação),
+    29 (saída). Cada idade observada como pool dos 4 trimestres do ano-âncora.
 
-    4 caminhos disjuntos: formal, informal, superior, neet (+ "outro" residual).
+    Coortes sintéticas no sentido Deaton 1985: três coortes de nascimento
+    diferentes comparadas no mesmo ano. Em 2024: 17=nascidos 2007,
+    21=nascidos 2003, 25=nascidos 1999, 29=nascidos 1995. Pessoas
+    diferentes por idade, estrutura "agora" da juventude no estado.
+
+    7 caminhos disjuntos: so_formal, so_informal, formal_estuda,
+    informal_estuda, so_estuda, outro_estuda, neet (soma 100% por idade).
     """
     if df.empty:
-        return _empty_indicator("Sem dados PNAD trimestral para coorte sintética.")
+        return _empty_indicator("Sem dados PNAD trimestral.")
 
-    if df["ano"].nunique() < 2:
-        return _empty_indicator(
-            "PNAD trimestral só com 1 ano disponível — coorte sintética exige 2 ondas."
-        )
-
-    anos_ordenados = sorted(df["ano"].dropna().unique().tolist())
-    ano_followup = int(anos_ordenados[-1])
-    ano_base = int(anos_ordenados[-2])
+    ano_followup = int(df["ano"].max())
+    idades_ancora = [17, 21, 25, 29]
 
     caminhos = [
         "so_formal",
@@ -1145,8 +1144,8 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
         "outro_estuda",
     ]
 
-    def _agg_coorte(sub: pd.DataFrame) -> dict[str, Any] | None:
-        """Agrega percentuais ponderados por caminho (6 categorias disjuntas)."""
+    def _agg_idade(sub: pd.DataFrame) -> dict[str, Any] | None:
+        """Agrega percentuais ponderados por caminho (7 categorias disjuntas)."""
         if sub.empty:
             return None
         total_pop = sub["pop_ponderada"].sum()
@@ -1161,7 +1160,6 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             mask = sub["caminho"] == cam
             pop_cam = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
             result[f"{cam}_pct"] = round(pop_cam / total_pop * 100, 2)
-        # Agregados úteis pra renderer e leitura
         result["trabalha_estuda_pct"] = round(
             result["formal_estuda_pct"] + result["informal_estuda_pct"], 2
         )
@@ -1175,60 +1173,117 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
             + result["informal_estuda_pct"],
             2,
         )
+        result["formal_total_pct"] = round(
+            result["so_formal_pct"] + result["formal_estuda_pct"], 2
+        )
         return {
             "amostra_insuficiente": False,
             "n_amostral": total_n,
             **result,
         }
 
-    # Coorte base: idade 18 ou 19 no ano_base
-    base_total = df[(df["ano"] == ano_base) & (df["idade"].isin([18, 19]))]
-    followup_total = df[(df["ano"] == ano_followup) & (df["idade"].isin([19, 20]))]
+    idades: dict[str, dict[str, Any] | None] = {}
+    por_sexo: dict[str, dict[str, dict[str, Any] | None]] = {}
 
-    coorte_base = _agg_coorte(base_total)
-    coorte_followup = _agg_coorte(followup_total)
-
-    # Por sexo
-    coorte_por_sexo: dict[str, dict[str, Any]] = {}
-    for sexo_code, sexo_label in [("1", "homens"), ("2", "mulheres")]:
-        b_sex = base_total[base_total["sexo"] == sexo_code]
-        f_sex = followup_total[followup_total["sexo"] == sexo_code]
-        coorte_por_sexo[sexo_label] = {
-            "base": _agg_coorte(b_sex),
-            "followup": _agg_coorte(f_sex),
-        }
-
-    # Deltas pp (followup - base) — só se ambos válidos
-    deltas: dict[str, float | None] = {}
-    if (
-        coorte_base
-        and coorte_followup
-        and not coorte_base.get("amostra_insuficiente")
-        and not coorte_followup.get("amostra_insuficiente")
-    ):
-        for cam in caminhos + ["trabalha_estuda", "estuda_total", "trabalha_total"]:
-            k = f"{cam}_pct"
-            b = coorte_base.get(k)
-            f = coorte_followup.get(k)
-            deltas[cam] = round(f - b, 2) if (b is not None and f is not None) else None
+    for idade in idades_ancora:
+        sub = df[df["idade"] == idade]
+        idades[str(idade)] = _agg_idade(sub)
+        por_sexo[str(idade)] = {}
+        for sexo_code, sexo_label in [("1", "homens"), ("2", "mulheres")]:
+            sub_sexo = sub[sub["sexo"] == sexo_code]
+            por_sexo[str(idade)][sexo_label] = _agg_idade(sub_sexo)
 
     return {
         "total_estado": {
-            "ano_base": ano_base,
-            "ano_followup": ano_followup,
-            "trimestre": 1,
-            "coorte_base": coorte_base,
-            "coorte_followup": coorte_followup,
-            "deltas_pp": deltas if deltas else None,
-            "por_sexo": coorte_por_sexo,
+            "ano": ano_followup,
+            "idades_ancora": idades_ancora,
+            "idades": idades,
+            "por_sexo": por_sexo,
         },
         "vintage": str(ano_followup),
         "caveat": (
-            f"PNAD Contínua Q1/{ano_base} → Q1/{ano_followup}. Coorte sintética: comparação "
-            "de duas ondas independentes da amostra rotativa, não tracking individual. "
-            "Cohort 18-20 completa (não filtrada por escolaridade). 'Cursa superior' = "
-            "V3002='1' (frequenta) AND V3003A IN ('8','9','10','11') (graduação ou pós). "
-            "Pesos V1028 oficiais. Categorias suprimidas com n_amostral < 50 (corte IBGE)."
+            f"PNAD Contínua {ano_followup}Q1-Q4 (pool dos 4 trimestres). "
+            "Quatro idades-âncora da janela jovem do Estatuto: 17 (entrada), 21, "
+            "25, 29 (saída). Três coortes sintéticas no sentido Deaton 1985 — "
+            "coortes de nascimento diferentes comparadas no mesmo ano. 17 = "
+            f"nascidos {ano_followup - 17}, 21 = {ano_followup - 21}, "
+            f"25 = {ano_followup - 25}, 29 = {ano_followup - 29}. Definição "
+            "formal: V4029='1' OR VD4009='07' (com carteira CLT em qualquer "
+            "setor OU militar/estatutário). Pesos V1028 oficiais. 7 categorias "
+            "disjuntas, soma 100% por idade. Suprimida com n_amostral < 50."
+        ),
+        "ranking_aplicavel": False,
+    }
+
+
+def mer_desfecho_29_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna (ano, sexo, raca, desfecho, pop_ponderada, n_amostral) para
+    pessoas com 29 anos (último ano do Estatuto da Juventude) no pool dos 4
+    trimestres do ano mais recente.
+
+    5 desfechos disjuntos (soma 100% por grupo demográfico):
+    - alta: ocupado, CBO GG 1 ou 2 (poder público, ciências/artes)
+    - media: ocupado, CBO GG 3 ou 4 (técnicos médio, serviços administrativos)
+    - baixa: ocupado, CBO GG 0 ou 5-9 (forças armadas, serviços, agropecuária,
+      indústria, manutenção)
+    - estudando: não ocupado, cursa qualquer nível
+    - neet: não ocupado, não cursa
+
+    4 grupos demográficos: HB, HN, MB, MN.
+    Amarela, Indígena, Ignorada suprimidas (~1% da coorte), igual atlas.
+    Grupo com n < 50 entra como amostra_insuficiente.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD trimestral para idade 29.")
+
+    ano_ref = int(df["ano"].max())
+    desfechos = ["alta", "media", "baixa", "estudando", "neet"]
+    # (label, sexo_code, raca_val)
+    grupos_def = [
+        ("HB", "1", "branca"),
+        ("HN", "1", "negra"),
+        ("MB", "2", "branca"),
+        ("MN", "2", "negra"),
+    ]
+
+    def _agg(sub: pd.DataFrame) -> dict[str, Any]:
+        if sub.empty:
+            return {"amostra_insuficiente": True, "n_amostral": 0}
+        total_pop = sub["pop_ponderada"].sum()
+        total_n = int(sub["n_amostral"].sum())
+        if total_pop <= 0 or total_n < 50:
+            return {"amostra_insuficiente": True, "n_amostral": total_n}
+        result: dict[str, Any] = {
+            "amostra_insuficiente": False,
+            "n_amostral": total_n,
+        }
+        for d in desfechos:
+            mask = sub["desfecho"] == d
+            pop_d = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
+            result[f"{d}_pct"] = round(pop_d / total_pop * 100, 2)
+        return result
+
+    grupos_out: dict[str, dict[str, Any]] = {}
+    for label, sexo_code, raca_val in grupos_def:
+        sub = df[(df["sexo"] == sexo_code) & (df["raca"] == raca_val)]
+        grupos_out[label] = _agg(sub)
+
+    return {
+        "total_estado": {
+            "ano": ano_ref,
+            "grupos_ordem": ["HB", "MB", "HN", "MN"],
+            "grupos": grupos_out,
+        },
+        "vintage": str(ano_ref),
+        "caveat": (
+            f"PNAD Contínua {ano_ref}Q1-Q4 (pool dos 4 trimestres). Idade 29, "
+            "último ano da juventude pelo Estatuto. 5 desfechos disjuntos: alta "
+            "especialização (CBO GG 1-2), média (GG 3-4), baixa (GG 0+5-9), "
+            "estudando não ocupado, NEET. 4 grupos raça×sexo (HB, HN, MB, MN); "
+            "Amarela, Indígena e Ignorada suprimidas no cruzamento por "
+            "insuficiência amostral (~1% da coorte), conforme atlas Juventudes "
+            "em Movimento. Grupo com n_amostral < 50 entra como supressão "
+            "(PNAD anual ou Censo demográfico exigidos para esse recorte)."
         ),
         "ranking_aplicavel": False,
     }
@@ -1267,4 +1322,5 @@ PROCESSORS = {
     "mer_demanda_mesorregiao": mer_demanda_mesorregiao,
     "mer_coorte_sintetica_pnad": mer_coorte_sintetica_pnad,
     "mer_aderencia_eixo_cbo": mer_aderencia_eixo_cbo,
+    "mer_desfecho_29_pnad": mer_desfecho_29_pnad,
 }
