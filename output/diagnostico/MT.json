@@ -8,7 +8,7 @@
     "pnad": "2025",
     "ideb": "2023"
   },
-  "last_built": "2026-05-07T23:56:14.572424+00:00",
+  "last_built": "2026-05-11T17:41:50.850497+00:00",
   "indicators": {
     "cob_distribuicao_dependencia": {
       "total_estado": {
@@ -270,9 +270,9 @@
       "total_estado": {
         "valor": 107.5,
         "medianas_brl_real": {
-          "sem_ensino_medio": 2290.84,
-          "ensino_medio_completo": 2180.27,
-          "superior_completo": 4523.3
+          "sem_ensino_medio": 2291.08,
+          "ensino_medio_completo": 2181.04,
+          "superior_completo": 4525.09
         },
         "premios_pct": {
           "em_vs_sem_em": -4.8,
@@ -282,7 +282,7 @@
         "premio_ept_especifico_publicamente_mensuravel": false,
         "vintage_rais": "2023",
         "vs_top_quartile": -23.1,
-        "vs_media_nacional": -8.37,
+        "vs_media_nacional": -8.46,
         "vs_meta_pne_2034": null,
         "meta_pne_aplicavel": false,
         "posicao": 15
@@ -808,114 +808,208 @@
     },
     "mer_coorte_sintetica_pnad": {
       "total_estado": {
-        "ano_base": 2024,
-        "ano_followup": 2025,
-        "trimestre": 1,
-        "coorte_base": {
-          "amostra_insuficiente": false,
-          "n_amostral": 362,
-          "so_formal_pct": 26.13,
-          "so_informal_pct": 15.66,
-          "formal_estuda_pct": 7.53,
-          "informal_estuda_pct": 3.28,
-          "so_estuda_pct": 8.9,
-          "neet_pct": 25.47,
-          "outro_estuda_pct": 13.02,
-          "trabalha_estuda_pct": 10.81,
-          "estuda_total_pct": 19.71,
-          "trabalha_total_pct": 52.6
-        },
-        "coorte_followup": {
-          "amostra_insuficiente": false,
-          "n_amostral": 363,
-          "so_formal_pct": 35.19,
-          "so_informal_pct": 17.52,
-          "formal_estuda_pct": 10.32,
-          "informal_estuda_pct": 3.02,
-          "so_estuda_pct": 10.49,
-          "neet_pct": 21.27,
-          "outro_estuda_pct": 2.18,
-          "trabalha_estuda_pct": 13.34,
-          "estuda_total_pct": 23.83,
-          "trabalha_total_pct": 66.05
-        },
-        "deltas_pp": {
-          "so_formal": 9.06,
-          "so_informal": 1.86,
-          "formal_estuda": 2.79,
-          "informal_estuda": -0.26,
-          "so_estuda": 1.59,
-          "neet": -4.2,
-          "outro_estuda": -10.84,
-          "trabalha_estuda": 2.53,
-          "estuda_total": 4.12,
-          "trabalha_total": 13.45
+        "ano": 2025,
+        "idades_ancora": [
+          17,
+          21,
+          25,
+          29
+        ],
+        "idades": {
+          "17": {
+            "amostra_insuficiente": false,
+            "n_amostral": 533,
+            "so_formal_pct": 13.05,
+            "so_informal_pct": 20.06,
+            "formal_estuda_pct": 0.0,
+            "informal_estuda_pct": 0.16,
+            "so_estuda_pct": 1.9,
+            "neet_pct": 8.83,
+            "outro_estuda_pct": 55.99,
+            "trabalha_estuda_pct": 0.16,
+            "estuda_total_pct": 2.06,
+            "trabalha_total_pct": 33.27,
+            "formal_total_pct": 13.05
+          },
+          "21": {
+            "amostra_insuficiente": false,
+            "n_amostral": 489,
+            "so_formal_pct": 40.03,
+            "so_informal_pct": 17.47,
+            "formal_estuda_pct": 9.23,
+            "informal_estuda_pct": 9.37,
+            "so_estuda_pct": 7.79,
+            "neet_pct": 14.64,
+            "outro_estuda_pct": 1.47,
+            "trabalha_estuda_pct": 18.6,
+            "estuda_total_pct": 26.39,
+            "trabalha_total_pct": 76.1,
+            "formal_total_pct": 49.26
+          },
+          "25": {
+            "amostra_insuficiente": false,
+            "n_amostral": 529,
+            "so_formal_pct": 46.25,
+            "so_informal_pct": 26.28,
+            "formal_estuda_pct": 6.68,
+            "informal_estuda_pct": 3.79,
+            "so_estuda_pct": 1.84,
+            "neet_pct": 15.16,
+            "outro_estuda_pct": 0.0,
+            "trabalha_estuda_pct": 10.47,
+            "estuda_total_pct": 12.31,
+            "trabalha_total_pct": 83.0,
+            "formal_total_pct": 52.93
+          },
+          "29": {
+            "amostra_insuficiente": false,
+            "n_amostral": 588,
+            "so_formal_pct": 32.23,
+            "so_informal_pct": 38.58,
+            "formal_estuda_pct": 5.16,
+            "informal_estuda_pct": 2.16,
+            "so_estuda_pct": 2.56,
+            "neet_pct": 19.29,
+            "outro_estuda_pct": 0.0,
+            "trabalha_estuda_pct": 7.32,
+            "estuda_total_pct": 9.88,
+            "trabalha_total_pct": 78.13,
+            "formal_total_pct": 37.39
+          }
         },
         "por_sexo": {
-          "homens": {
-            "base": {
+          "17": {
+            "homens": {
               "amostra_insuficiente": false,
-              "n_amostral": 196,
-              "so_formal_pct": 37.85,
-              "so_informal_pct": 19.49,
-              "formal_estuda_pct": 7.46,
-              "informal_estuda_pct": 1.95,
-              "so_estuda_pct": 9.45,
-              "neet_pct": 11.38,
-              "outro_estuda_pct": 12.42,
-              "trabalha_estuda_pct": 9.41,
-              "estuda_total_pct": 18.86,
-              "trabalha_total_pct": 66.75
+              "n_amostral": 261,
+              "so_formal_pct": 18.69,
+              "so_informal_pct": 27.53,
+              "formal_estuda_pct": 0.0,
+              "informal_estuda_pct": 0.31,
+              "so_estuda_pct": 1.58,
+              "neet_pct": 8.71,
+              "outro_estuda_pct": 43.17,
+              "trabalha_estuda_pct": 0.31,
+              "estuda_total_pct": 1.89,
+              "trabalha_total_pct": 46.53,
+              "formal_total_pct": 18.69
             },
-            "followup": {
+            "mulheres": {
               "amostra_insuficiente": false,
-              "n_amostral": 173,
-              "so_formal_pct": 41.91,
-              "so_informal_pct": 22.73,
-              "formal_estuda_pct": 10.62,
-              "informal_estuda_pct": 2.33,
-              "so_estuda_pct": 8.08,
-              "neet_pct": 13.47,
-              "outro_estuda_pct": 0.86,
-              "trabalha_estuda_pct": 12.95,
-              "estuda_total_pct": 21.03,
-              "trabalha_total_pct": 77.59
+              "n_amostral": 272,
+              "so_formal_pct": 7.16,
+              "so_informal_pct": 12.27,
+              "formal_estuda_pct": 0.0,
+              "informal_estuda_pct": 0.0,
+              "so_estuda_pct": 2.24,
+              "neet_pct": 8.96,
+              "outro_estuda_pct": 69.37,
+              "trabalha_estuda_pct": 0.0,
+              "estuda_total_pct": 2.24,
+              "trabalha_total_pct": 19.43,
+              "formal_total_pct": 7.16
             }
           },
-          "mulheres": {
-            "base": {
+          "21": {
+            "homens": {
               "amostra_insuficiente": false,
-              "n_amostral": 166,
-              "so_formal_pct": 12.98,
-              "so_informal_pct": 11.36,
-              "formal_estuda_pct": 7.61,
-              "informal_estuda_pct": 4.78,
-              "so_estuda_pct": 8.29,
-              "neet_pct": 41.28,
-              "outro_estuda_pct": 13.7,
-              "trabalha_estuda_pct": 12.39,
-              "estuda_total_pct": 20.68,
-              "trabalha_total_pct": 36.73
+              "n_amostral": 209,
+              "so_formal_pct": 47.58,
+              "so_informal_pct": 25.09,
+              "formal_estuda_pct": 5.45,
+              "informal_estuda_pct": 5.06,
+              "so_estuda_pct": 4.7,
+              "neet_pct": 10.32,
+              "outro_estuda_pct": 1.79,
+              "trabalha_estuda_pct": 10.51,
+              "estuda_total_pct": 15.21,
+              "trabalha_total_pct": 83.18,
+              "formal_total_pct": 53.03
             },
-            "followup": {
+            "mulheres": {
               "amostra_insuficiente": false,
-              "n_amostral": 190,
-              "so_formal_pct": 29.35,
-              "so_informal_pct": 12.99,
-              "formal_estuda_pct": 10.07,
-              "informal_estuda_pct": 3.62,
-              "so_estuda_pct": 12.59,
-              "neet_pct": 28.05,
-              "outro_estuda_pct": 3.33,
-              "trabalha_estuda_pct": 13.69,
-              "estuda_total_pct": 26.28,
-              "trabalha_total_pct": 56.03
+              "n_amostral": 280,
+              "so_formal_pct": 34.51,
+              "so_informal_pct": 11.9,
+              "formal_estuda_pct": 11.98,
+              "informal_estuda_pct": 12.53,
+              "so_estuda_pct": 10.05,
+              "neet_pct": 17.8,
+              "outro_estuda_pct": 1.23,
+              "trabalha_estuda_pct": 24.51,
+              "estuda_total_pct": 34.56,
+              "trabalha_total_pct": 70.92,
+              "formal_total_pct": 46.49
+            }
+          },
+          "25": {
+            "homens": {
+              "amostra_insuficiente": false,
+              "n_amostral": 272,
+              "so_formal_pct": 52.73,
+              "so_informal_pct": 34.83,
+              "formal_estuda_pct": 3.51,
+              "informal_estuda_pct": 2.93,
+              "so_estuda_pct": 0.96,
+              "neet_pct": 5.04,
+              "outro_estuda_pct": 0.0,
+              "trabalha_estuda_pct": 6.44,
+              "estuda_total_pct": 7.4,
+              "trabalha_total_pct": 94.0,
+              "formal_total_pct": 56.24
+            },
+            "mulheres": {
+              "amostra_insuficiente": false,
+              "n_amostral": 257,
+              "so_formal_pct": 38.05,
+              "so_informal_pct": 15.47,
+              "formal_estuda_pct": 10.69,
+              "informal_estuda_pct": 4.87,
+              "so_estuda_pct": 2.95,
+              "neet_pct": 27.96,
+              "outro_estuda_pct": 0.0,
+              "trabalha_estuda_pct": 15.56,
+              "estuda_total_pct": 18.51,
+              "trabalha_total_pct": 69.08,
+              "formal_total_pct": 48.74
+            }
+          },
+          "29": {
+            "homens": {
+              "amostra_insuficiente": false,
+              "n_amostral": 297,
+              "so_formal_pct": 42.49,
+              "so_informal_pct": 46.49,
+              "formal_estuda_pct": 3.06,
+              "informal_estuda_pct": 1.58,
+              "so_estuda_pct": 0.38,
+              "neet_pct": 6.0,
+              "outro_estuda_pct": 0.0,
+              "trabalha_estuda_pct": 4.64,
+              "estuda_total_pct": 5.02,
+              "trabalha_total_pct": 93.62,
+              "formal_total_pct": 45.55
+            },
+            "mulheres": {
+              "amostra_insuficiente": false,
+              "n_amostral": 291,
+              "so_formal_pct": 21.66,
+              "so_informal_pct": 30.44,
+              "formal_estuda_pct": 7.33,
+              "informal_estuda_pct": 2.75,
+              "so_estuda_pct": 4.81,
+              "neet_pct": 33.01,
+              "outro_estuda_pct": 0.0,
+              "trabalha_estuda_pct": 10.08,
+              "estuda_total_pct": 14.89,
+              "trabalha_total_pct": 62.18,
+              "formal_total_pct": 28.99
             }
           }
         }
       },
       "vintage": "2025",
-      "caveat": "PNAD Contínua Q1/2024 → Q1/2025. Coorte sintética: comparação de duas ondas independentes da amostra rotativa, não tracking individual. Cohort 18-20 completa (não filtrada por escolaridade). 'Cursa superior' = V3002='1' (frequenta) AND V3003A IN ('8','9','10','11') (graduação ou pós). Pesos V1028 oficiais. Categorias suprimidas com n_amostral < 50 (corte IBGE).",
+      "caveat": "PNAD Contínua 2025Q1-Q4 (pool dos 4 trimestres). Quatro idades-âncora da janela jovem do Estatuto: 17 (entrada), 21, 25, 29 (saída). Três coortes sintéticas no sentido Deaton 1985 — coortes de nascimento diferentes comparadas no mesmo ano. 17 = nascidos 2008, 21 = 2004, 25 = 2000, 29 = 1996. Definição formal: V4029='1' OR VD4009='07' (com carteira CLT em qualquer setor OU militar/estatutário). Pesos V1028 oficiais. 7 categorias disjuntas, soma 100% por idade. Suprimida com n_amostral < 50.",
       "ranking_aplicavel": false
     },
     "mer_aderencia_eixo_cbo": {
@@ -1129,6 +1223,58 @@
       },
       "vintage": "2024",
       "caveat": "Aderência cruza matrículas EPT por eixo CNCT (Censo Escolar — agregado da tabela turma com quantidade_matriculas, último ano disponível na BD) com ADMISSÕES CAGED por CBO mapeada ao eixo. Admissões em vez de saldo: saldo subdimensiona setores de alta rotatividade. Recorte CBO 3xxxx (Técnicos Nível Médio), exceto 33xxxx (Téc. da educação). CBOs 325205 (Téc Alimentos) e 325005 (Enólogo) atribuídas ao eixo 9 Produção Alimentícia em vez do catch-all 32x → Saúde. Eixo 2 Educacional/Social fica Sem Dado (demanda majoritária em CBO 33xxxx, filtrada por coerência). Eixo 8 Militar fica Sem Dado (CAGED não cobre FFAA estatutário). Demanda operacional (CBO 5xxxx-9xxxx) é majoritariamente atendida por FIC do Sistema S (SENAI/SENAR/SENAC), fora do escopo da rede EPT estadual — não cruzada aqui. Eixo INEP derivado de DIV(id_curso, 1000). Mapping CBO→eixo em etl/reference/eixo_cnct_to_cbo3.md.",
+      "ranking_aplicavel": false
+    },
+    "mer_desfecho_29_pnad": {
+      "total_estado": {
+        "ano": 2025,
+        "grupos_ordem": [
+          "HB",
+          "MB",
+          "HN",
+          "MN"
+        ],
+        "grupos": {
+          "HB": {
+            "amostra_insuficiente": false,
+            "n_amostral": 77,
+            "alta_pct": 17.64,
+            "media_pct": 16.85,
+            "baixa_pct": 58.51,
+            "estudando_pct": 0.0,
+            "neet_pct": 7.01
+          },
+          "HN": {
+            "amostra_insuficiente": false,
+            "n_amostral": 217,
+            "alta_pct": 5.6,
+            "media_pct": 13.92,
+            "baixa_pct": 74.21,
+            "estudando_pct": 0.56,
+            "neet_pct": 5.71
+          },
+          "MB": {
+            "amostra_insuficiente": false,
+            "n_amostral": 63,
+            "alta_pct": 15.83,
+            "media_pct": 17.47,
+            "baixa_pct": 25.51,
+            "estudando_pct": 17.4,
+            "neet_pct": 23.78
+          },
+          "MN": {
+            "amostra_insuficiente": false,
+            "n_amostral": 222,
+            "alta_pct": 14.21,
+            "media_pct": 13.65,
+            "baixa_pct": 36.7,
+            "estudando_pct": 1.12,
+            "neet_pct": 34.32
+          }
+        }
+      },
+      "vintage": "2025",
+      "caveat": "PNAD Contínua 2025Q1-Q4 (pool dos 4 trimestres). Idade 29, último ano da juventude pelo Estatuto. 5 desfechos disjuntos: alta especialização (CBO GG 1-2), média (GG 3-4), baixa (GG 0+5-9), estudando não ocupado, NEET. 4 grupos raça×sexo (HB, HN, MB, MN); Amarela, Indígena e Ignorada suprimidas no cruzamento por insuficiência amostral (~1% da coorte), conforme atlas Juventudes em Movimento. Grupo com n_amostral < 50 entra como supressão (PNAD anual ou Censo demográfico exigidos para esse recorte).",
       "ranking_aplicavel": false
     }
   }
