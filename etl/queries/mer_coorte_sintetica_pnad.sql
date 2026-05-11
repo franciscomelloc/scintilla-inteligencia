@@ -1,49 +1,56 @@
 -- Indicador: mer_coorte_sintetica_pnad
 -- Recortes: apenas total_estado
--- Coorte sintética PNAD Contínua: jovens 18-19 anos em Q1 de um ano X são
--- acompanhados como turma 19-20 em Q1 do ano X+1. PNAD trimestral é amostra
--- rotativa por design — não é tracking individual. A "coorte sintética"
--- cruza duas ondas independentes da amostra com o mesmo perfil populacional.
+-- Quatro idades-ancora da janela jovem do Estatuto da Juventude (15-29):
+-- 17 (entrada), 21 (jovem em desenvolvimento), 25 (consolidacao),
+-- 29 (saida). Cada idade observada como pool dos 4 trimestres do ano
+-- mais recente disponivel na PNAD-C (2024Q1-Q4 hoje).
 --
--- Base: TODOS os jovens 18-20 (cohort completa, não filtrada por nível
--- educacional). % calculados sobre população total da idade — comparáveis a
--- benchmarks IBGE/INEP de taxa líquida de matrícula no ensino superior.
+-- Coortes sinteticas (Deaton 1985): tres coortes de nascimento
+-- diferentes comparadas no mesmo ano. 17 anos em 2024 = nascidos 2007;
+-- 21 = nascidos 2003; 25 = nascidos 1999; 29 = nascidos 1995. Pessoas
+-- diferentes por idade, estrutura "agora" da juventude no estado.
 --
--- Saída: 6 caminhos disjuntos calculados em cada onda:
--- - so_formal: ocupado com carteira/militar/estatutário, NÃO cursa superior
--- - so_informal: ocupado sem carteira, NÃO cursa superior
+-- Saida: 7 caminhos disjuntos em cada idade-ancora:
+-- - so_formal: ocupado com carteira/estatutario, NAO cursa superior
+-- - so_informal: ocupado sem carteira, NAO cursa superior
 -- - formal_estuda: ocupado com carteira E cursando superior
 -- - informal_estuda: ocupado sem carteira E cursando superior
 -- - so_estuda: cursando superior sem trabalhar
--- - neet: não ocupado e não frequenta escola
--- - outro: cursando ensino fundamental/médio/EJA (não superior) — capturado
---   como categoria residual; jovens 18-20 ainda em EM são ~10% da cohort.
+-- - neet: nao ocupado e nao frequenta escola
+-- - outro_estuda: cursando ensino fundamental/medio/EJA (nao superior)
 --
--- Variáveis PNAD usadas (codes confirmados via etl/diagnose.py):
+-- Variaveis PNAD usadas:
 --   V2007 sexo (1=H, 2=M)
 --   V2009 idade
---   V1028 peso pessoal pós-estratificado
---   V3002 frequenta escola atualmente — codes BD = ORIGINAL IBGE:
---          '1'=Sim frequenta, '2'=Não frequenta. (Verificado: V3002='1'
---          dá taxa freq 18-20 = 32-40%, batendo com IBGE; v3009A só
---          preenche quando V3002='2' — variável "curso anterior".)
---   V3003A curso ATUAL (preenchido só quando V3002='1'). Codes:
---          4=Fund regular, 5=Fund EJA, 6=Médio regular, 7=Médio EJA,
---          8=Superior graduação, 9=Especialização, 10=Mestrado, 11=Doutorado.
---          Filtro 8-11 = "cursando ensino superior".
---   VD4002 condição de ocupação (1=Ocupado, 2=Desocupado)
---   V4012 categoria do trabalho principal (1-7).
---   V4029 carteira de trabalho assinada ('1'=Sim, '2'=Não, aplicável quando
---          V4012 IN ('1','3') privado).
---   Definição FORMAL: V4029='1' OR V4012 IN ('2','4','5')
---          (com carteira / militar / público / empregador).
---          Informal = ocupado sem essas condições.
+--   V1028 peso pessoal pos-estratificado
+--   V3002 frequenta escola atualmente ('1'=Sim, '2'=Nao)
+--   V3003A curso ATUAL (preenchido so quando V3002='1'). Codes:
+--          4=Fund regular, 5=Fund EJA, 6=Medio regular, 7=Medio EJA,
+--          8=Superior graduacao, 9=Especializacao, 10=Mestrado,
+--          11=Doutorado. Filtro 8-11 = "cursando ensino superior".
+--   VD4002 condicao de ocupacao ('1'=Ocupado)
+--   V4029 carteira de trabalho assinada ('1'=Sim, '2'=Nao)
+--   VD4009 posicao na ocupacao principal (derivada IBGE, 10 categorias):
+--          01 priv c/cart   02 priv s/cart   03 dom c/cart   04 dom s/cart
+--          05 pub c/cart    06 pub s/cart    07 militar/estatutario
+--          08 empregador    09 conta-propria 10 trab.familiar auxiliar
+--
+-- Definicao operacional FORMAL (padrao atlas Scintilla):
+--   formal = V4029='1' OR VD4009='07'
+--   (com carteira CLT em qualquer setor OU militar/estatutario)
+--   V4029=1 ja cobre 01, 03 e 05. VD4009='07' acrescenta o estatutario
+--   que nao tem carteira CLT mas tem protecao previdenciaria integral.
+--
+-- Tratamento de nao-resposta (conservador): V4029 NR -> sem carteira;
+-- V3002 NR -> nao estuda; VD4002 NR -> nao ocupado.
 --
 -- Rigor:
--- - Pesa por V1028 (peso pessoal pós-estratificado oficial).
--- - n_amostral nominal reportado (sem peso) pra controle de variância.
--- - Mínimo n=50 (corte usual IBGE pra abertura UF/categoria); abaixo, a
---   métrica é suprimida e flag amostra_insuficiente=true.
+-- - Pesa por V1028.
+-- - n_amostral nominal reportado (sem peso) pra controle de variancia.
+-- - Pool dos 4 trimestres do ano-ancora quadruplica n efetivo vs recorte
+--   de Q1 apenas (corrige risco de supressao em UF pequena).
+-- - Minimo n=50 (corte usual IBGE pra abertura UF/idade); abaixo, a
+--   metrica e suprimida e flag amostra_insuficiente=true.
 
 WITH pnad AS (
   SELECT
@@ -55,13 +62,12 @@ WITH pnad AS (
     V3002,
     V3003A,
     VD4002,
-    V4012,
-    V4029
+    V4029,
+    VD4009
   FROM `basedosdados.br_ibge_pnadc.microdados`
   WHERE sigla_uf = @uf
-    AND trimestre = 1
     AND V1028 IS NOT NULL
-    AND V2009 BETWEEN 18 AND 20
+    AND V2009 IN (17, 21, 25, 29)
 ),
 
 ano_mais_recente AS (
@@ -78,13 +84,13 @@ categorizado AS (
     p.idade,
     p.peso,
     -- 7 caminhos disjuntos. "cursa superior" = V3002='1' (frequenta)
-    -- AND V3003A IN ('8','9','10','11') (graduação ou pós).
-    -- "Trabalha formal" = ocupado + (carteira sim OU militar/público/empregador).
+    -- AND V3003A IN ('8','9','10','11') (graduacao ou pos).
+    -- "Trabalha formal" = ocupado + (carteira sim OU militar/estatutario).
     CASE
       -- Cursando superior + trabalha formal
       WHEN p.V3002 = '1' AND p.V3003A IN ('8', '9', '10', '11')
            AND p.VD4002 = '1'
-           AND (p.V4029 = '1' OR p.V4012 IN ('2', '4', '5'))
+           AND (p.V4029 = '1' OR p.VD4009 = '07')
         THEN 'formal_estuda'
       -- Cursando superior + trabalha informal
       WHEN p.V3002 = '1' AND p.V3003A IN ('8', '9', '10', '11')
@@ -93,16 +99,16 @@ categorizado AS (
       -- Cursando superior sem trabalhar
       WHEN p.V3002 = '1' AND p.V3003A IN ('8', '9', '10', '11')
         THEN 'so_estuda'
-      -- Trabalha formal sem cursar superior (pode estar em EM, fora da escola, etc)
+      -- Trabalha formal sem cursar superior (pode estar em EM, fora da escola)
       WHEN p.VD4002 = '1'
-           AND (p.V4029 = '1' OR p.V4012 IN ('2', '4', '5'))
+           AND (p.V4029 = '1' OR p.VD4009 = '07')
         THEN 'so_formal'
       -- Trabalha informal sem cursar superior
       WHEN p.VD4002 = '1' THEN 'so_informal'
       -- NEET: nem ocupado nem frequenta escola
       WHEN COALESCE(p.VD4002, '0') != '1' AND COALESCE(p.V3002, '0') != '1'
         THEN 'neet'
-      -- Frequenta escola mas não em superior (Fund/Médio/EJA)
+      -- Frequenta escola mas nao em superior (Fund/Medio/EJA)
       ELSE 'outro_estuda'
     END AS caminho
   FROM pnad p
@@ -116,9 +122,6 @@ SELECT
   SUM(c.peso) AS pop_ponderada,
   COUNT(*) AS n_amostral
 FROM categorizado c
-WHERE c.ano IN (
-  (SELECT ano_followup FROM ano_mais_recente),
-  (SELECT ano_followup - 1 FROM ano_mais_recente)
-)
+WHERE c.ano = (SELECT ano_followup FROM ano_mais_recente)
 GROUP BY c.ano, c.idade, c.sexo, c.caminho
 ORDER BY c.ano, c.idade, c.sexo, c.caminho;
