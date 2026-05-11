@@ -1216,6 +1216,79 @@ def mer_coorte_sintetica_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
     }
 
 
+def mer_desfecho_29_pnad(df: pd.DataFrame, uf: str) -> dict[str, Any]:
+    """SQL retorna (ano, sexo, raca, desfecho, pop_ponderada, n_amostral) para
+    pessoas com 29 anos (último ano do Estatuto da Juventude) no pool dos 4
+    trimestres do ano mais recente.
+
+    5 desfechos disjuntos (soma 100% por grupo demográfico):
+    - alta: ocupado, CBO GG 1 ou 2 (poder público, ciências/artes)
+    - media: ocupado, CBO GG 3 ou 4 (técnicos médio, serviços administrativos)
+    - baixa: ocupado, CBO GG 0 ou 5-9 (forças armadas, serviços, agropecuária,
+      indústria, manutenção)
+    - estudando: não ocupado, cursa qualquer nível
+    - neet: não ocupado, não cursa
+
+    4 grupos demográficos: HB, HN, MB, MN.
+    Amarela, Indígena, Ignorada suprimidas (~1% da coorte), igual atlas.
+    Grupo com n < 50 entra como amostra_insuficiente.
+    """
+    if df.empty:
+        return _empty_indicator("Sem dados PNAD trimestral para idade 29.")
+
+    ano_ref = int(df["ano"].max())
+    desfechos = ["alta", "media", "baixa", "estudando", "neet"]
+    # (label, sexo_code, raca_val)
+    grupos_def = [
+        ("HB", "1", "branca"),
+        ("HN", "1", "negra"),
+        ("MB", "2", "branca"),
+        ("MN", "2", "negra"),
+    ]
+
+    def _agg(sub: pd.DataFrame) -> dict[str, Any]:
+        if sub.empty:
+            return {"amostra_insuficiente": True, "n_amostral": 0}
+        total_pop = sub["pop_ponderada"].sum()
+        total_n = int(sub["n_amostral"].sum())
+        if total_pop <= 0 or total_n < 50:
+            return {"amostra_insuficiente": True, "n_amostral": total_n}
+        result: dict[str, Any] = {
+            "amostra_insuficiente": False,
+            "n_amostral": total_n,
+        }
+        for d in desfechos:
+            mask = sub["desfecho"] == d
+            pop_d = sub.loc[mask, "pop_ponderada"].sum() if mask.any() else 0.0
+            result[f"{d}_pct"] = round(pop_d / total_pop * 100, 2)
+        return result
+
+    grupos_out: dict[str, dict[str, Any]] = {}
+    for label, sexo_code, raca_val in grupos_def:
+        sub = df[(df["sexo"] == sexo_code) & (df["raca"] == raca_val)]
+        grupos_out[label] = _agg(sub)
+
+    return {
+        "total_estado": {
+            "ano": ano_ref,
+            "grupos_ordem": ["HB", "MB", "HN", "MN"],
+            "grupos": grupos_out,
+        },
+        "vintage": str(ano_ref),
+        "caveat": (
+            f"PNAD Contínua {ano_ref}Q1-Q4 (pool dos 4 trimestres). Idade 29, "
+            "último ano da juventude pelo Estatuto. 5 desfechos disjuntos: alta "
+            "especialização (CBO GG 1-2), média (GG 3-4), baixa (GG 0+5-9), "
+            "estudando não ocupado, NEET. 4 grupos raça×sexo (HB, HN, MB, MN); "
+            "Amarela, Indígena e Ignorada suprimidas no cruzamento por "
+            "insuficiência amostral (~1% da coorte), conforme atlas Juventudes "
+            "em Movimento. Grupo com n_amostral < 50 entra como supressão "
+            "(PNAD anual ou Censo demográfico exigidos para esse recorte)."
+        ),
+        "ranking_aplicavel": False,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
@@ -1249,4 +1322,5 @@ PROCESSORS = {
     "mer_demanda_mesorregiao": mer_demanda_mesorregiao,
     "mer_coorte_sintetica_pnad": mer_coorte_sintetica_pnad,
     "mer_aderencia_eixo_cbo": mer_aderencia_eixo_cbo,
+    "mer_desfecho_29_pnad": mer_desfecho_29_pnad,
 }

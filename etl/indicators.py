@@ -313,6 +313,16 @@ INDICATOR_CATALOG: dict[str, dict[str, Any]] = {
         "pne_meta": None,
         "ranking_aplicavel": False,
     },
+    "mer_desfecho_29_pnad": {
+        "domain": "mercado",
+        "name": "Desfecho aos 29 anos por raça×sexo — fim da janela jovem (PNAD)",
+        "recortes": ["total_estado"],
+        "polaridade_inversa": False,
+        "lag_months": 6,
+        "source": ["br_ibge_pnadc.microdados"],
+        "pne_meta": None,
+        "ranking_aplicavel": False,
+    },
 }
 
 
