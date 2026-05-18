@@ -48,6 +48,44 @@ def test_run_uses_scalar_query_parameter_for_uf(_mock_load, mock_get_client):
 
 
 @patch.object(BQRunner, "get_client")
+@patch.object(BQRunner, "load_query", return_value="SELECT 1 FROM t WHERE sigla_uf = @uf")
+def test_run_sets_maximum_bytes_billed_default(_mock_load, mock_get_client):
+    """Job de execução real tem cap de 5 GB faturáveis por padrão."""
+    fake_client = MagicMock()
+    fake_df = MagicMock()
+    fake_df.__len__ = MagicMock(return_value=0)
+    fake_client.query.return_value.result.return_value.to_dataframe.return_value = fake_df
+    mock_get_client.return_value = fake_client
+
+    BQRunner.run("cob_eixos_cobertos", "MG")
+
+    # Pega último call (a execução real, não o dry-run que vem antes)
+    calls = fake_client.query.call_args_list
+    real_call = calls[-1]
+    job_config = real_call.kwargs.get("job_config") or real_call.args[1]
+    assert job_config.maximum_bytes_billed == 5 * 1024**3
+    assert job_config.use_query_cache is True
+
+
+@patch.object(BQRunner, "get_client")
+@patch.object(BQRunner, "load_query", return_value="SELECT 1 FROM t WHERE sigla_uf = @uf")
+def test_run_accepts_custom_max_gb(_mock_load, mock_get_client):
+    """`max_gb=10` aumenta o cap para 10 GB faturáveis na execução real."""
+    fake_client = MagicMock()
+    fake_df = MagicMock()
+    fake_df.__len__ = MagicMock(return_value=0)
+    fake_client.query.return_value.result.return_value.to_dataframe.return_value = fake_df
+    mock_get_client.return_value = fake_client
+
+    BQRunner.run("cob_eixos_cobertos", "MG", max_gb=10)
+
+    calls = fake_client.query.call_args_list
+    real_call = calls[-1]
+    job_config = real_call.kwargs.get("job_config") or real_call.args[1]
+    assert job_config.maximum_bytes_billed == 10 * 1024**3
+
+
+@patch.object(BQRunner, "get_client")
 @patch.object(
     BQRunner,
     "load_query",

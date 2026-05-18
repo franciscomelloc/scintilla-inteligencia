@@ -29,6 +29,11 @@ OUTPUT_DIR = ROOT / "output"
 # Aceita letra inicial + letras/dígitos/_/-, máximo 128 chars (limite BQ).
 _IDENT = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,127}$")
 
+# Cap por query em INFORMATION_SCHEMA. Cada query individual aqui é metadata-only
+# e deveria varrer <100 MB. 1 GB é folga generosa que ainda corta surpresa
+# (a varredura de SCHEMATA do projeto basedosdados já gastou 158 GB num passado).
+_MAX_BYTES_INTROSPECT = 1 * 1024**3
+
 
 def _validate_ident(*values: str) -> None:
     """Valida cada identificador contra allowlist. Lança ValueError no primeiro inválido."""
@@ -68,7 +73,8 @@ def fetch_columns(client, project: str, dataset: str, table: str) -> list[dict[s
     ORDER BY ordinal_position
     """
     job_config = bigquery.QueryJobConfig(
-        query_parameters=[bigquery.ScalarQueryParameter("table_name", "STRING", table)]
+        query_parameters=[bigquery.ScalarQueryParameter("table_name", "STRING", table)],
+        maximum_bytes_billed=_MAX_BYTES_INTROSPECT,
     )
     try:
         rows = list(client.query(query, job_config=job_config).result())
@@ -125,7 +131,11 @@ def main() -> int:
     ORDER BY schema_name
     """
     try:
-        schemas = [row.schema_name for row in client.query(discovery_query).result()]
+        discovery_config = bigquery.QueryJobConfig(maximum_bytes_billed=_MAX_BYTES_INTROSPECT)
+        schemas = [
+            row.schema_name
+            for row in client.query(discovery_query, job_config=discovery_config).result()
+        ]
         report["education_schemas"] = schemas
         logger.info(f"Schemas educacionais encontrados: {schemas}")
 
@@ -139,7 +149,11 @@ def main() -> int:
                 FROM `basedosdados.{schema}.INFORMATION_SCHEMA.TABLES`
                 ORDER BY table_name
                 """
-                tables = [row.table_name for row in client.query(tbl_query).result()]
+                tbl_config = bigquery.QueryJobConfig(maximum_bytes_billed=_MAX_BYTES_INTROSPECT)
+                tables = [
+                    row.table_name
+                    for row in client.query(tbl_query, job_config=tbl_config).result()
+                ]
                 report[f"tables_in_{schema}"] = tables
                 for t in tables:
                     if any(
